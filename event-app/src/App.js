@@ -1,26 +1,33 @@
 import './App.css';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import PublicEvents from './components/PublicEvents';
 
 function App() {
   return (
+    <BrowserRouter>
     <div className="App">
       <header className="App-header">
-        <p>
-          The start of a great event scheduler!
-        </p>
+        <div className='header-title'>
+          Event Scheduler PRO
+        </div>
+        <nav className='nav'>
+          <Link to="/">
+            <button type='button'>Home</button>
+          </Link>
+          <Link to="/events">
+            <button type='button'>Events</button>
+          </Link>
+        </nav>
       </header>
       <div className="Content">
-        <BrowserRouter>
-          <Routes>
-            <Route path="/index" element={<HomePage />}>
-            </Route>
-            <Route path="/events" element={<PublicEvents />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/events" element={<PublicEvents />} />
+        </Routes>
       </div>
     </div>
+    </BrowserRouter>
   );
 }
 
