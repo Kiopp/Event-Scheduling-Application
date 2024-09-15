@@ -18,11 +18,11 @@ function App() {
           <Link to="/events">
             <button type='button'>Events</button>
           </Link>
+          <div className='login'>
+            <button type='button'>Login</button>
+            <button type='button'>Register</button>
+          </div>
         </nav>
-        <div className='login'>
-          <button type='button'>Login</button>
-          <button type='button'>Register</button>
-        </div>
       </header>
       <div className="Content">
         <Routes>
