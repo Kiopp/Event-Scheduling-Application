@@ -1,13 +1,13 @@
 import * as React from 'react';
 
-class HomePage extends React.Component {
+class PublicEvents extends React.Component {
     render() {
         return (
             <h1>
-                Welcome to the homepage of this app!
+                This is a public event!
             </h1>
         );
     }
 }
 
-export default HomePage;
+export default PublicEvents;

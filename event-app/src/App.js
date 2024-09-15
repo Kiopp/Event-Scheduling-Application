@@ -1,6 +1,7 @@
 import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
+import PublicEvents from './components/PublicEvents';
 
 function App() {
   return (
@@ -13,8 +14,9 @@ function App() {
       <div className="Content">
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<HomePage />}>
+            <Route path="/index" element={<HomePage />}>
             </Route>
+            <Route path="/events" element={<PublicEvents />} />
           </Routes>
         </BrowserRouter>
       </div>
