@@ -4,7 +4,7 @@ class HomePage extends React.Component {
     render() {
         return (
             <h1>
-                Welcome to the homepage of this app!
+                Welcome to Event Scheduler PRO!
             </h1>
         );
     }
