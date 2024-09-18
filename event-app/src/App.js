@@ -1,33 +1,43 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+
 import HomePage from './components/HomePage';
 import PublicEvents from './components/PublicEvents';
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 
 function App() {
   return (
     <BrowserRouter>
     <div className="App">
-      <header className="App-header">
+      <header className="Header">
         <div className='header-title'>
           Event Scheduler PRO
         </div>
         <nav className='nav'>
-          <Link to="/">
-            <button type='button'>Home</button>
+          <Link to="/" className='btn'>
+            <p>Home</p>
           </Link>
-          <Link to="/events">
-            <button type='button'>Events</button>
+          <Link to="/events" className='btn'>
+            <p>Events</p>
           </Link>
-          <div className='login'>
-            <button type='button'>Login</button>
-            <button type='button'>Register</button>
-          </div>
         </nav>
+        {/* Login buttons should not show up when already logged in. Instead show a round button that shows the user a drop down menu. */}
+        <div className='Login'>
+          <Link to="/login" className='btn'>
+            <p>Login</p>
+          </Link>
+          <Link to="/register" className='btn'>
+            <p>Register</p>
+          </Link>
+        </div>
       </header>
       <div className="Content">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/events" element={<PublicEvents />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </div>
     </div>
