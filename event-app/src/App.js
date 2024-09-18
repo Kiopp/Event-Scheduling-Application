@@ -19,6 +19,10 @@ function App() {
             <button type='button'>Events</button>
           </Link>
         </nav>
+        <div className='login'>
+          <button type='button'>Login</button>
+          <button type='button'>Register</button>
+        </div>
       </header>
       <div className="Content">
         <Routes>
