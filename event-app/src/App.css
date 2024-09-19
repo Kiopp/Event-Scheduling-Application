@@ -1,11 +1,4 @@
-:root {
-  --clr-text-bright: #ddd;  /* Bright text color variable */
-  --clr-text-dark: #333;    /* Dark text color variable */
-
-  --clr-background-dark: #252525;     /* Dark background color variable */
-  --clr-background-mid:  #2e2e2e;     /* Medium dark background color variable */
-  --clr-background-bright: #404040;   /* Bright background color variable */
-}
+@import './variables.css'; /* Import standardized css variables */
 
 .App {
   text-align: center;
@@ -13,6 +6,10 @@
 
 * {
   color: var(--clr-text-bright);                    /* Set default text color */
+}
+
+a {
+  text-decoration: none;                            /* Removes the underline from links */
 }
 
 body {
@@ -54,7 +51,6 @@ body {
   width: 5em;
   background-color: var(--clr-background-bright);
   font-size: 1rem;
-  text-decoration: none;
 
   /* Positioning */
   margin: 0;
@@ -82,7 +78,6 @@ body {
   border-radius: 0.5em;
   height: 1em;
   background-color: lightblue;
-  text-decoration: none;
   font-size: 1rem;
 
   /* Positioning */
@@ -107,16 +102,20 @@ body {
 
 .Content {
   /* Visual design */
-  background-color: var(--clr-background-bright);
-  border-radius: 1rem;
   height: auto;
   width: 80%;
   max-width: 70rem;
 
+  /* Border */
+  border-radius: 1rem;
+  /*border-left: 0.15rem solid var(--clr-background-dark);
+  border-right: 0.15rem solid var(--clr-background-dark);*/
+
   /* Positioning */
   padding: 2.5rem;
+  padding-top: 0;
   margin: auto;
-  margin-top: 5rem;
+  margin-top: 2rem;
   margin-bottom: 5rem;
 }
 
@@ -124,4 +123,14 @@ body {
   .header-title{
     font-size: 0; /* Remove text that don't fit the page*/
   }
+}
+
+.PageTitle {
+  font-size: 2rem;
+  padding-bottom: 2rem;
+  padding-top: 2rem;
+
+  border-radius: 1rem;
+  border-bottom: 0.15rem solid var(--clr-background-dark);
+  border-top: 0.15rem solid var(--clr-background-dark);
 }

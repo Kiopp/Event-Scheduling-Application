@@ -1,0 +1,9 @@
+:root {
+    --clr-text-bright: #ddd;  /* Bright text color variable */
+    --clr-text-medium: #6e6e6e;  /* Medium text color variable */
+    --clr-text-dark: #333;    /* Dark text color variable */
+  
+    --clr-background-dark: #252525;     /* Dark background color variable */
+    --clr-background-mid:  #303233;     /* Medium dark background color variable */
+    --clr-background-bright: #404040;   /* Bright background color variable */
+  }
