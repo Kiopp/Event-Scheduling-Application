@@ -1,38 +1,127 @@
+:root {
+  --clr-text-bright: #ddd;  /* Bright text color variable */
+  --clr-text-dark: #333;    /* Dark text color variable */
+
+  --clr-background-dark: #252525;     /* Dark background color variable */
+  --clr-background-mid:  #2e2e2e;     /* Medium dark background color variable */
+  --clr-background-bright: #404040;   /* Bright background color variable */
+}
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+* {
+  color: var(--clr-text-bright);                    /* Set default text color */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+body {
+  line-height: normal;                              /* Set default line height for text */
+  height: auto;                                     /* Fill page if content isn't enough to fill the screen*/
+  background-color: var(--clr-background-mid);      /* Main background color */
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.Header {
+  /* Visual design */
+  background-color: var(--clr-background-dark);
+  min-height: 4rem;
+  font-size: 1.2rem;
+
+  /* Positioning */
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.header-title {
+  font-size: 1.5rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+.nav {
+  width: 50%;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: left;
+  font-size: 1.2rem;
+}
+
+.nav .btn {
+  /* Visual design */
+  height: 4em;
+  width: 5em;
+  background-color: var(--clr-background-bright);
+  font-size: 1rem;
+  text-decoration: none;
+
+  /* Positioning */
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Functionality */
+  cursor: pointer;
+}
+
+.nav .btn:hover {
+  background-color: var(--clr-text-dark);
+}
+
+.Login {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.Login .btn {
+  /* Visual design*/
+  border: none;
+  border-radius: 0.5em;
+  height: 1em;
+  background-color: lightblue;
+  text-decoration: none;
+  font-size: 1rem;
+
+  /* Positioning */
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  padding: 0.75em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Functionality */
+  cursor: pointer;
+}
+
+.Login .btn p { /* The text inside the login-buttons */
+  color: var(--clr-text-dark);
+}
+
+.Login .btn:hover {
+  background-color: rgb(145, 180, 192);
+}
+
+.Content {
+  /* Visual design */
+  background-color: var(--clr-background-bright);
+  border-radius: 1rem;
+  height: auto;
+  width: 80%;
+  max-width: 70rem;
+
+  /* Positioning */
+  padding: 2.5rem;
+  margin: auto;
+  margin-top: 5rem;
+  margin-bottom: 5rem;
+}
+
+@media (max-width: 625px) { /* When page is smaller than 625px */
+  .header-title{
+    font-size: 0; /* Remove text that don't fit the page*/
   }
 }
