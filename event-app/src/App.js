@@ -1,10 +1,10 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
-import HomePage from './components/HomePage';
-import PublicEvents from './components/PublicEvents';
-import LoginPage from './components/LoginPage';
-import RegisterPage from './components/RegisterPage';
+import HomePage from './routes/HomePage';
+import PublicEvents from './routes/PublicEvents';
+import LoginPage from './routes/LoginPage';
+import RegisterPage from './routes/RegisterPage';
 
 function App() {
   return (
