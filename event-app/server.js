@@ -14,11 +14,6 @@ app.get('/api/events/:event_id', (req, res) => {
   res.json(eventData);
 });
 
-app.get('/', (req, res) => {
-  console.log('Root route reached!');
-  res.send('Welcome to my app!');
-});
-
 const port = 3000;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
