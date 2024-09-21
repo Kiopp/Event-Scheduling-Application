@@ -11,7 +11,8 @@ const Login=()=>{
     const avatarStyle={backgroundColor:'--clr-background-bright'}
     const btnstyle={backgroundColor:'--clr-background-bright',margin:'12px 0'}
     const logoStyle={backgroundColor:'--clr-background-bright', margin:'10px 0', width: 70, height: 70}
-    
+    const adStyle = { backgroundColor: '#f0f0f0', height: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+
     const navigate = useNavigate(); // Initialize the useNavigate hook
 
     const handleSignUpClick = () => {
@@ -19,6 +20,11 @@ const Login=()=>{
     }
 
     return(
+        <Grid container spacing={2} justifyContent="center">
+            {/* Ad box on the left */}
+            <Grid item xs={12} sm={3} style={adStyle}>
+                <Typography>Ad Space</Typography>
+            </Grid>
         
         <Grid style={paperStyle}>
             
@@ -65,6 +71,11 @@ const Login=()=>{
                     Sign Up Here
                 </Button>
             </Typography>
+        </Grid>
+        {/* Ad box on the right */}
+        <Grid item xs={12} sm={3} style={adStyle}>
+                <Typography>Ad Space</Typography>
+            </Grid>
         </Grid>
     )
 }
