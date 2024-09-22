@@ -5,6 +5,7 @@ import HomePage from './routes/HomePage';
 import PublicEvents from './routes/PublicEvents';
 import LoginPage from './routes/LoginPage';
 import RegisterPage from './routes/RegisterPage';
+import CreateEventPage from './routes/CreateEventPage';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/events" element={<PublicEvents />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/events/create-new-event" element={<CreateEventPage />} />
         </Routes>
       </div>
     </div>
