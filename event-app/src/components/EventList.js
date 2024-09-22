@@ -1,4 +1,3 @@
-import React, { useState, useEffect, useRef } from 'react';
 import EventCard from './EventCard';
 
 import { Grid2 } from '@mui/material';
