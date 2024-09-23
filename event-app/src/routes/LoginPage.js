@@ -5,7 +5,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import '../App.css';
 
-const Login=()=>{
+const LoginPage=()=>{
 
     const paperStyle={padding :20,height:'70vh',width:280,margin:"19px auto"}
     const avatarStyle={backgroundColor:'--clr-background-bright'}
@@ -80,4 +80,4 @@ const Login=()=>{
     )
 }
 
-export default Login
+export default LoginPage
