@@ -7,8 +7,5 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jesper Wentzell, Axel Bechtel, Carl Nordenadler, Hannan Khalil",
-  "license": "MIT",
-  "dependencies": {
-    "express": "^4.21.0"
-  }
+  "license": "MIT"
 }

@@ -17,6 +17,7 @@ const LoginPage=()=>{
 
     const handleSignUpClick = () => {
         navigate('/register'); // Navigate to the register page
+
     }
 
     return(

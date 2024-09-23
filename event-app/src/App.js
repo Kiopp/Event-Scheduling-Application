@@ -1,13 +1,21 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import HomePage from './routes/HomePage';
 import PublicEvents from './routes/PublicEvents';
 import LoginPage from './routes/LoginPage';
 import RegisterPage from './routes/RegisterPage';
 
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  }
+})
+
 function App() {
   return (
+    <ThemeProvider theme={darkTheme}> {/* Sets the theme of all MUI components to dark*/}
     <BrowserRouter>
     <div className="App">
       <header className="Header">
@@ -32,16 +40,15 @@ function App() {
           </Link>
         </div>
       </header>
-      <div className="Content">
-        <Routes>
+      <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/events" element={<PublicEvents />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Routes>
-      </div>
     </div>
     </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
