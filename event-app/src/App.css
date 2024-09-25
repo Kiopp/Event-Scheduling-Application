@@ -134,3 +134,22 @@ body {
   border-bottom: 0.15rem solid var(--clr-background-dark);
   border-top: 0.15rem solid var(--clr-background-dark);
 }
+
+.LoginForm {
+  /* Visual design */
+  height: 35rem;
+  width: fit-content;
+  max-width: 70rem;
+
+  /* Border */
+  border-radius: 1rem;
+  border-left: 0.15rem solid var(--clr-background-dark);
+  border-right: 0.15rem solid var(--clr-background-dark);
+
+  /* Positioning */
+  padding: 2.5rem;
+  padding-top: 0;
+  margin: auto;
+  margin-top: 2rem;
+  margin-bottom: 5rem;
+}
