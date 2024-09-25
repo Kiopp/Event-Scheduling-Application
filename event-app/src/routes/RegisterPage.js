@@ -113,127 +113,129 @@ const RegistrationPage = () => {
     };
 
     return (
-        <Grid2 container spacing={2} justifyContent="center">
-            <Grid2 style={paperStyle}>
-                <Grid2 align='center'>
-                    <Avatar style={avatarStyle}>
-                        <AccountCircleIcon style={{ color: '--clr-background-mid' }} />
-                    </Avatar>
-                    <h2>Register</h2>
-                </Grid2>
+        <div className='LoginForm'>
+            <Grid2 container spacing={2} justifyContent="center">
+                <Grid2 style={paperStyle}>
+                    <Grid2 align='center'>
+                        <Avatar style={avatarStyle}>
+                            <AccountCircleIcon style={{ color: '--clr-background-mid' }} />
+                        </Avatar>
+                        <h2>Register</h2>
+                    </Grid2>
 
-                {/* Email Field */}
-                <TextField
-                    name="email"
-                    label="Email"
-                    variant="standard"
-                    placeholder="Enter Your Email"
-                    fullWidth
-                    required
-                    value={form.email}
-                    onChange={handleChange}
-                    error={Boolean(errors.email)}
-                    helperText={errors.email}
-                />
+                    {/* Email Field */}
+                    <TextField
+                        name="email"
+                        label="Email"
+                        variant="standard"
+                        placeholder="Enter Your Email"
+                        fullWidth
+                        required
+                        value={form.email}
+                        onChange={handleChange}
+                        error={Boolean(errors.email)}
+                        helperText={errors.email}
+                    />
 
-                {/* Username Field */}
-                <TextField
-                    name="username"
-                    label="Username"
-                    variant="standard"
-                    placeholder="Enter Your Username"
-                    fullWidth
-                    required
-                    value={form.username}
-                    onChange={handleChange}
-                    error={Boolean(errors.username)}
-                    helperText={errors.username}
-                />
+                    {/* Username Field */}
+                    <TextField
+                        name="username"
+                        label="Username"
+                        variant="standard"
+                        placeholder="Enter Your Username"
+                        fullWidth
+                        required
+                        value={form.username}
+                        onChange={handleChange}
+                        error={Boolean(errors.username)}
+                        helperText={errors.username}
+                    />
 
-                {/* Password Field */}
-                <TextField
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    label="Password"
-                    variant="standard"
-                    placeholder="Enter Your Password"
-                    fullWidth
-                    required
-                    value={form.password}
-                    onChange={handleChange}
-                    error={Boolean(errors.password)}
-                    helperText={errors.password}
-                    InputProps={{
-                        endAdornment: (
-                            <IconButton onClick={() => setShowPassword(!showPassword)}>
-                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                        )
-                    }}
-                />
+                    {/* Password Field */}
+                    <TextField
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        label="Password"
+                        variant="standard"
+                        placeholder="Enter Your Password"
+                        fullWidth
+                        required
+                        value={form.password}
+                        onChange={handleChange}
+                        error={Boolean(errors.password)}
+                        helperText={errors.password}
+                        InputProps={{
+                            endAdornment: (
+                                <IconButton onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            )
+                        }}
+                    />
 
-                {/* Confirm Password Field */}
-                <TextField
-                    name="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    label="Confirm Password"
-                    variant="standard"
-                    placeholder="Confirm Your Password"
-                    fullWidth
-                    required
-                    value={form.confirmPassword}
-                    onChange={handleChange}
-                    error={Boolean(errors.confirmPassword)}
-                    helperText={errors.confirmPassword}
-                    InputProps={{
-                        endAdornment: (
-                            <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                        )
-                    }}
-                />
+                    {/* Confirm Password Field */}
+                    <TextField
+                        name="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        label="Confirm Password"
+                        variant="standard"
+                        placeholder="Confirm Your Password"
+                        fullWidth
+                        required
+                        value={form.confirmPassword}
+                        onChange={handleChange}
+                        error={Boolean(errors.confirmPassword)}
+                        helperText={errors.confirmPassword}
+                        InputProps={{
+                            endAdornment: (
+                                <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            )
+                        }}
+                    />
 
-                {/* Terms of Service Checkbox */}
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            name="acceptTerms"
-                            color="primary"
-                            checked={form.acceptTerms}
-                            onChange={handleChange}
-                        />
-                    }
-                    label="I accept the Terms of Service"
-                />
-                {errors.acceptTerms && (
-                    <Typography color="error" variant="body2">
-                        {errors.acceptTerms}
+                    {/* Terms of Service Checkbox */}
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                name="acceptTerms"
+                                color="primary"
+                                checked={form.acceptTerms}
+                                onChange={handleChange}
+                            />
+                        }
+                        label="I accept the Terms of Service"
+                    />
+                    {errors.acceptTerms && (
+                        <Typography color="error" variant="body2">
+                            {errors.acceptTerms}
+                        </Typography>
+                    )}
+
+                    {/* Register Button */}
+                    <Button
+                        style={btnStyle}
+                        type="submit"
+                        color="primary"
+                        variant="contained"
+                        fullWidth
+                        disabled={loading}
+                        onClick={handleRegisterClick}
+                    >
+                        {loading ? "Registering..." : "Register"}
+                    </Button>
+
+                    {/* Already have an account? */}
+                    <Typography>
+                        Already have an account?
+                        <Link component={RouterLink} to="/login" color="primary">
+                            Login Here
+                        </Link>
                     </Typography>
-                )}
-
-                {/* Register Button */}
-                <Button
-                    style={btnStyle}
-                    type="submit"
-                    color="primary"
-                    variant="contained"
-                    fullWidth
-                    disabled={loading}
-                    onClick={handleRegisterClick}
-                >
-                    {loading ? "Registering..." : "Register"}
-                </Button>
-
-                {/* Already have an account? */}
-                <Typography>
-                    Already have an account?
-                    <Link component={RouterLink} to="/login" color="primary">
-                        Login Here
-                    </Link>
-                </Typography>
+                </Grid2>
             </Grid2>
-        </Grid2>
+        </div>
     );
 };
 

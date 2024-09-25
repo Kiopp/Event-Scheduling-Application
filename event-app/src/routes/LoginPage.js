@@ -74,81 +74,83 @@ const LoginPage = () => {
     };
 
     return (
-        <Grid2 container spacing={2} justifyContent="center">
-            <Grid2 style={paperStyle}>
-                <Grid2 align='center'>
-                    <Avatar style={avatarStyle}>
-                        <HomeIcon style={{ color: '--clr-background-mid' }} />
-                    </Avatar>
-                    <h2>Login</h2>
+        <div className='LoginForm'>
+            <Grid2 container spacing={2} justifyContent="center">
+                <Grid2 style={paperStyle}>
+                    <Grid2 align='center'>
+                        <Avatar style={avatarStyle}>
+                            <HomeIcon style={{ color: '--clr-background-mid' }} />
+                        </Avatar>
+                        <h2>Login</h2>
+                    </Grid2>
+
+                    {/* Username Field with Error Handling */}
+                    <TextField
+                        id="username"
+                        name="username"
+                        label="Username"
+                        variant="standard"
+                        placeholder="Enter Your Username"
+                        fullWidth
+                        required
+                        value={form.username}
+                        onChange={handleChange}
+                        error={Boolean(errors.username)}
+                        helperText={errors.username}
+                        sx={{
+                            '& .MuiInputLabel-root': { color: 'var(--clr-text-bright)' },
+                            '& .MuiInputBase-root': { color: 'var(--clr-text-bright)' },
+                        }}
+                    />
+
+                    {/* Password Field with Visibility Toggle and Error Handling */}
+                    <TextField
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        label="Password"
+                        variant="standard"
+                        placeholder="Enter Your Password"
+                        fullWidth
+                        required
+                        value={form.password}
+                        onChange={handleChange}
+                        error={Boolean(errors.password)}
+                        helperText={errors.password}
+                        sx={{
+                            '& .MuiInputLabel-root': { color: 'var(--clr-text-bright)' },
+                            '& .MuiInputBase-root': { color: 'var(--clr-text-bright)' },
+                        }}
+                        InputProps={{
+                            endAdornment: (
+                                <IconButton onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            )
+                        }}
+                    />
+
+                    {/* Login Button */}
+                    <Button
+                        style={btnstyle}
+                        type='submit'
+                        color='primary'
+                        variant="contained"
+                        fullWidth
+                        onClick={handleLoginClick}>
+                        Login
+                    </Button>
+
+                    {/* Sign Up Link */}
+                    <Typography>
+                        Don't have an account?
+                        <Link component={RouterLink} to="/register" color="primary">
+                            Sign Up Here
+                        </Link>
+                    </Typography>
                 </Grid2>
-
-                {/* Username Field with Error Handling */}
-                <TextField
-                    id="username"
-                    name="username"
-                    label="Username"
-                    variant="standard"
-                    placeholder="Enter Your Username"
-                    fullWidth
-                    required
-                    value={form.username}
-                    onChange={handleChange}
-                    error={Boolean(errors.username)}
-                    helperText={errors.username}
-                    sx={{
-                        '& .MuiInputLabel-root': { color: 'var(--clr-text-bright)' },
-                        '& .MuiInputBase-root': { color: 'var(--clr-text-bright)' },
-                    }}
-                />
-
-                {/* Password Field with Visibility Toggle and Error Handling */}
-                <TextField
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    label="Password"
-                    variant="standard"
-                    placeholder="Enter Your Password"
-                    fullWidth
-                    required
-                    value={form.password}
-                    onChange={handleChange}
-                    error={Boolean(errors.password)}
-                    helperText={errors.password}
-                    sx={{
-                        '& .MuiInputLabel-root': { color: 'var(--clr-text-bright)' },
-                        '& .MuiInputBase-root': { color: 'var(--clr-text-bright)' },
-                    }}
-                    InputProps={{
-                        endAdornment: (
-                            <IconButton onClick={() => setShowPassword(!showPassword)}>
-                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                        )
-                    }}
-                />
-
-                {/* Login Button */}
-                <Button
-                    style={btnstyle}
-                    type='submit'
-                    color='primary'
-                    variant="contained"
-                    fullWidth
-                    onClick={handleLoginClick}>
-                    Login
-                </Button>
-
-                {/* Sign Up Link */}
-                <Typography>
-                    Don't have an account?
-                    <Link component={RouterLink} to="/register" color="primary">
-                        Sign Up Here
-                    </Link>
-                </Typography>
             </Grid2>
-        </Grid2>
+        </div>
     );
 };
 
