@@ -5,6 +5,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import axios from 'axios';
 import '../App.css';
 
 const RegistrationPage = () => {
@@ -101,14 +102,37 @@ const RegistrationPage = () => {
     };
 
     // Handle form submission
-    const handleRegisterClick = () => {
+    const handleRegisterClick = async () => {
         if (validateForm()) {
             setLoading(true);
-            // Simulate registration process
-            setTimeout(() => {
+    
+            try {
+                // Make POST request to the backend
+                const response = await axios.post('http://localhost:5001/api/register', {
+                    email: form.email,
+                    username: form.username,
+                    password: form.password
+                });
+    
+                // Handle success
+                console.log('User registered:', response.data);
                 setLoading(false);
                 navigate('/');
-            }, 2000);
+            } catch (error) {
+                // Handle error
+                console.error('Registration failed:', error.response.data);
+                setLoading(false);
+    
+                // Check for specific error messages
+                if (error.response.data.message === 'Email is already taken.') {
+                    setErrors(prevErrors => ({ ...prevErrors, email: 'Email is already taken.' }));
+                } else if (error.response.data.message === 'Username is already taken.') {
+                    setErrors(prevErrors => ({ ...prevErrors, username: 'Username is already taken.' }));
+                } else {
+                    // Handle generic registration error
+                    setErrors(prevErrors => ({ ...prevErrors, general: 'Registration failed. Please try again.' }));
+                }
+            }
         }
     };
 
