@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Grid from '@mui/material/Grid';
+import Grid2 from '@mui/material/Grid2';
 import { Avatar, Button, Link, TextField, Typography } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
@@ -21,20 +21,17 @@ const LoginPage=()=>{
     }
 
     return(
-        <Grid container spacing={2} justifyContent="center">
+        <Grid2 container spacing={2} justifyContent="center">
             {/* Ad box on the left */}
-            <Grid item xs={12} sm={3} style={adStyle}>
-                <Typography>Ad Space</Typography>
-            </Grid>
         
-        <Grid style={paperStyle}>
+        <Grid2 style={paperStyle}>
             
-            <Grid align='center'>
+            <Grid2 align='center'>
                 <Avatar style={avatarStyle}>
                     <HomeIcon style={{ color: '--clr-background-mid'}}/>
                 </Avatar>
                 <h2>Login</h2>
-            </Grid>
+            </Grid2>
             <TextField 
                 id="standard-basic" 
                 label="Username" 
@@ -72,12 +69,9 @@ const LoginPage=()=>{
                     Sign Up Here
                 </Button>
             </Typography>
-        </Grid>
+        </Grid2>
         {/* Ad box on the right */}
-        <Grid item xs={12} sm={3} style={adStyle}>
-                <Typography>Ad Space</Typography>
-            </Grid>
-        </Grid>
+        </Grid2>
     )
 }
 
