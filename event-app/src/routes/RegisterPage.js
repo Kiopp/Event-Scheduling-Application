@@ -228,9 +228,11 @@ const RegistrationPage = () => {
                 {/* Already have an account? */}
                 <Typography>
                     Already have an account?
-                    <Link component={RouterLink} to="/login" color="primary">
-                        Login Here
-                    </Link>
+                    <div>
+                        <Link component={RouterLink} to="/login" color="primary">
+                            Login Here
+                        </Link>
+                    </div>
                 </Typography>
             </Grid2>
         </Grid2>

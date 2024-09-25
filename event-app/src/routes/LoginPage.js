@@ -143,9 +143,11 @@ const LoginPage = () => {
                 {/* Sign Up Link */}
                 <Typography>
                     Don't have an account?
-                    <Link component={RouterLink} to="/register" color="primary">
-                        Sign Up Here
-                    </Link>
+                    <div>
+                        <Link component={RouterLink} to="/register" color="primary">
+                            Sign Up Here
+                        </Link>
+                    </div>
                 </Typography>
             </Grid2>
         </Grid2>
