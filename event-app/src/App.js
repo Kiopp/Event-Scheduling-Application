@@ -6,6 +6,7 @@ import HomePage from './routes/HomePage';
 import PublicEvents from './routes/PublicEvents';
 import LoginPage from './routes/LoginPage';
 import RegisterPage from './routes/RegisterPage';
+import EventPage from './routes/EventPage';
 import CreateEventPage from './routes/CreateEventPage';
 
 const darkTheme = createTheme({
@@ -46,6 +47,7 @@ function App() {
           <Route path="/events" element={<PublicEvents />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/events/event/:event_id" element={<EventPage />} />
           <Route path="/events/create-new-event" element={<CreateEventPage />} />
         </Routes>
     </div>
