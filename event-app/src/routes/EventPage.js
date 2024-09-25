@@ -1,45 +1,30 @@
-import React, { Component } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+const events = require('../model-data/TestGetEvents.js');  // Import the list of Events from the TestGetEvents.js file DELETE WHEN BACKEND IS IMPLEMENTED
 
-class EventPage extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        event: null,
-      };
-    }
-  
-    componentDidMount() {
-        const { match } = this.props;
-        const event_id = match.params.event_id;
-        axios.get(`/api/events/${event_id}`)
-          .then(response => {
-            // eslint-disable-next-line react/no-is-mounted
-            this.setState({ event: response.data });
-          })
-          .catch(error => {
-            console.error(error);
-          });
-      }
+function EventPage() {
+    const [event, setEvent] = useState(null);
+    const { event_id } = useParams();
 
-    render() {
-        return (
-            <div>
-                {this.state.event && (
-                    <div>
-                        <h1>{this.state.event.title}</h1>
-                        <p><strong>Date:</strong>{this.state.event.date}</p>
-                        <p><strong>Start Time</strong>{this.state.event.startTime}</p>
-                        <p><strong>End Time</strong>{this.state.event.endTime}</p>
-                        <p><strong>Description</strong>{this.state.event.description}</p>
-                    </div>
-                )}
-                {!this.state.event && (
-                <div>Loading...</div>
-                )}
-            </div>
-        );
-    }   
+
+    useEffect(() => {
+      const foundEvent = events.find(evnt => parseInt(evnt.id) === parseInt(event_id));
+      setEvent(foundEvent);
+    }, [event_id])
+
+    return (
+      <div className='Content'>
+          {event && (
+              <div>
+                  <h1 className='PageTitle'>{event.title}</h1>
+                  <p><strong>Date: </strong>{event.date}</p>
+                  <p><strong>Start Time: </strong>{event.startTime}</p>
+                  <p><strong>End Time: </strong>{event.endTime}</p>
+                  <p><strong>Description: </strong>{event.description}</p>
+              </div>
+          )}
+      </div>
+  );
 }
 
 export default EventPage;
