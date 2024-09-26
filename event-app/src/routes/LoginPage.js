@@ -5,6 +5,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import axios from 'axios';
 import '../App.css';
 
 const LoginPage = () => {
@@ -64,12 +65,58 @@ const LoginPage = () => {
     };
 
     // Handle form submission
-    const handleLoginClick = () => {
+    const handleLoginClick = async () => {
         if (validate()) {
-            // Proceed with login logic
-            console.log("Logging in...");
-            // Navigate to dashboard or other page upon successful login
-            navigate('/');
+            try {
+                // Make POST request to backend
+                    const response = await axios.post('http://localhost:5001/api/login', {
+                    username: form.username,
+                    password: form.password
+                });
+
+                // Handle successful login
+                console.log('Login successful:', response.data);
+                navigate('/'); // Redirect to dashboard or home page
+
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+            } catch (error) {
+                // Check if the response contains a message
+                if (error.response && error.response.data) {
+                    console.error('Login failed:', error.response.data.message);
+                    // Set error message for UI feedback
+                    setErrors(prevErrors => ({
+                        ...prevErrors,
+                        password: error.response.data.message,
+                    }));
+                } else {
+                    console.error('Login error:', error);
+                }
+            }
+        }
+
+        checkSession();
+    };
+
+    const checkSession = async () => {
+        try {
+            const response = await axios.get('http://localhost:5001/api/session');
+            if (response.data.user) {
+                // User is logged in, you can store user data or redirect
+                console.log('Active session found:', response.data.user);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+            }
+        } catch (error) {
+            console.log('No active session');
+        }
+    };
+
+    const handleLogoutClick = async () => {
+        try {
+            await axios.post('http://localhost:5001/api/logout');
+            localStorage.removeItem('user');
+            navigate('/login'); // Redirect to login page
+        } catch (error) {
+            console.error('Logout failed:', error);
         }
     };
 
