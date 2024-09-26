@@ -2,6 +2,7 @@ const express = require('express');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const session = require('express-session'); // Import express-session
 require('dotenv').config();
 
 const app = express();
@@ -9,7 +10,21 @@ const port = 5001; // Or any port of your choice
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000', // Your frontend URL
+    credentials: true // Allow cookies to be sent with requests
+}));
+
+// Configure sessions
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'mysecretkey', // Use a secure secret in production
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24, // 1 day
+        secure: false // Set this to `true` if using HTTPS
+    }
+}));
 
 // MongoDB setup
 const uri = "mongodb://localhost:27017/mydatabase";
@@ -78,6 +93,7 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
+
 // Login endpoint
 app.post('/api/login', async (req, res) => {
     try {
@@ -100,17 +116,37 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid username or password' });
         }
 
+        // Create session upon successful login
+        req.session.user = {
+            userId: user._id,
+            username: user.username,
+            email: user.email
+        };
+
         // Authentication successful
-        return res.status(200).json({ message: 'Login successful' });
+        return res.status(200).json({ message: 'Login successful', user: req.session.user });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Login failed', error });
     }
 });
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('Shutting down gracefully...');
-  await client.close();
-  process.exit(0);
+// Endpoint to get the current session user
+app.get('/api/session', (req, res) => {
+    if (req.session.user) {
+        res.status(200).json({ user: req.session.user });
+    } else {
+        res.status(401).json({ message: 'No active session' });
+    }
+});
+
+// Logout endpoint
+app.post('/api/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Logout failed', error: err });
+        }
+        res.clearCookie('connect.sid'); // Clear the session cookie
+        res.status(200).json({ message: 'Logout successful' });
+    });
 });

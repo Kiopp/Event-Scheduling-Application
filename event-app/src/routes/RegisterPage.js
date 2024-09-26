@@ -14,6 +14,7 @@ const RegistrationPage = () => {
     const avatarStyle = { backgroundColor: '--clr-background-bright' };
     const btnStyle = { backgroundColor: '--clr-background-bright', margin: '12px 0' };
     const [loading, setLoading] = React.useState(false);
+    axios.defaults.withCredentials = true;
 
     // Form state
     const [form, setForm] = React.useState({

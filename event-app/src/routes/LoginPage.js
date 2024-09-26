@@ -69,7 +69,7 @@ const LoginPage = () => {
         if (validate()) {
             try {
                 // Make POST request to backend
-                const response = await axios.post('http://localhost:5001/api/login', {
+                    const response = await axios.post('http://localhost:5001/api/login', {
                     username: form.username,
                     password: form.password
                 });
@@ -77,6 +77,8 @@ const LoginPage = () => {
                 // Handle successful login
                 console.log('Login successful:', response.data);
                 navigate('/'); // Redirect to dashboard or home page
+
+                localStorage.setItem('user', JSON.stringify(response.data.user));
             } catch (error) {
                 // Check if the response contains a message
                 if (error.response && error.response.data) {
@@ -90,6 +92,31 @@ const LoginPage = () => {
                     console.error('Login error:', error);
                 }
             }
+        }
+
+        checkSession();
+    };
+
+    const checkSession = async () => {
+        try {
+            const response = await axios.get('http://localhost:5001/api/session');
+            if (response.data.user) {
+                // User is logged in, you can store user data or redirect
+                console.log('Active session found:', response.data.user);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+            }
+        } catch (error) {
+            console.log('No active session');
+        }
+    };
+
+    const handleLogoutClick = async () => {
+        try {
+            await axios.post('http://localhost:5001/api/logout');
+            localStorage.removeItem('user');
+            navigate('/login'); // Redirect to login page
+        } catch (error) {
+            console.error('Logout failed:', error);
         }
     };
 
