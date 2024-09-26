@@ -27,7 +27,7 @@ app.use(session({
 }));
 
 // MongoDB setup
-const uri = "mongodb://localhost:27017/mydatabase";
+const uri = "mongodb+srv://CarlNord:lt9T29174DpkRDHP@eventschedulerprodb.db4jj.mongodb.net/";
 let db;
 
 const client = new MongoClient(uri);
