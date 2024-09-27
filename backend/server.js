@@ -38,19 +38,20 @@ let db;
 const client = new MongoClient(uri);
 
 client.connect()
-  .then(() => {
-    db = client.db('mydatabase'); // Initialize the database
-    console.log('Connected successfully to MongoDB');
-    
-    // Start server after successful DB connection
-    app.listen(port, () => {
-        console.log(`Server is running on http://localhost:${port}`);
+    .then(() => {
+        db = client.db('mydatabase'); // Initialize the database
+        app.locals.db = db; // Attach db to app.locals
+        console.log('Connected successfully to MongoDB');
+
+        // Start server after successful DB connection
+        app.listen(port, () => {
+            console.log(`Server is running on http://localhost:${port}`);
+        });
+    })
+    .catch(err => {
+        console.error('Connection error:', err);
+        process.exit(1); // Exit process with failure code
     });
-  })
-  .catch(err => {
-    console.error('Connection error:', err);
-    process.exit(1); // Exit process with failure code
-  });
 
 // Register endpoint
 app.use('/api/events', eventRoutes); // All event-related routes
@@ -100,7 +101,6 @@ app.post('/api/register', async (req, res) => {
         res.status(500).json({ message: 'Registration failed', error: error.message });
     }
 });
-
 
 // Login endpoint
 app.post('/api/login', async (req, res) => {

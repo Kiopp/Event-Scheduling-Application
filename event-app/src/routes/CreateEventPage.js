@@ -1,29 +1,46 @@
 import React from 'react';
 import axios from 'axios';
+import DatePicker from '../components/DatePicker';
+import TimePicker from '../components/TimePicker';
+import CustomCheckbox from '../components/Checkbox';
+import dayjs from 'dayjs';
+import './CreateEventPage.css';
 
 class CreateEventPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       title: '',
-      date: '',
-      startTime: '',
-      endTime: '',
+      singleDay: true,
+      startDate: dayjs(),
+      endDate: dayjs(),
+      startTime: dayjs(),
+      endTime: dayjs(),
       description: '',
     };
   }
 
   handleSubmit = (event) => {
     event.preventDefault();
-    const { title, date, startTime, endTime, description } = this.state;
-    axios.post('/api/events', { title, date, startTime, endTime, description })
-      .then((response) => {
+    const { title, singleDay, startDate, endDate, startTime, endTime, description } = this.state;
+
+    const eventData = {
+      title,
+      startDate: startDate.format('YYYY-MM-DD'),
+      endDate: singleDay ? startDate.format('YYYY-MM-DD') : endDate.format('YYY-MM-DD'),
+      startTime: startTime.format('HH:mm'),
+      endTime: endTime.format('HH:mm'),
+      description,
+    };
+
+    axios.post('/api/events', eventData)
+    .then((response) => {
         console.log(response);
         this.props.history.push(`/events/event/${response.data.id}`);
-      })
-      .catch((error) => {
+    })
+    .catch((error) => {
         console.error(error);
-      });
+    });
   }
 
   handleChange = (event) => {
@@ -31,37 +48,90 @@ class CreateEventPage extends React.Component {
     this.setState({ [name]: value });
   }
 
+  handleSingleDayToggle = (event) => {
+    this.setState({singleDay: event.target.checked});
+  }
+
+  handleStartDayChange = (newValue) => {
+    this.setState({ startDate : newValue });
+  }
+
+  handleEndDayChange = (newValue) => {
+    this.setState({ endDate : newValue });
+  }
+
+  handleStartTimeChange = (newValue) => {
+    this.setState({ startTime : newValue });
+  }
+
+  handleEndTimeChange = (newValue) => {
+    this.setState({ endTime : newValue });
+  }
+
   render() {
+    const { singleDay, startDate, endDate, startTime, endTime } = this.state;
+
     return (
-      <div>
+      <div className = "create-event-container">
         <h1>Create New Event</h1>
-        <form onSubmit={this.handleSubmit}>
+        <form className = "event-form" onSubmit = {this.handleSubmit}>
           <label>
             Title:
-            <input type="text" name="title" value={this.state.title} onChange={this.handleChange} />
+            <input
+              type = "text"
+              name = "title"
+              value = {this.state.title}
+              onChange = {this.handleChange}
+              className = "input-field"
+            />
           </label>
-          <br />
-          <label>
-            Date:
-            <input type="date" name="date" value={this.state.date} onChange={this.handleChange} />
-          </label>
-          <br />
-          <label>
-            Start Time:
-            <input type="time" name="startTime" value={this.state.startTime} onChange={this.handleChange} />
-          </label>
-          <br />
-          <label>
-            End Time:
-            <input type="time" name="endTime" value={this.state.endTime} onChange={this.handleChange} />
-          </label>
-          <br />
+
+          <CustomCheckbox
+            checked={singleDay}
+            onChange={this.handleSingleDayToggle}
+            className = "checkbox"
+          />
+
+          <label>Select Start Date:</label>
+          <DatePicker
+            value = {startDate}
+            onChange = {this.handleStartDayChange}
+          />
+
+          {!singleDay && (
+            <>
+              <label>Select End Date:</label>
+              <DatePicker
+                value = {endDate}
+                onChange = {this.handleEndDayChange}
+              />
+            </>
+          )}
+
+          <label>Select Start Time:</label>
+          <TimePicker
+            value={startTime}
+            onChange={this.handleStartTimeChange}
+          />
+
+          <label>Select End Time:</label>
+          <TimePicker
+            value={endTime}
+            onChange={this.handleEndTimeChange}
+          />
+
           <label>
             Description:
-            <textarea name="description" value={this.state.description} onChange={this.handleChange} />
+            <textarea
+              name = "description"
+              value = {this.state.description}
+              onChange = {this.handleChange}
+              className = "input-field"
+            />
           </label>
-          <br />
-          <button type="submit">Create Event</button>
+
+          <button type = "submit" className = "submit-button">Create Event</button>
+
         </form>
       </div>
     );
