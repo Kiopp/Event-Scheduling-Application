@@ -8,11 +8,11 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import axios from 'axios';
 import '../App.css';
 
-const LoginPage = () => {
-
+const LoginPage = ({ onLogin }) => { // Receive onLogin prop
     const paperStyle = { padding: 20, height: '70vh', width: 280, margin: "19px auto" };
     const avatarStyle = { backgroundColor: '--clr-background-bright' };
     const btnstyle = { backgroundColor: '--clr-background-bright', margin: '12px 0' };
+    axios.defaults.withCredentials = true;
 
     // State to manage form inputs
     const [form, setForm] = React.useState({
@@ -64,21 +64,37 @@ const LoginPage = () => {
         return Object.values(tempErrors).every(error => error === '');
     };
 
+    const checkSession = async () => {
+        try {
+            const response = await axios.get('http://localhost:5001/api/session');
+            if (response.data.user) {
+                console.log('Active session found:', response.data.user);
+            }
+        } catch (error) {
+            console.log('No active session');
+        }
+    };
+
     // Handle form submission
     const handleLoginClick = async () => {
         if (validate()) {
             try {
                 // Make POST request to backend
-                    const response = await axios.post('http://localhost:5001/api/login', {
+                const response = await axios.post('http://localhost:5001/api/login', {
                     username: form.username,
                     password: form.password
                 });
 
                 // Handle successful login
                 console.log('Login successful:', response.data);
-                navigate('/'); // Redirect to dashboard or home page
 
+                // Save the user to localStorage
                 localStorage.setItem('user', JSON.stringify(response.data.user));
+
+                // Update user state in App
+                onLogin(response.data.user); // Call onLogin to update user in App
+
+                navigate('/'); // Redirect to dashboard or home page
             } catch (error) {
                 // Check if the response contains a message
                 if (error.response && error.response.data) {
@@ -95,29 +111,6 @@ const LoginPage = () => {
         }
 
         checkSession();
-    };
-
-    const checkSession = async () => {
-        try {
-            const response = await axios.get('http://localhost:5001/api/session');
-            if (response.data.user) {
-                // User is logged in, you can store user data or redirect
-                console.log('Active session found:', response.data.user);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
-            }
-        } catch (error) {
-            console.log('No active session');
-        }
-    };
-
-    const handleLogoutClick = async () => {
-        try {
-            await axios.post('http://localhost:5001/api/logout');
-            localStorage.removeItem('user');
-            navigate('/login'); // Redirect to login page
-        } catch (error) {
-            console.error('Logout failed:', error);
-        }
     };
 
     return (
