@@ -56,7 +56,6 @@ client.connect()
 // Register endpoint
 app.use('/api/events', eventRoutes); // All event-related routes
 
-
 app.post('/api/register', async (req, res) => {
     try {
         const { email, username, password } = req.body;
