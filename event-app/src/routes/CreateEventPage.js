@@ -1,8 +1,8 @@
 import React from 'react';
 import axios from 'axios';
+import { TextField, Button, FormControlLabel, Checkbox, Typography, Container, Grid } from '@mui/material';
 import DatePicker from '../components/DatePicker';
 import TimePicker from '../components/TimePicker';
-import CustomCheckbox from '../components/Checkbox';
 import dayjs from 'dayjs';
 import './CreateEventPage.css';
 
@@ -24,116 +24,152 @@ class CreateEventPage extends React.Component {
     event.preventDefault();
     const { title, singleDay, startDate, endDate, startTime, endTime, description } = this.state;
 
+    // Prepare event data
     const eventData = {
       title,
+      singleDay,
       startDate: startDate.format('YYYY-MM-DD'),
-      endDate: singleDay ? startDate.format('YYYY-MM-DD') : endDate.format('YYY-MM-DD'),
+      endDate: endDate.format('YYYY-MM-DD'),
       startTime: startTime.format('HH:mm'),
       endTime: endTime.format('HH:mm'),
       description,
     };
 
-    axios.post('/api/events', eventData)
-    .then((response) => {
-        console.log(response);
-        this.props.history.push(`/events/event/${response.data.id}`);
-    })
-    .catch((error) => {
-        console.error(error);
-    });
-  }
+    // Post data to the backend
+    axios.post('http://localhost:5001/api/create-new-event', eventData)
+      .then((response) => {
+        console.log(response.data);
+        // Redirect to the newly created event page (or show a success message)
+        //this.props.history.push(`/events/event/${response.data._id}`);
+      })
+      .catch((error) => {
+        console.error('Error creating event:', error);
+      });
+  };
 
   handleChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
-  }
+  };
 
   handleSingleDayToggle = (event) => {
-    this.setState({singleDay: event.target.checked});
-  }
+    this.setState({ singleDay: event.target.checked });
+  };
 
   handleStartDayChange = (newValue) => {
-    this.setState({ startDate : newValue });
-  }
+    this.setState({ startDate: newValue });
+  };
 
   handleEndDayChange = (newValue) => {
-    this.setState({ endDate : newValue });
-  }
+    this.setState({ endDate: newValue });
+  };
 
   handleStartTimeChange = (newValue) => {
-    this.setState({ startTime : newValue });
-  }
+    this.setState({ startTime: newValue });
+  };
 
   handleEndTimeChange = (newValue) => {
-    this.setState({ endTime : newValue });
-  }
+    this.setState({ endTime: newValue });
+  };
 
   render() {
-    const { singleDay, startDate, endDate, startTime, endTime } = this.state;
+    const { singleDay, startDate, endDate, startTime, endTime, title, description } = this.state;
 
     return (
-      <div className = "create-event-container">
-        <h1>Create New Event</h1>
-        <form className = "event-form" onSubmit = {this.handleSubmit}>
-          <label>
-            Title:
-            <input
-              type = "text"
-              name = "title"
-              value = {this.state.title}
-              onChange = {this.handleChange}
-              className = "input-field"
-            />
-          </label>
-
-          <CustomCheckbox
-            checked={singleDay}
-            onChange={this.handleSingleDayToggle}
-            className = "checkbox"
-          />
-
-          <label>Select Start Date:</label>
-          <DatePicker
-            value = {startDate}
-            onChange = {this.handleStartDayChange}
-          />
-
-          {!singleDay && (
-            <>
-              <label>Select End Date:</label>
-              <DatePicker
-                value = {endDate}
-                onChange = {this.handleEndDayChange}
+      <Container maxWidth="sm">
+        <Typography variant="h4" component="h1" gutterBottom>
+          Create New Event
+        </Typography>
+        <form onSubmit={this.handleSubmit} noValidate autoComplete="off">
+          <Grid container spacing={3}>
+            {/* Title Field */}
+            <Grid item xs={12}>
+              <TextField
+                label="Title"
+                name="title"
+                value={title}
+                onChange={this.handleChange}
+                fullWidth
+                required
               />
-            </>
-          )}
+            </Grid>
 
-          <label>Select Start Time:</label>
-          <TimePicker
-            value={startTime}
-            onChange={this.handleStartTimeChange}
-          />
+            {/* Single Day Checkbox */}
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={singleDay}
+                    onChange={this.handleSingleDayToggle}
+                    name="singleDay"
+                  />
+                }
+                label="Single Day Event"
+              />
+            </Grid>
 
-          <label>Select End Time:</label>
-          <TimePicker
-            value={endTime}
-            onChange={this.handleEndTimeChange}
-          />
+            {/* Start Date Picker */}
+            <Grid item xs={12}>
+              <DatePicker
+                label="Start Date"
+                value={startDate}
+                onChange={this.handleStartDayChange}
+                fullWidth
+              />
+            </Grid>
 
-          <label>
-            Description:
-            <textarea
-              name = "description"
-              value = {this.state.description}
-              onChange = {this.handleChange}
-              className = "input-field"
-            />
-          </label>
+            {/* End Date Picker (conditionally rendered) */}
+              <Grid item xs={12}>
+                <DatePicker
+                  label="End Date"
+                  value={endDate}
+                  onChange={this.handleEndDayChange}
+                  fullWidth
+                />
+              </Grid>
 
-          <button type = "submit" className = "submit-button">Create Event</button>
+            {/* Start Time Picker */}
+            <Grid item xs={12}>
+              <TimePicker
+                label="Start Time"
+                value={startTime}
+                onChange={this.handleStartTimeChange}
+                fullWidth
+              />
+            </Grid>
 
+            {/* End Time Picker */}
+            <Grid item xs={12}>
+              <TimePicker
+                label="End Time"
+                value={endTime}
+                onChange={this.handleEndTimeChange}
+                fullWidth
+              />
+            </Grid>
+
+            {/* Description Field */}
+            <Grid item xs={12}>
+              <TextField
+                label="Description"
+                name="description"
+                value={description}
+                onChange={this.handleChange}
+                multiline
+                rows={4}
+                fullWidth
+              />
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button type="submit" variant="contained" color="primary" fullWidth>
+                Create Event
+              </Button>
+            </Grid>
+          </Grid>
         </form>
-      </div>
+      </Container>
     );
   }
 }
