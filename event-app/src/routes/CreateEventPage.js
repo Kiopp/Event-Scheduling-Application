@@ -39,6 +39,7 @@ class CreateEventPage extends React.Component {
     axios.post('http://localhost:5001/api/create-new-event', eventData)
       .then((response) => {
         console.log(response.data);
+        console.log(eventData);
         // Redirect to the newly created event page (or show a success message)
         //this.props.history.push(`/events/event/${response.data._id}`);
       })
@@ -95,7 +96,7 @@ class CreateEventPage extends React.Component {
             </Grid>
 
             {/* Single Day Checkbox */}
-            <Grid item xs={12}>
+            <Grid item xs={12} key="Checkbox">
               <FormControlLabel
                 control={
                   <Checkbox
@@ -109,7 +110,7 @@ class CreateEventPage extends React.Component {
             </Grid>
 
             {/* Start Date Picker */}
-            <Grid item xs={12}>
+            <Grid item xs={12} key="StartDate">
               <DatePicker
                 label="Start Date"
                 value={startDate}
@@ -119,7 +120,8 @@ class CreateEventPage extends React.Component {
             </Grid>
 
             {/* End Date Picker (conditionally rendered) */}
-              <Grid item xs={12}>
+            {!singleDay && (
+              <Grid item xs={12} key="EndDate">
                 <DatePicker
                   label="End Date"
                   value={endDate}
@@ -127,9 +129,10 @@ class CreateEventPage extends React.Component {
                   fullWidth
                 />
               </Grid>
+            )}
 
             {/* Start Time Picker */}
-            <Grid item xs={12}>
+            <Grid item xs={12} key="StartTime">
               <TimePicker
                 label="Start Time"
                 value={startTime}
@@ -139,7 +142,7 @@ class CreateEventPage extends React.Component {
             </Grid>
 
             {/* End Time Picker */}
-            <Grid item xs={12}>
+            <Grid item xs={12} key="EndTime">
               <TimePicker
                 label="End Time"
                 value={endTime}
@@ -149,7 +152,7 @@ class CreateEventPage extends React.Component {
             </Grid>
 
             {/* Description Field */}
-            <Grid item xs={12}>
+            <Grid item xs={12} key="Description">
               <TextField
                 label="Description"
                 name="description"
@@ -162,7 +165,7 @@ class CreateEventPage extends React.Component {
             </Grid>
 
             {/* Submit Button */}
-            <Grid item xs={12}>
+            <Grid item xs={12} key="Submit">
               <Button type="submit" variant="contained" color="primary" fullWidth>
                 Create Event
               </Button>
