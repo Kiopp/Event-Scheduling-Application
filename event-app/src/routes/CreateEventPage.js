@@ -41,7 +41,6 @@ class CreateEventPage extends React.Component {
       return false;
     }
 
-    // Clear any previous error messages
     return true;
   };
 
