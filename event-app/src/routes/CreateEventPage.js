@@ -20,8 +20,39 @@ class CreateEventPage extends React.Component {
     };
   }
 
+  validateEventTimes = () => {
+    const { startDate, endDate, startTime, endTime } = this.state;
+
+    // Get the current date and time
+    const currentDateTime = dayjs();
+
+    // Combine startDate and startTime into a single startDateTime object
+    const startDateTime = startDate.set('hour', startTime.hour()).set('minute', startTime.minute());
+    // Combine endDate and endTime into a single endDateTime object
+    const endDateTime = endDate.set('hour', endTime.hour()).set('minute', endTime.minute());
+
+    // Validation: Start datetime must be in the future
+    if (!startDateTime.isAfter(currentDateTime)) {
+      return false;
+    }
+
+    // Validation: Start datetime must be before end datetime
+    if (!endDateTime.isAfter(startDateTime)) {
+      return false;
+    }
+
+    // Clear any previous error messages
+    return true;
+  };
+
   handleSubmit = (event) => {
     event.preventDefault();
+
+    // Validate before submission
+    if (!this.validateEventTimes()) {
+      return; // Stop submission if validation fails
+    }
+
     const { title, singleDay, startDate, endDate, startTime, endTime, description } = this.state;
 
     // Prepare event data
