@@ -147,6 +147,37 @@ app.get('/api/session', (req, res) => {
     }
 });
 
+// Create a new event
+app.post('/api/create-new-event', async (req, res) => {
+    try {
+      const { title, singleDay, startDate, endDate, startTime, endTime, description } = req.body;
+  
+      // Basic validation
+      if (!title || !startDate || !startTime || !endTime || (singleDay === false && !endDate)) {
+        return res.status(400).json({ message: 'All required fields must be filled out.' });
+      }
+  
+      // Prepare the event data
+      const newEvent = {
+        title,
+        singleDay,
+        startDate,
+        endDate: singleDay ? startDate : endDate, // if it's a single-day event, use startDate as endDate
+        startTime,
+        endTime,
+        description
+      };
+  
+      // Save the event to the database
+      const result = await db.collection('events').insertOne(newEvent);
+  
+      res.status(201).json({ message: 'Event created successfully', eventId: result.insertedId });
+    } catch (error) {
+      console.error('Error creating event:', error); // Log the error
+      res.status(500).json({ message: 'Failed to create event', error: error.message });
+    }
+});
+
 // Logout endpoint
 app.post('/api/logout', (req, res) => {
     req.session.destroy((err) => {
