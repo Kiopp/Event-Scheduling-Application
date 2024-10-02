@@ -4,11 +4,10 @@ import RequestCard from './RequestCard';
 function RequestList() {
     const friends = [
         { id: 1, username: 'Billy Bob' },
-        { id: 2, username: 'Tycho Brahe' },
         { id: 3, username: 'Ingvar Kamprad' },
         { id: 4, username: 'REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE' },
-        { id: 5, username: 'Birger Bard' },
-        { id: 6, username: 'Harry Potter' },
+        { id: 7, username: 'E' },
+        { id: 7, username: 'Jesper Wentzell' },
         // ... more friends
       ];
 
