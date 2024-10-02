@@ -5,7 +5,6 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import FriendPanel from './FriendPanel';
 import RequestPanel from './RequestPanel';
-import AddFriendPanel from './AddFriendPanel';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -49,7 +48,6 @@ export default function FriendTabs() {
         <Tabs value={value} onChange={handleChange} aria-label="friend-tabs">
           <Tab label="Friends" {...a11yProps(0)} />
           <Tab label="Requests" {...a11yProps(1)} />
-          <Tab label="Add Friend" {...a11yProps(2)} />
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
@@ -57,9 +55,6 @@ export default function FriendTabs() {
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <RequestPanel />
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={2}>
-        <AddFriendPanel />
       </CustomTabPanel>
     </Box>
   );
