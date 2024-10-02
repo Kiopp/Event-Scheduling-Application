@@ -9,6 +9,7 @@ import RegisterPage from './routes/RegisterPage';
 import EventPage from './routes/EventPage';
 import CreateEventPage from './routes/CreateEventPage';
 import axios from 'axios';
+import FriendPage from './routes/FriendPage';
 
 const darkTheme = createTheme({
   palette: {
@@ -75,9 +76,21 @@ function App() {
               <Link to="/events" className='btn'>
                 <p>Events</p>
               </Link>
-              <Link to="/events/create-new-event" className='btn'>
-                <p>Create Event</p>
-              </Link>
+              {user ? (
+                <>
+                {/* The user is logged in */}
+                  <Link to="/events/create-new-event" className='btn'>
+                    <p>Create Event</p>
+                  </Link>
+                  <Link to="/friends" className='btn'>
+                    <p>Friends</p>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {/* The user is not logged in */}
+                </>
+              )}
             </nav>
             <div className='Login'>
               {/* If the user is logged in, show the avatar instead of login/register */}
@@ -113,6 +126,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/events/event/:event_id" element={<EventPage />} />
             <Route path="/events/create-new-event" element={<CreateEventPage />} />
+            <Route path="/friends" element={<FriendPage />} />
           </Routes>
         </div>
       </BrowserRouter>
