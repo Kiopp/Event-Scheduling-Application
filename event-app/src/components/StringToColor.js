@@ -1,4 +1,4 @@
-
+/** Hash function to get a color from string */
 export default function stringToColor(string) {
     if (!string) { // Check if string is null
         return '#7fffd4'; // Return standard color

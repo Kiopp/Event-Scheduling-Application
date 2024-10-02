@@ -1,11 +1,8 @@
 import * as React from 'react';
-import RequestCard from './RequestCard';
+import RequestList from './RequestList';
 export default function RequestPanel() {
 
   return (
-    <div>
-      <RequestCard name='Grebert' id='3' />
-    </div>
-    
+    <RequestList />
   );
 }
