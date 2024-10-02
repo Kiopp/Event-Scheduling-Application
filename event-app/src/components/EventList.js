@@ -30,14 +30,17 @@ function EventList() {
     return (
       <Grid2 container spacing={1}>
           {events.map((event) => (
-              <EventCard title={event.title} 
-              startDate={event.startDate} 
-              endDate={event.endDate} 
-              startTime={event.startTime} 
-              endTime={event.endTime} 
-              description={event.description} 
-              singleDay={event.singleDay}
-              id={event.id}/>
+              <EventCard
+                key={event._id} // Add a unique key
+                title={event.title} 
+                startDate={event.startDate} 
+                endDate={event.endDate} 
+                startTime={event.startTime} 
+                endTime={event.endTime} 
+                description={event.description} 
+                singleDay={event.singleDay}
+                id={event._id} // Use event._id instead of event.id
+              />
           ))}
       </Grid2>
     );

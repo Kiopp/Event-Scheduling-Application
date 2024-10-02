@@ -22,7 +22,7 @@ class EventCard extends React.Component {
 
     render() {
         return (
-            <Link to={`/events/event/${this.state.eventId}`} className='EventLink'>
+            <Link to={`/event/${this.state.eventId}`} className='EventLink'>
                 <Card sx={{ maxWidth: 345 }}>
                   <CardActionArea>
                     <CardContent>

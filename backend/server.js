@@ -52,9 +52,11 @@ client.connect()
         console.error('Connection error:', err);
         process.exit(1); // Exit process with failure code
     });
-
-// Register endpoint
-app.use('/api/events', eventRoutes); // All event-related routes
+    
+app.use((req, res, next) => {
+    console.log(`Received request for ${req.method} ${req.url}`);
+    next();
+});
 
 app.post('/api/register', async (req, res) => {
     try {
@@ -190,18 +192,33 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
+const { ObjectId } = require('mongodb');
 
 // Define API route to get a single event by ID
 app.get('/api/event/:id', async (req, res) => {
     try {
-        const event = await Event.findById(req.params.id);
+        const db = req.app.locals.db;
+        
+        // Log the raw ID from the request
+        console.log('Raw Event ID:', req.params.id);
+        
+        const eventId = new ObjectId(req.params.id);
+        
+        // Log the converted ObjectId
+        console.log('Converted ObjectId:', eventId);
+        
+        const event = await db.collection('events').findOne({ _id: eventId });
+        
         if (event) {
+            console.log('Event found:', event);
             res.json(event);
         } else {
+            console.log('Event not found');
             res.status(404).json({ message: 'Event not found' });
         }
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error('Error fetching event:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 

@@ -124,7 +124,7 @@ function App() {
             <Route path="/events" element={<PublicEvents />} />
             <Route path="/login" element={<LoginPage onLogin={setUser} />} /> {/* Pass setUser as onLogin */}
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/events/event/:event_id" element={<EventPage />} />
+            <Route path="/event/:event_id" element={<EventPage />} />
             <Route path="/events/create-new-event" element={<CreateEventPage />} />
             <Route path="/friends" element={<FriendPage />} />
           </Routes>
