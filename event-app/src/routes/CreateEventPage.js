@@ -21,7 +21,7 @@ class CreateEventPage extends React.Component {
   }
 
   validateEventTimes = () => {
-    const { startDate, endDate, startTime, endTime } = this.state;
+    const { singleDay, startDate, endDate, startTime, endTime } = this.state;
 
     // Get the current date and time
     const currentDateTime = dayjs();
@@ -37,7 +37,7 @@ class CreateEventPage extends React.Component {
     }
 
     // Validation: Start datetime must be before end datetime
-    if (!endDateTime.isAfter(startDateTime)) {
+    if (!endDateTime.isAfter(startDateTime) && singleDay == false) {
       return false;
     }
 

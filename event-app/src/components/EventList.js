@@ -31,11 +31,12 @@ function EventList() {
       <Grid2 container spacing={1}>
           {events.map((event) => (
               <EventCard title={event.title} 
-              date={event.startDate} 
+              startDate={event.startDate} 
               endDate={event.endDate} 
               startTime={event.startTime} 
               endTime={event.endTime} 
               description={event.description} 
+              singleDay={event.singleDay}
               id={event.id}/>
           ))}
       </Grid2>
