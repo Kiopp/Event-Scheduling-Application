@@ -178,6 +178,33 @@ app.post('/api/create-new-event', async (req, res) => {
     }
 });
 
+// Fetch all events from the database
+app.get('/api/events', async (req, res) => {
+    try {
+        const db = req.app.locals.db; // Access the database from app.locals
+        const events = await db.collection('events').find().toArray(); // Retrieve all events
+        res.status(200).json(events); // Send events as JSON
+    } catch (err) {
+        console.error('Failed to retrieve events:', err);
+        res.status(500).json({ message: 'Failed to retrieve events', error: err.message });
+    }
+});
+
+
+// Define API route to get a single event by ID
+app.get('/api/event/:id', async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (event) {
+            res.json(event);
+        } else {
+            res.status(404).json({ message: 'Event not found' });
+        }
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Logout endpoint
 app.post('/api/logout', (req, res) => {
     req.session.destroy((err) => {

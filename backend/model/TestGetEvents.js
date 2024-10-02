@@ -47,6 +47,14 @@ const events = [
         "endTime": "9123:18929894",
         "description": "This event is so big it will cover a large area of any screen that tries to render this event card hehehehehehehehheheheheheheheheheheheheh"
     },
+    {
+        "id": "7",
+        "title": "VTETSTETTE",
+        "date": "12-34-56789101112",
+        "startTime": "1234:5678",
+        "endTime": "9123:18929894",
+        "description": "This event is so big it will cover a large area of any screen that tries to render this event card hehehehehehehehheheheheheheheheheheheheh"
+    },
 ]
 
 module.exports = events;
