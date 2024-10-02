@@ -75,6 +75,9 @@ function App() {
               <Link to="/events" className='btn'>
                 <p>Events</p>
               </Link>
+              <Link to="/events/create-new-event" className='btn'>
+                <p>Create Event</p>
+              </Link>
             </nav>
             <div className='Login'>
               {/* If the user is logged in, show the avatar instead of login/register */}
