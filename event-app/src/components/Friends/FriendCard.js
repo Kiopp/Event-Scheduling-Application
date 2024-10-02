@@ -6,8 +6,6 @@ import Typography from '@mui/material/Typography';
 import CardActionArea from '@mui/material/CardActionArea';
 import { Avatar, Box, Stack} from '@mui/material';
 import stringToColor from '../StringToColor.js';
-import Divider from '@mui/material/Divider';
-import Button from '@mui/material/Button';
 
 function FriendCard (props) {
     const { name, id } = props;
