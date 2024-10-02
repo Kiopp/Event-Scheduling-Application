@@ -79,6 +79,9 @@ function App() {
               {user ? (
                 <>
                 {/* The user is logged in */}
+                  <Link to="/events/create-new-event" className='btn'>
+                    <p>Create Event</p>
+                  </Link>
                   <Link to="/friends" className='btn'>
                     <p>Friends</p>
                   </Link>

@@ -38,23 +38,23 @@ let db;
 const client = new MongoClient(uri);
 
 client.connect()
-  .then(() => {
-    db = client.db('mydatabase'); // Initialize the database
-    console.log('Connected successfully to MongoDB');
-    
-    // Start server after successful DB connection
-    app.listen(port, () => {
-        console.log(`Server is running on http://localhost:${port}`);
+    .then(() => {
+        db = client.db('mydatabase'); // Initialize the database
+        app.locals.db = db; // Attach db to app.locals
+        console.log('Connected successfully to MongoDB');
+
+        // Start server after successful DB connection
+        app.listen(port, () => {
+            console.log(`Server is running on http://localhost:${port}`);
+        });
+    })
+    .catch(err => {
+        console.error('Connection error:', err);
+        process.exit(1); // Exit process with failure code
     });
-  })
-  .catch(err => {
-    console.error('Connection error:', err);
-    process.exit(1); // Exit process with failure code
-  });
 
 // Register endpoint
 app.use('/api/events', eventRoutes); // All event-related routes
-
 
 app.post('/api/register', async (req, res) => {
     try {
@@ -101,7 +101,6 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-
 // Login endpoint
 app.post('/api/login', async (req, res) => {
     try {
@@ -145,6 +144,37 @@ app.get('/api/session', (req, res) => {
         res.status(200).json({ user: req.session.user });
     } else {
         res.status(401).json({ message: 'No active session' });
+    }
+});
+
+// Create a new event
+app.post('/api/create-new-event', async (req, res) => {
+    try {
+      const { title, singleDay, startDate, endDate, startTime, endTime, description } = req.body;
+  
+      // Basic validation
+      if (!title || !startDate || !startTime || !endTime || (singleDay === false && !endDate)) {
+        return res.status(400).json({ message: 'All required fields must be filled out.' });
+      }
+  
+      // Prepare the event data
+      const newEvent = {
+        title,
+        singleDay,
+        startDate,
+        endDate: singleDay ? startDate : endDate, // if it's a single-day event, use startDate as endDate
+        startTime,
+        endTime,
+        description
+      };
+  
+      // Save the event to the database
+      const result = await db.collection('events').insertOne(newEvent);
+  
+      res.status(201).json({ message: 'Event created successfully', eventId: result.insertedId });
+    } catch (error) {
+      console.error('Error creating event:', error); // Log the error
+      res.status(500).json({ message: 'Failed to create event', error: error.message });
     }
 });
 
