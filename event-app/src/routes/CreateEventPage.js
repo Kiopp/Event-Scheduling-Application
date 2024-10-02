@@ -107,102 +107,106 @@ class CreateEventPage extends React.Component {
     const { singleDay, startDate, endDate, startTime, endTime, title, description } = this.state;
 
     return (
-      <Container maxWidth="sm">
-        <Typography variant="h4" component="h1" gutterBottom>
-          Create New Event
-        </Typography>
-        <form onSubmit={this.handleSubmit} noValidate autoComplete="off">
-          <Grid container spacing={3}>
-            {/* Title Field */}
-            <Grid item xs={12}>
-              <TextField
-                label="Title"
-                name="title"
-                value={title}
-                onChange={this.handleChange}
-                fullWidth
-                required
-              />
-            </Grid>
+      <div className='Content'>
+        <h1 className='PageTitle'>
+            Create new event
+        </h1>
 
-            {/* Single Day Checkbox */}
-            <Grid item xs={12} key="Checkbox">
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={singleDay}
-                    onChange={this.handleSingleDayToggle}
-                    name="singleDay"
-                  />
-                }
-                label="Single Day Event"
-              />
-            </Grid>
+        <Container maxWidth="sm">
+          <form onSubmit={this.handleSubmit} noValidate autoComplete="off">
+            <Grid container spacing={3}>
+              {/* Title Field */}
+              <Grid item xs={12}>
+                <TextField
+                  label="Title"
+                  name="title"s
+                  value={title}
+                  onChange={this.handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
 
-            {/* Start Date Picker */}
-            <Grid item xs={12} key="StartDate">
-              <DatePicker
-                label="Start Date"
-                value={startDate}
-                onChange={this.handleStartDayChange}
-                fullWidth
-              />
-            </Grid>
+              {/* Single Day Checkbox */}
+              <Grid item xs={12} key="Checkbox">
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={singleDay}
+                      onChange={this.handleSingleDayToggle}
+                      name="singleDay"
+                    />
+                  }
+                  label="Single Day Event"
+                />
+              </Grid>
 
-            {/* End Date Picker (conditionally rendered) */}
-            {!singleDay && (
-              <Grid item xs={12} key="EndDate">
+              {/* Start Date Picker */}
+              <Grid item xs={12} key="StartDate">
                 <DatePicker
-                  label="End Date"
-                  value={endDate}
-                  onChange={this.handleEndDayChange}
+                  label="Start Date"
+                  value={startDate}
+                  onChange={this.handleStartDayChange}
                   fullWidth
                 />
               </Grid>
-            )}
 
-            {/* Start Time Picker */}
-            <Grid item xs={12} key="StartTime">
-              <TimePicker
-                label="Start Time"
-                value={startTime}
-                onChange={this.handleStartTimeChange}
-                fullWidth
-              />
-            </Grid>
+              {/* End Date Picker (conditionally rendered) */}
+              {!singleDay && (
+                <Grid item xs={12} key="EndDate">
+                  <DatePicker
+                    label="End Date"
+                    value={endDate}
+                    onChange={this.handleEndDayChange}
+                    fullWidth
+                  />
+                </Grid>
+              )}
 
-            {/* End Time Picker */}
-            <Grid item xs={12} key="EndTime">
-              <TimePicker
-                label="End Time"
-                value={endTime}
-                onChange={this.handleEndTimeChange}
-                fullWidth
-              />
-            </Grid>
+              {/* Start Time Picker */}
+              <Grid item xs={12} key="StartTime">
+                <TimePicker
+                  label="Start Time"
+                  value={startTime}
+                  onChange={this.handleStartTimeChange}
+                  fullWidth
+                />
+              </Grid>
 
-            {/* Description Field */}
-            <Grid item xs={12} key="Description">
-              <TextField
-                label="Description"
-                name="description"
-                value={description}
-                onChange={this.handleChange}
-                multiline
-                rows={4}
-                fullWidth
-              />
-            </Grid>
+              {/* End Time Picker */}
+              <Grid item xs={12} key="EndTime">
+                <TimePicker
+                  label="End Time"
+                  value={endTime}
+                  onChange={this.handleEndTimeChange}
+                  fullWidth
+                />
+              </Grid>
 
-            {/* Submit Button */}
-            <Grid item xs={12} key="Submit">
-              <Button type="submit" variant="contained" color="primary" fullWidth>
-                Create Event
-              </Button>
+              {/* Description Field */}
+              <Grid item xs={12} key="Description">
+                <TextField
+                  label="Description"
+                  name="description"
+                  value={description}
+                  onChange={this.handleChange}
+                  multiline
+                  rows={4}
+                  fullWidth
+                />
+              </Grid>
+
+              {/* Submit Button */}
+              <Grid item xs={12} key="Submit">
+                <Button type="submit" variant="contained" color="primary" fullWidth>
+                  Create Event
+                </Button>
+              </Grid>
             </Grid>
-          </Grid>
-        </form>
-      </Container>
+          </form>
+        </Container>
+      </div>
+      
     );
   }
 }
