@@ -52,10 +52,11 @@ client.connect()
         console.error('Connection error:', err);
         process.exit(1); // Exit process with failure code
     });
-
-// Register endpoint
-app.use('/api/events', eventRoutes); // All event-related routes
-
+    
+app.use((req, res, next) => {
+    console.log(`Received request for ${req.method} ${req.url}`);
+    next();
+});
 
 app.post('/api/register', async (req, res) => {
     try {
@@ -145,6 +146,79 @@ app.get('/api/session', (req, res) => {
         res.status(200).json({ user: req.session.user });
     } else {
         res.status(401).json({ message: 'No active session' });
+    }
+});
+
+// Create a new event
+app.post('/api/create-new-event', async (req, res) => {
+    try {
+      const { title, singleDay, startDate, endDate, startTime, endTime, description } = req.body;
+  
+      // Basic validation
+      if (!title || !startDate || !startTime || !endTime || (singleDay === false && !endDate)) {
+        return res.status(400).json({ message: 'All required fields must be filled out.' });
+      }
+  
+      // Prepare the event data
+      const newEvent = {
+        title,
+        singleDay,
+        startDate,
+        endDate: singleDay ? startDate : endDate, // if it's a single-day event, use startDate as endDate
+        startTime,
+        endTime,
+        description
+      };
+  
+      // Save the event to the database
+      const result = await db.collection('events').insertOne(newEvent);
+  
+      res.status(201).json({ message: 'Event created successfully', eventId: result.insertedId });
+    } catch (error) {
+      console.error('Error creating event:', error); // Log the error
+      res.status(500).json({ message: 'Failed to create event', error: error.message });
+    }
+});
+
+// Fetch all events from the database
+app.get('/api/events', async (req, res) => {
+    try {
+        const db = req.app.locals.db; // Access the database from app.locals
+        const events = await db.collection('events').find().toArray(); // Retrieve all events
+        res.status(200).json(events); // Send events as JSON
+    } catch (err) {
+        console.error('Failed to retrieve events:', err);
+        res.status(500).json({ message: 'Failed to retrieve events', error: err.message });
+    }
+});
+
+const { ObjectId } = require('mongodb');
+
+// Define API route to get a single event by ID
+app.get('/api/event/:id', async (req, res) => {
+    try {
+        const db = req.app.locals.db;
+        
+        // Log the raw ID from the request
+        console.log('Raw Event ID:', req.params.id);
+        
+        const eventId = new ObjectId(req.params.id);
+        
+        // Log the converted ObjectId
+        console.log('Converted ObjectId:', eventId);
+        
+        const event = await db.collection('events').findOne({ _id: eventId });
+        
+        if (event) {
+            console.log('Event found:', event);
+            res.json(event);
+        } else {
+            console.log('Event not found');
+            res.status(404).json({ message: 'Event not found' });
+        }
+    } catch (err) {
+        console.error('Error fetching event:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 

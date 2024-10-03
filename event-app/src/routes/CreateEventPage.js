@@ -32,7 +32,6 @@ class CreateEventPage extends React.Component {
       return false;
     }
 
-    // Validation: Start datetime must be before end datetime
     if (!endDateTime.isAfter(startDateTime) && singleDay === false) {
       return false;
     }

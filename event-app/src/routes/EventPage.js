@@ -55,7 +55,7 @@ function EventPage() {
       
               {event.singleDay ? (
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Date: {dayjs(event.startDate).format('DD, MM, YYYY')}
+                  Date: {dayjs(event.startDate).format('YYYY-MM-DD')}
                 </Typography>
               ) : (
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
