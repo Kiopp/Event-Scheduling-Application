@@ -23,29 +23,32 @@ class EventCard extends React.Component {
     render() {
         return (
             <Link to={`/event/${this.state.eventId}`} className='EventLink'>
-                <Card sx={{ maxWidth: 345 }}>
-                  <CardActionArea>
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {this.state.title}
+                <Card sx={{ width: 345, display: 'flex', flexDirection: 'column', alignItems: 'center' }} >
+                  <CardActionArea sx={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <CardContent textAlign="center">
+                      <Typography variant="h6" sx={{ 
+                                  width: 200,
+                                  color: 'text.secondary', 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                              }}>
+                              {this.state.title}
                       </Typography>
                       
                       {/* Conditionally render date based on whether it's a single-day event */}
                       {this.state.singleDay ? (
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                          Date: {this.state.startDate}
+                          {this.state.startDate}
                         </Typography>
                       ) : (
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                          Start Date: {this.state.startDate} - End Date: {this.state.endDate}
+                          {this.state.startDate} - {this.state.endDate}
                         </Typography>
                       )}
 
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                         Time: {this.state.startTime} - {this.state.endTime}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                         Description: {this.state.description}
+                         {this.state.startTime} - {this.state.endTime}
                       </Typography>
                     </CardContent>
                   </CardActionArea>
