@@ -10,6 +10,7 @@ import EventPage from './routes/EventPage';
 import CreateEventPage from './routes/CreateEventPage';
 import axios from 'axios';
 import FriendPage from './routes/FriendPage';
+import stringToColor from './components/StringToColor.js';
 
 const darkTheme = createTheme({
   palette: {
@@ -97,7 +98,7 @@ function App() {
               {user ? (
                 <>
                   <IconButton onClick={handleAvatarClick}>
-                    <Avatar>{user.username[0].toUpperCase()}</Avatar>
+                    <Avatar sx={{ bgcolor: stringToColor(user.username)}} >{user.username[0].toUpperCase()}</Avatar>
                   </IconButton>
                   <Menu
                     anchorEl={anchorEl}
