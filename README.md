@@ -7,7 +7,7 @@ Group 5
 
 
 - Jesper\
-Username: Kiopp
+Username:Kiopp
 
 - Axel\
 Username:Vencilo
@@ -16,9 +16,9 @@ Username:Vencilo
 Username:hannankhalil
 
 - Carl\
-Username: CarlNord01
+Username:CarlNord01
 
 
 ---
 ## What we will implement:
-An event scheduling application using the MERN stack.\
+An event scheduling application using the MERN stack.
