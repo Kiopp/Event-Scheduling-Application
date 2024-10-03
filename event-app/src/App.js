@@ -68,12 +68,11 @@ function App() {
         <div className="App">
           <header className="Header">
             <div className='header-title'>
-              Event Scheduler PRO
+              <Link to='/' className='btn'>
+                Event Scheduler PRO
+              </Link>
             </div>
             <nav className='nav'>
-              <Link to="/" className='btn'>
-                <p>Home</p>
-              </Link>
               <Link to="/events" className='btn'>
                 <p>Events</p>
               </Link>
