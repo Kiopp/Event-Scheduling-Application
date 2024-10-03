@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Typography } from '@mui/material';
+import dayjs from 'dayjs';
 
 function EventPage() {
     const [event, setEvent] = useState(null);
@@ -8,26 +10,36 @@ function EventPage() {
     const { event_id } = useParams(); // Get the event ID from the URL
 
     useEffect(() => {
-      console.log('Fetching event with ID:', event_id);
-      // Fetch event from the backend by ID
-      fetch(`http://localhost:5001/api/event/${event_id}`)
+        console.log('Fetching event with ID:', event_id);
+        fetch(`http://localhost:5001/api/event/${event_id}`)
           .then(response => {
-              if (!response.ok) {
-                  throw new Error('Event not found');
-              }
-              return response.json();
+            if (!response.ok) {
+              throw new Error('Event not found');
+            }
+            return response.json();
           })
           .then(data => {
-              console.log('Fetched event:', data); // Log the fetched data
-              setEvent(data);
-              setLoading(false);
+            console.log('Fetched event:', data);
+      
+            // Combine date and time for start and end
+            const startDateTime = dayjs(`${data.startDate}T${data.startTime}`);
+            const endDateTime = dayjs(`${data.endDate}T${data.endTime}`);
+      
+            // Update the event data
+            setEvent({
+              ...data,
+              startDateTime,
+              endDateTime
+            });
+            
+            setLoading(false);
           })
           .catch(err => {
-              console.error('Error fetching event:', err); // Log any errors
-              setError(err.message);
-              setLoading(false);
+            console.error('Error fetching event:', err);
+            setError(err.message);
+            setLoading(false);
           });
-  }, [event_id]);
+      }, [event_id]);
 
     // Display loading or error state if necessary
     if (loading) return <div>Loading event details...</div>;
@@ -35,17 +47,33 @@ function EventPage() {
 
     return (
         <div className='Content'>
-            {event && (
-                <div>
-                    <h1 className='PageTitle'>{event.title}</h1>
-                    <p><strong>Date: </strong>{event.singleDay ? event.startDate : `${event.startDate} - ${event.endDate}`}</p>
-                    <p><strong>Start Time: </strong>{event.startTime}</p>
-                    <p><strong>End Time: </strong>{event.endTime}</p>
-                    <p><strong>Description: </strong>{event.description}</p>
-                </div>
-            )}
+          {event && (
+            <div>
+              <Typography gutterBottom variant="h5" component="div">
+                {event.title || 'Untitled Event'}
+              </Typography>
+      
+              {event.singleDay ? (
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Date: {dayjs(event.startDate).format('DD, MM, YYYY')}
+                </Typography>
+              ) : (
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Date: {dayjs(event.startDateTime).format('YYYY-MM-DD')} - {dayjs(event.endDateTime).format('YYYY-MM-DD')}
+                </Typography>
+              )}
+      
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Time: {dayjs(event.startDateTime).format('HH:mm')} - {dayjs(event.endDateTime).format('HH:mm')}
+              </Typography>
+      
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Description: {event.description || 'No description available.'}
+              </Typography>
+            </div>
+          )}
         </div>
-    );
+      );      
 }
 
 export default EventPage;
