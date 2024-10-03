@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { TextField, Button, FormControlLabel, Checkbox, Typography, Container, Grid } from '@mui/material';
+import { TextField, Button, FormControlLabel, Checkbox, Container, Grid } from '@mui/material';
 import DatePicker from '../components/DatePicker';
 import TimePicker from '../components/TimePicker';
 import dayjs from 'dayjs';
@@ -32,7 +32,8 @@ class CreateEventPage extends React.Component {
       return false;
     }
 
-    if (!endDateTime.isAfter(startDateTime) && singleDay == false) {
+    // Validation: Start datetime must be before end datetime
+    if (!endDateTime.isAfter(startDateTime) && singleDay === false) {
       return false;
     }
 
