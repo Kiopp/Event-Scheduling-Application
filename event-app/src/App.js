@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { createTheme, ThemeProvider, Avatar, Menu, MenuItem, IconButton } from '@mui/material';
+import { createTheme, ThemeProvider, Avatar, IconButton } from '@mui/material';
 import HomePage from './routes/HomePage';
 import PublicEvents from './routes/PublicEvents';
 import LoginPage from './routes/LoginPage';
@@ -11,6 +11,7 @@ import CreateEventPage from './routes/CreateEventPage';
 import axios from 'axios';
 import FriendPage from './routes/FriendPage';
 import stringToColor from './components/StringToColor.js';
+import Drawer from './components/Drawer.js';
 
 const darkTheme = createTheme({
   palette: {
@@ -21,7 +22,7 @@ const darkTheme = createTheme({
 function App() {
   axios.defaults.withCredentials = true;
   const [user, setUser] = useState(null); // Store user data
-  const [anchorEl, setAnchorEl] = useState(null); // For the dropdown menu
+  const [drawerOpen, setDrawerOpen] = useState(null); // For the dropdown menu
 
   // Check local storage for user information on component mount
   useEffect(() => {
@@ -31,22 +32,22 @@ function App() {
     }
   }, []);
 
-  // Handle avatar click to open menu
-  const handleAvatarClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  // Handle avatar click to open the drawer
+  const handleAvatarClick = () => {
+    setDrawerOpen(true);
     checkSession();
   };
 
-  // Handle menu close
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  // Handle drawer close
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
   };
 
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem('user');
     setUser(null);
-    handleMenuClose();
+    handleDrawerClose();
     checkSession();
     window.location.href = '/login'; // Redirect to login page
   };
@@ -99,13 +100,12 @@ function App() {
                   <IconButton onClick={handleAvatarClick}>
                     <Avatar sx={{ bgcolor: stringToColor(user.username)}} >{user.username[0].toUpperCase()}</Avatar>
                   </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleMenuClose}
-                  >
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </Menu>
+                  {/* Use Drawer instead of Menu */}
+                  <Drawer
+                    open={drawerOpen}
+                    onClose={handleDrawerClose}
+                    handleLogout={handleLogout}
+                  />
                 </>
               ) : (
                 <>
