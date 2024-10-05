@@ -21,6 +21,11 @@ export default function ProfileDrawer({ open, onClose, handleLogout }) {
     onClose();
   };
 
+  const handleNavigateToProfile = () => {
+    navigate('/profile');
+    onClose();
+  };
+
   const list = () => (
     <Box
       sx={{ width: 250 }}
@@ -30,8 +35,8 @@ export default function ProfileDrawer({ open, onClose, handleLogout }) {
     >
       <List>
         <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
+          <ListItemButton onClick={handleNavigateToProfile}>
+            <ListItemIcon>  
               <AccountCircleIcon />
             </ListItemIcon>
             <ListItemText primary="Profile" />

@@ -223,6 +223,24 @@ app.get('/api/event/:id', async (req, res) => {
     }
 });
 
+// Fetch events owned by the current user
+app.get('/api/user/events', async (req, res) => {
+try {
+    if (!req.session.user) {
+    return res.status(401).json({ message: 'Unauthorized. Please log in to view your events.' });
+    }
+
+    const userId = req.session.user.userId;
+
+    const events = await db.collection('events').find({ owner: userId }).toArray();
+
+    res.status(200).json(events);
+    } catch (error) {
+        console.error('Error fetching user events:', error);
+        res.status(500).json({ message: 'Failed to fetch user events', error: error.message });
+    }
+});
+
 // Logout endpoint
 app.post('/api/logout', (req, res) => {
     req.session.destroy((err) => {
