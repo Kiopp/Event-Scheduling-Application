@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -15,10 +17,36 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ProfileDrawer({ open, onClose, handleLogout }) {
   const navigate = useNavigate();
+  const [userId, setUserId] = useState(null); // State to store userId
+
+  // Fetch the logged-in user's information when the component mounts
+  useEffect(() => {
+    axios
+      .get('http://localhost:5001/api/session', { withCredentials: true })
+      .then((response) => {
+        if (response.data.user) {
+          setUserId(response.data.user.userId); // Set the userId state
+        } else {
+          console.error('No user data found in session response');
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching user session data:', error);
+      });
+  }, []);
 
   const handleNavigateToFriends = () => {
     navigate('/friends');
     onClose();
+  };
+
+  const handleNavigateToProfile = () => {
+    if (userId) {
+      navigate(`/profile/${userId}`); // Navigate to the user's profile using userId
+      onClose();
+    } else {
+      console.error('User ID is not available');
+    }
   };
 
   const list = () => (
@@ -30,8 +58,8 @@ export default function ProfileDrawer({ open, onClose, handleLogout }) {
     >
       <List>
         <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
+          <ListItemButton onClick={handleNavigateToProfile}>
+            <ListItemIcon>  
               <AccountCircleIcon />
             </ListItemIcon>
             <ListItemText primary="Profile" />

@@ -223,6 +223,73 @@ app.get('/api/event/:id', async (req, res) => {
     }
 });
 
+// Fetch events owned by the current user
+app.get('/api/user/events', async (req, res) => {
+try {
+    if (!req.session.user) {
+    return res.status(401).json({ message: 'Unauthorized. Please log in to view your events.' });
+    }
+
+    const userId = req.session.user.userId;
+
+    const events = await db.collection('events').find({ owner: userId }).toArray();
+
+    res.status(200).json(events);
+    } catch (error) {
+        console.error('Error fetching user events:', error);
+        res.status(500).json({ message: 'Failed to fetch user events', error: error.message });
+    }
+});
+
+// Get user data by ID
+app.get('/api/user/:userId', async (req, res) => {
+try {
+    const userId = req.params.userId;
+    console.log('Received userId:', userId);
+
+    if (!ObjectId.isValid(userId)) {
+    console.log('Invalid ObjectId:', userId);
+    return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    const user = await db.collection('users').findOne(
+    { _id: new ObjectId(userId) },
+    { projection: { password: 0 } }
+    );
+
+    if (!user) {
+    console.log('User not found for ID:', userId);
+    return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log('User found:', user);
+    res.status(200).json({ user });
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).json({ message: 'Failed to fetch user data', error: error.message });
+    }
+});
+
+// Fetch events for a specific user
+app.get('/api/user/:userId/events', async (req, res) => {
+try {
+    const userId = req.params.userId;
+
+    // Validate the userId
+    if (!ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    // Fetch events created by the user
+    const events = await db.collection('events').find({ owner: userId }).toArray();
+
+    res.status(200).json(events);
+    } catch (error) {
+        console.error('Error fetching user events:', error);
+        res.status(500).json({ message: 'Failed to fetch user events', error: error.message });
+    }
+});
+
 // Logout endpoint
 app.post('/api/logout', (req, res) => {
     req.session.destroy((err) => {

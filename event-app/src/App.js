@@ -10,6 +10,7 @@ import EventPage from './routes/EventPage';
 import CreateEventPage from './routes/CreateEventPage';
 import axios from 'axios';
 import FriendPage from './routes/FriendPage';
+import ProfilePage from './routes/ProfilePage';
 import stringToColor from './components/StringToColor.js';
 import Drawer from './components/Drawer.js';
 
@@ -127,6 +128,7 @@ function App() {
             <Route path="/event/:event_id" element={<EventPage />} />
             <Route path="/events/create-new-event" element={<CreateEventPage />} />
             <Route path="/friends" element={<FriendPage />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
           </Routes>
         </div>
       </BrowserRouter>
