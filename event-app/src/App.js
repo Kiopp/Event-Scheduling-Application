@@ -12,7 +12,6 @@ import axios from 'axios';
 import FriendPage from './routes/FriendPage';
 import stringToColor from './components/StringToColor.js';
 import Drawer from './components/Drawer.js';
-import SearchPage from './routes/SearchPage'
 
 const darkTheme = createTheme({
   palette: {
@@ -78,9 +77,6 @@ function App() {
               <Link to="/events" className='btn'>
                 <p>Events</p>
               </Link>
-              <Link to="/search" className='btn'>
-                <p>Search</p>
-              </Link>
               {user ? (
                 <>
                 {/* The user is logged in */}
@@ -131,7 +127,6 @@ function App() {
             <Route path="/event/:event_id" element={<EventPage />} />
             <Route path="/events/create-new-event" element={<CreateEventPage />} />
             <Route path="/friends" element={<FriendPage />} />
-            <Route path="/search" element={<SearchPage />} />
           </Routes>
         </div>
       </BrowserRouter>
