@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { createTheme, ThemeProvider, Avatar, IconButton } from '@mui/material';
+import { createTheme, ThemeProvider, Avatar, IconButton, Button } from '@mui/material';
 import HomePage from './routes/HomePage';
 import PublicEvents from './routes/PublicEvents';
 import LoginPage from './routes/LoginPage';
@@ -70,7 +70,7 @@ function App() {
           <header className="Header">
             <div className='header-title'>
               <Link to='/' className='btn'>
-                Event Scheduler PRO
+                <img className='navbar_logo' src="/icon_text.png" alt="ESP logo" />
               </Link>
             </div>
             <nav className='nav'>
@@ -109,11 +109,15 @@ function App() {
                 </>
               ) : (
                 <>
-                  <Link to="/login" className='btn'>
-                    <p>Login</p>
+                  <Link to="/login">
+                    <Button sx={{marginRight: '1rem'}} variant='contained'>
+                      Login
+                    </Button>
                   </Link>
-                  <Link to="/register" className='btn'>
-                    <p>Register</p>
+                  <Link to="/register">
+                    <Button variant='outlined'>
+                      Register
+                    </Button>
                   </Link>
                 </>
               )}
