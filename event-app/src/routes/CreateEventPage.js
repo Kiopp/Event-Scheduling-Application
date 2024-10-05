@@ -3,8 +3,18 @@ import axios from 'axios';
 import { TextField, Button, FormControlLabel, Checkbox, Container, Grid } from '@mui/material';
 import DatePicker from '../components/DatePicker';
 import TimePicker from '../components/TimePicker';
+import { useNavigate } from 'react-router-dom'; 
 import dayjs from 'dayjs';
 import './CreateEventPage.css';
+
+function withRouter(Component) {
+  function ComponentWithRouterProp(props) {
+    let navigate = useNavigate();
+    return <Component {...props} navigate={navigate} />;
+  }
+
+  return ComponentWithRouterProp;
+}
 
 class CreateEventPage extends React.Component {
   constructor(props) {
@@ -18,6 +28,21 @@ class CreateEventPage extends React.Component {
       endTime: dayjs(),
       description: '',
     };
+  }
+
+  componentDidMount() {
+    axios.get('http://localhost:5001/api/session', { withCredentials: true })
+      .then(response => {
+        // User is logged in
+        this.setState({ user: response.data.user });
+      })
+      .catch(error => {
+        // No active session
+        console.error('No active session', error);
+        this.setState({ errorMessage: 'Please log in to create an event.' });
+        // Optionally redirect to login page
+        this.props.navigate(`/login`);
+      });
   }
 
   validateEventTimes = () => {
@@ -41,13 +66,13 @@ class CreateEventPage extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-
+  
     if (!this.validateEventTimes()) {
       return;
     }
-
+  
     const { title, singleDay, startDate, endDate, startTime, endTime, description } = this.state;
-
+  
     // Prepare event data
     const eventData = {
       title,
@@ -58,17 +83,19 @@ class CreateEventPage extends React.Component {
       endTime: endTime.format('HH:mm'),
       description,
     };
-
+  
     // Post data to the backend
-    axios.post('http://localhost:5001/api/create-new-event', eventData)
+    axios.post('http://localhost:5001/api/create-new-event', eventData, { withCredentials: true })
       .then((response) => {
         console.log(response.data);
-        console.log(eventData);
-        // Redirect to the newly created event page (or show a success message)
-        //this.props.history.push(`/events/event/${response.data._id}`);
+        // Redirect to the newly created event page
+        this.props.navigate(`/event/${response.data.eventId}`);
       })
       .catch((error) => {
         console.error('Error creating event:', error);
+        if (error.response && error.response.status === 401) {
+          this.setState({ errorMessage: 'Please log in to create an event.' });
+        }
       });
   };
 
@@ -205,4 +232,4 @@ class CreateEventPage extends React.Component {
   }
 }
 
-export default CreateEventPage;
+export default withRouter(CreateEventPage);
