@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { TextField, Grid, Button, Box } from '@mui/material';
-import DateTimePicker from './DateTimePicker';
+import DatePicker from './DatePicker';
 import EventCard from './EventCard';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -21,8 +21,8 @@ function EventList() {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [singleDay, setSingleDay] = useState(false);
-  const [endDateError, setEndDateError] = useState(false);
-  const [showEndDateError, setShowEndDateError] = useState(false);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackbarTriggered, setSnackbarTriggered] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:5001/api/events')
@@ -38,25 +38,24 @@ function EventList() {
       });
   }, []);
 
-  useEffect(() => {
-    if (endDateError) {
-      setShowEndDateError(true);
-      setTimeout(() => {
-        setShowEndDateError(false);
-      }, 5000);
-    }
-  }, [endDateError]);
-
   const validateEndDate = useCallback(() => {
     if (startDate && endDate) {
       if (dayjs(endDate).isBefore(dayjs(startDate))) {
-        setEndDateError(true);
         setEndDate(null);
-      } else {
-        setEndDateError(false);
+        setSnackbarTriggered(true);
       }
     }
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (snackbarTriggered) {
+      setShowSnackbar(true);
+      setTimeout(() => {
+        setShowSnackbar(false);
+        setSnackbarTriggered(false);
+      }, 5000);
+    }
+  }, [snackbarTriggered]);
 
   useEffect(() => {
     validateEndDate();
@@ -77,11 +76,11 @@ function EventList() {
   const handleFilterByDate = () => {
     const dateFilteredEvents = events.filter((event) => {
       const matchesStartDate = startDate
-        ? dayjs(event.startDate).isSameOrAfter(dayjs(startDate))
+        ? dayjs(event.startDate).isSameOrAfter(dayjs(startDate).startOf('day'))
         : true;
 
       const matchesEndDate = endDate
-        ? dayjs(event.endDate).isSameOrBefore(dayjs(endDate))
+        ? dayjs(event.endDate).isSameOrBefore(dayjs(endDate).endOf('day'))
         : true;
 
       return matchesStartDate && matchesEndDate;
@@ -90,15 +89,19 @@ function EventList() {
   };
 
   const handleStartDateChange = (newValue) => {
-    const validStartDate = newValue ? dayjs(newValue) : null;
-    setStartDate(validStartDate);
-    if (singleDay) {
-      setEndDate(dayjs(validStartDate).hour(23).minute(59));
+    if (newValue === null) {
+      setStartDate(null);
     } else {
-      validateEndDate();
+      const validStartDate = dayjs(newValue);
+      setStartDate(validStartDate);
+      if (singleDay) {
+        setEndDate(dayjs(validStartDate).endOf('day'));
+      } else {
+        validateEndDate();
+      }
     }
   };
-
+  
   const handleEndDateChange = (newValue) => {
     if (newValue === null) {
       setEndDate(null);
@@ -116,6 +119,12 @@ function EventList() {
   const toggleFilterSection = () => {
     setShowFilters(!showFilters);
   };
+
+  const [endDateKey, setEndDateKey] = useState(null);
+
+  useEffect(() => {
+    setEndDateKey(Math.random().toString());
+  }, []);
 
   if (loading) return <div>Loading events...</div>;
   if (error) return <div>Error fetching events: {error.message}</div>;
@@ -142,30 +151,34 @@ function EventList() {
           <Box display="flex" justifyContent="center" mb={1}>
             {/* Conditional rendering based on singleDay */}
             {singleDay ? (
-              <DateTimePicker
-                label="Start Date & Time"
+              <DatePicker
+                label="Start Date"
                 value={startDate}
                 onChange={handleStartDateChange}
                 renderInput={(params) => <TextField {...params} />}
-                clearable
-              />
+                clearable />
             ) : (
               < Box display="flex" justifyContent="space-between" width="100%">
-                <DateTimePicker
-                  label="Start Date & Time"
+                <DatePicker
+                  label="Start Date"
                   value={startDate}
                   onChange={handleStartDateChange}
                   renderInput={(params) => <TextField {...params} />}
                   style={{ marginRight: '16px' }}
                   clearable
                 />
-                <DateTimePicker
-                  label="End Date & Time"
+                <DatePicker
+                  label="End Date"
                   value={endDate}
                   onChange={handleEndDateChange}
+                  onClose={(event) => {
+                    if (event.type === 'cancel') {
+                      setEndDate(null);
+                    }
+                  }}
                   renderInput={(params) => <TextField {...params} />}
                   clearable
-                  key={endDate?.toISOString()}
+                  key={endDateKey}
                 />
               </Box>
             )}
@@ -218,10 +231,10 @@ function EventList() {
       </Grid>
 
       {/* Snackbar for end date error */}
-      {showEndDateError && (
+      {showSnackbar && (
         <CustomSnackbar
-          open={showEndDateError}
-          onClose={() => setShowEndDateError(false)}
+          open={showSnackbar}
+          onClose={() => setShowSnackbar(false)}
           message="End date cannot be before start date"
         />
       )}
