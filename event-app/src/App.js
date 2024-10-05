@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { createTheme, ThemeProvider, Avatar, IconButton, Button } from '@mui/material';
+import { createTheme, ThemeProvider, Avatar, IconButton, Button, ButtonGroup } from '@mui/material';
 import HomePage from './routes/HomePage';
 import PublicEvents from './routes/PublicEvents';
 import LoginPage from './routes/LoginPage';
@@ -14,6 +14,17 @@ import stringToColor from './components/StringToColor.js';
 import Drawer from './components/Drawer.js';
 
 const darkTheme = createTheme({
+  components: {
+    MuiButtonGroup: {
+      styleOverrides: {
+        grouped: {
+          '&:not(:last-of-type)': {
+            borderRightColor: 'white' // Changes the divider color for variant=text ButtonGroup buttons
+          }
+        }
+      }
+    }
+  },
   palette: {
     mode: 'dark',
   }
@@ -70,28 +81,42 @@ function App() {
           <header className="Header">
             <div className='header-title'>
               <Link to='/' className='btn'>
-                <img className='navbar_logo' src="/icon_text.png" alt="ESP logo" />
+                <img className='navbar_logo' src="/icon.png" alt="ESP logo" />
               </Link>
             </div>
             <nav className='nav'>
-              <Link to="/events" className='btn'>
-                <p>Events</p>
-              </Link>
               {user ? (
                 <>
                 {/* The user is logged in */}
-                  <Link to="/events/create-new-event" className='btn'>
-                    <p>Create Event</p>
-                  </Link>
-                  <Link to="/friends" className='btn'>
-                    <p>Friends</p>
-                  </Link>
+                <ButtonGroup 
+                    variant="text" 
+                    aria-label='Navigation buttons'  
+                >
+                    <Button>
+                      <Link to="/events">Events</Link>
+                    </Button>
+                    <Button>
+                      <Link to="/events/create-new-event">Create</Link>
+                    </Button>
+                    <Button>
+                      <Link to="/friends">Friends</Link>
+                    </Button>
+                </ButtonGroup>
                 </>
               ) : (
                 <>
                   {/* The user is not logged in */}
+                  <ButtonGroup 
+                      variant="text" 
+                      aria-label='Navigation buttons'
+                  >
+                      <Button>
+                        <Link to="/events">Events</Link>
+                      </Button>
+                  </ButtonGroup>
                 </>
               )}
+
             </nav>
             <div className='Login'>
               {/* If the user is logged in, show the avatar instead of login/register */}

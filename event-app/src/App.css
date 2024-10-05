@@ -18,7 +18,7 @@ body {
   background-color: var(--clr-background-mid);      /* Main background color */
 }
 
-.Header {
+header {
   /* Visual design */
   background-color: var(--clr-background-dark);
   min-height: 4rem;
@@ -38,7 +38,7 @@ body {
 }
 
 header .navbar_logo {
-  height: 3.7rem;
+  height: 4rem;
 }
 
 .nav {
@@ -47,27 +47,6 @@ header .navbar_logo {
   align-items: left;
   font-size: 1.2rem;
   width: 50%;
-}
-
-.nav .btn {
-  /* Visual design */
-  height: 4em;
-  width: 5em;
-  background-color: var(--clr-background-bright);
-  font-size: 1rem;
-
-  /* Positioning */
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* Functionality */
-  cursor: pointer;
-}
-
-.nav .btn:hover {
-  background-color: var(--clr-text-dark);
 }
 
 .Login {
@@ -95,12 +74,6 @@ header .navbar_logo {
   margin: auto;
   margin-top: 2rem;
   margin-bottom: 5rem;
-}
-
-@media (max-width: 625px) { /* When page is smaller than 625px */
-  .header-title{
-    font-size: 0; /* Remove text that don't fit the page*/
-  }
 }
 
 .PageTitle {
