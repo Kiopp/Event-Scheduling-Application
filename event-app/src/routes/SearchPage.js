@@ -19,6 +19,7 @@ function SearchAndFilterEvents() {
     const [filteredEvents, setFilteredEvents] = useState([]);
     const [showFilters, setShowFilters] = useState(false);
 
+    // Fetch events data from the API
     useEffect(() => {
         fetch('http://localhost:5001/api/events')
             .then(response => response.json())
@@ -33,10 +34,12 @@ function SearchAndFilterEvents() {
             });
     }, []);
 
+    // Handle search input changes
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
 
+    // Handle filter reset
     const handleResetFilters = () => {
         setSearchQuery('');
         setStartDate(null);
@@ -44,6 +47,7 @@ function SearchAndFilterEvents() {
         setFilteredEvents(events);
     };
 
+    // Filter events based on date
     const handleFilterByDate = () => {
         const dateFilteredEvents = events.filter((event) => {
             const matchesStartDate = startDate
@@ -59,14 +63,17 @@ function SearchAndFilterEvents() {
         setFilteredEvents(dateFilteredEvents);
     };
 
+    // Filter events based on title (search functionality)
     const searchFilteredEvents = filteredEvents.filter((event) =>
         event.title.toLowerCase().startsWith(searchQuery.toLowerCase())
     );
 
+    // Toggle the filter section visibility
     const toggleFilterSection = () => {
         setShowFilters(!showFilters);
     };
 
+    // Display loading state or error if any
     if (loading) return <div>Loading events...</div>;
     if (error) return <div>Error fetching events: {error.message}</div>;
 
@@ -91,32 +98,35 @@ function SearchAndFilterEvents() {
 
             {/* Conditional rendering of the filter section */}
             {showFilters && (
-                <Box display="flex" justifyContent="space-between" mb={3}>
-                    {/* Date picker for filtering events */}
-                    <DatePicker
-                        label="Start Date"
-                        value={startDate}
-                        onChange={(newValue) => setStartDate(newValue)}
-                        renderInput={(params) => <TextField {...params} />}
-                        style={{ marginRight: '16px' }}
-                    />
+                <Box mb={3}>
+                    <Box display="flex" justifyContent="space-between" mb={1}>
+                        {/* Date picker for filtering events */}
+                        <DatePicker
+                            label="Start Date"
+                            value={startDate}
+                            onChange={(newValue) => setStartDate(newValue)}
+                            renderInput={(params) => <TextField {...params} />}
+                            style={{ marginRight: '16px' }}
+                        />
 
-                    <DatePicker
-                        label="End Date"
-                        value={endDate}
-                        onChange={(newValue) => setEndDate(newValue)}
-                        renderInput={(params) => <TextField {...params} />}
-                    />
+                        <DatePicker
+                            label="End Date"
+                            value={endDate}
+                            onChange={(newValue) => setEndDate(newValue)}
+                            renderInput={(params) => <TextField {...params} />}
+                        />
+                    </Box>
 
-                    {/* Button to apply filters */}
-                    <Button variant="contained" onClick={handleFilterByDate} style={{ marginLeft: '16px' }}>
-                        Apply Date Filters
-                    </Button>
+                    {/* Buttons for applying filters and resetting filters */}
+                    <Box display="flex" justifyContent="flex-start">
+                        <Button variant="contained" onClick={handleFilterByDate} style={{ marginRight: '16px' }}>
+                            Apply Date Filters
+                        </Button>
 
-                    {/* Button to reset filters */}
-                    <Button variant="outlined" onClick={handleResetFilters} style={{ marginLeft: '16px' }}>
-                        Reset Filters
-                    </Button>
+                        <Button variant="outlined" onClick={handleResetFilters}>
+                            Reset Filters
+                        </Button>
+                    </Box>
                 </Box>
             )}
 
