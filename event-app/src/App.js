@@ -128,7 +128,7 @@ function App() {
             <Route path="/event/:event_id" element={<EventPage />} />
             <Route path="/events/create-new-event" element={<CreateEventPage />} />
             <Route path="/friends" element={<FriendPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
           </Routes>
         </div>
       </BrowserRouter>
