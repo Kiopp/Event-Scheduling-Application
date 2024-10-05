@@ -10,6 +10,7 @@ const eventRoutes = require('./routes/eventRoutes');
 
 const app = express();
 const port = 5001; // Or any port of your choice
+const { ObjectId } = require('mongodb');
 
 // Middleware
 app.use(express.json());
@@ -151,33 +152,38 @@ app.get('/api/session', (req, res) => {
 
 // Create a new event
 app.post('/api/create-new-event', async (req, res) => {
-    try {
-      const { title, singleDay, startDate, endDate, startTime, endTime, description } = req.body;
-  
-      // Basic validation
-      if (!title || !startDate || !startTime || !endTime || (singleDay === false && !endDate)) {
-        return res.status(400).json({ message: 'All required fields must be filled out.' });
-      }
-  
-      // Prepare the event data
-      const newEvent = {
-        title,
-        singleDay,
-        startDate,
-        endDate: singleDay ? startDate : endDate, // if it's a single-day event, use startDate as endDate
-        startTime,
-        endTime,
-        description
-      };
-  
-      // Save the event to the database
-      const result = await db.collection('events').insertOne(newEvent);
-  
-      res.status(201).json({ message: 'Event created successfully', eventId: result.insertedId });
-    } catch (error) {
-      console.error('Error creating event:', error); // Log the error
-      res.status(500).json({ message: 'Failed to create event', error: error.message });
+  try {
+    if (!req.session.user) {
+      return res.status(401).json({ message: 'Unauthorized. Please log in to create an event.' });
     }
+
+    const { title, singleDay, startDate, endDate, startTime, endTime, description } = req.body;
+
+    // Basic validation
+    if (!title || !startDate || !startTime || !endTime || (singleDay === false && !endDate)) {
+      return res.status(400).json({ message: 'All required fields must be filled out.' });
+    }
+
+    // Prepare the event data
+    const newEvent = {
+      title,
+      singleDay,
+      startDate,
+      endDate: singleDay ? startDate : endDate,
+      startTime,
+      endTime,
+      description,
+      owner: req.session.user.userId // Include the owner ID
+    };
+
+    // Save the event to the database
+    const result = await db.collection('events').insertOne(newEvent);
+
+    res.status(201).json({ message: 'Event created successfully', eventId: result.insertedId });
+  } catch (error) {
+    console.error('Error creating event:', error);
+    res.status(500).json({ message: 'Failed to create event', error: error.message });
+  }
 });
 
 // Fetch all events from the database
@@ -192,8 +198,6 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
-const { ObjectId } = require('mongodb');
-
 // Define API route to get a single event by ID
 app.get('/api/event/:id', async (req, res) => {
     try {
@@ -203,9 +207,6 @@ app.get('/api/event/:id', async (req, res) => {
         console.log('Raw Event ID:', req.params.id);
         
         const eventId = new ObjectId(req.params.id);
-        
-        // Log the converted ObjectId
-        console.log('Converted ObjectId:', eventId);
         
         const event = await db.collection('events').findOne({ _id: eventId });
         
