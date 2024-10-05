@@ -148,60 +148,47 @@ function EventList() {
       {/* Conditional rendering of the filter section */}
       {showFilters && (
         <Box mb={3}>
-          <Box display="flex" justifyContent="center" mb={1}>
-            {/* Conditional rendering based on singleDay */}
-            {singleDay ? (
+          <Box display="flex" justifyContent="center" mb={ 1}>
+            <Box display="flex" ml={-2} justifyContent ="space-between " width="45 %">
               <DatePicker
                 label="Start Date"
                 value={startDate}
                 onChange={handleStartDateChange}
                 renderInput={(params) => <TextField {...params} />}
-                clearable />
-            ) : (
-              < Box display="flex" justifyContent="space-between" width="100%">
-                <DatePicker
-                  label="Start Date"
-                  value={startDate}
-                  onChange={handleStartDateChange}
-                  renderInput={(params) => <TextField {...params} />}
-                  style={{ marginRight: '16px' }}
-                  clearable
-                />
-                <DatePicker
-                  label="End Date"
-                  value={endDate}
-                  onChange={handleEndDateChange}
-                  onClose={(event) => {
-                    if (event.type === 'cancel') {
-                      setEndDate(null);
-                    }
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                  clearable
-                  key={endDateKey}
-                />
-              </Box>
-            )}
+                style={{ marginRight: '8px' }}
+                clearable
+              />
+              <Box mr={2} />
+              <DatePicker
+                label="End Date"
+                value={endDate}
+                onChange={handleEndDateChange}
+                onClose={(event) => {
+                  if (event.type === 'cancel') {
+                    setEndDate(null);
+                  }
+                }}
+                renderInput={(params) => <TextField {...params} />}
+                clearable
+                key={endDateKey}
+              />
+            </Box>
+            <CustomCheckbox
+              label="Single Day Event"
+              checked={singleDay}
+              onChange={(event) => {
+                const isChecked = event.target.checked;
+                setSingleDay(isChecked);
+                if (isChecked) {
+                  setStartDate(null);
+                  setEndDate(null);
+                } else {
+                  setEndDate(null);
+                }
+              }}
+            />
           </Box>
-
-          {/* Checkbox for single day event */}
-          <CustomCheckbox
-            label="Single Day Event"
-            checked={singleDay}
-            onChange={(event) => {
-              const isChecked = event.target.checked;
-              setSingleDay(isChecked);
-              if (isChecked) {
-                setStartDate(null);
-                setEndDate(null);
-              } else {
-                setEndDate(null);
-              }
-            }}
-          />
-
-          {/* Buttons for applying filters and resetting filters */}
-          <Box display="flex" justifyContent="flex-start" mt={1}>
+          <Box display="flex" justifyContent="center" mt={1}>
             <Button variant="contained" onClick={handleFilterByDate} style={{ marginRight: '16px' }}>
               Apply Date Filters
             </Button>
