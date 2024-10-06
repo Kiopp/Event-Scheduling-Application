@@ -8,7 +8,7 @@ import { useMediaQuery } from '@mui/material';
 import { TextField } from '@mui/material';
 
 export default function ResponsiveDatePicker({ value, onChange }) {
-  const isDesktop = useMediaQuery('(min-width: 700px)');
+  const isDesktop = useMediaQuery('(min-width: 768px)');
   const isValidValue = dayjs(value).isValid();
   const defaultValue = isValidValue ? value : null;
 
