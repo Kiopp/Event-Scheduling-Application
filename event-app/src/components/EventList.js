@@ -151,27 +151,31 @@ function EventList() {
           <Box display="flex" justifyContent="center" mb={ 1}>
             <Box display="flex" ml={-2} justifyContent ="space-between " width="45 %">
               <DatePicker
-                label="Start Date"
+                label={singleDay ? "Date" : "Start Date"}
                 value={startDate}
                 onChange={handleStartDateChange}
                 renderInput={(params) => <TextField {...params} />}
                 style={{ marginRight: '8px' }}
                 clearable
               />
-              <Box mr={2} />
-              <DatePicker
-                label="End Date"
-                value={endDate}
-                onChange={handleEndDateChange}
-                onClose={(event) => {
-                  if (event.type === 'cancel') {
-                    setEndDate(null);
-                  }
-                }}
-                renderInput={(params) => <TextField {...params} />}
-                clearable
-                key={endDateKey}
-              />
+              {!singleDay && (
+                <Box mr={2} />
+              )}
+              {!singleDay && (
+                <DatePicker
+                  label="End Date"
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                  onClose={(event) => {
+                    if (event.type === 'cancel') {
+                      setEndDate(null);
+                    }
+                  }}
+                  renderInput={(params) => <TextField {...params} />}
+                  clearable
+                  key={endDateKey}
+                />
+              )}
             </Box>
             <CustomCheckbox
               label="Single Day Event"
