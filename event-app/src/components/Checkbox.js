@@ -3,7 +3,7 @@ import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-export default function CustomCheckbox({ checked, onChange }) {
+export default function CustomCheckbox({ checked, onChange, label }) {
   return (
     <FormGroup style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <FormControlLabel
@@ -19,7 +19,7 @@ export default function CustomCheckbox({ checked, onChange }) {
             }}
           />
         }
-        label="Single Day Event"
+        label={label}
         labelPlacement="top"
       />
     </FormGroup>
