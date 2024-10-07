@@ -322,7 +322,7 @@ app.post('/api/friend-request/:userId', async (req, res) => {
         const recipientId = new ObjectId(userId);
 
         // Check if the user is trying to send a request to themselves
-        if (senderId.equals(recipientId)) {
+        if (senderId === recipientId) {
             return res.status(400).json({ message: 'Cannot send a friend request to yourself' });
         }
 
