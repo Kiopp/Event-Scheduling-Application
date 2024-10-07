@@ -1,79 +1,103 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography } from '@mui/material';
+import { Typography, Card, CardContent, Divider, Box, Stack } from '@mui/material';
+import EventIcon from '@mui/icons-material/Event';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import DescriptionIcon from '@mui/icons-material/Description';
 import dayjs from 'dayjs';
 
 function EventPage() {
-    const [event, setEvent] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const { event_id } = useParams(); // Get the event ID from the URL
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { event_id } = useParams();
 
-    useEffect(() => {
-        console.log('Fetching event with ID:', event_id);
-        fetch(`http://localhost:5001/api/event/${event_id}`)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Event not found');
-            }
-            return response.json();
-          })
-          .then(data => {
-            console.log('Fetched event:', data);
-      
-            // Combine date and time for start and end
-            const startDateTime = dayjs(`${data.startDate}T${data.startTime}`);
-            const endDateTime = dayjs(`${data.endDate}T${data.endTime}`);
-      
-            // Update the event data
-            setEvent({
-              ...data,
-              startDateTime,
-              endDateTime
-            });
-            
-            setLoading(false);
-          })
-          .catch(err => {
-            console.error('Error fetching event:', err);
-            setError(err.message);
-            setLoading(false);
-          });
-      }, [event_id]);
+  useEffect(() => {
+    fetch(`http://localhost:5001/api/event/${event_id}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Event not found');
+        return response.json();
+      })
+      .then(data => {
+        const startDateTime = dayjs(`${data.startDate}T${data.startTime}`);
+        const endDateTime = dayjs(`${data.endDate}T${data.endTime}`);
+        setEvent({ ...data, startDateTime, endDateTime });
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [event_id]);
 
-    // Display loading or error state if necessary
-    if (loading) return <div>Loading event details...</div>;
-    if (error) return <div>{error}</div>;
+  if (loading) return <div>Loading event details...</div>;
+  if (error) return <div>{error}</div>;
 
-    return (
-        <div className='Content'>
-          {event && (
-            <div>
-              <Typography gutterBottom variant="h5" component="div">
-                {event.title || 'Untitled Event'}
+  return (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+      sx={{ backgroundColor: 'var(--clr-background-mid)', padding: 4 }}
+    >
+      {event && (
+        <Card sx={{ maxWidth: 900, boxShadow: 4, borderRadius: 3, bgcolor: 'var(--clr-background-dark)' }}>
+          <CardContent>
+            <Typography
+              variant="h3"
+              gutterBottom
+              color="primary"
+              sx={{ fontWeight: 'bold', textAlign: 'center', marginBottom: 3 }}
+            >
+              {event.title || 'Untitled Event'}
+            </Typography>
+
+            <Divider sx={{ marginY: 3 }} />
+
+            <Stack direction="row" spacing={2} alignItems="center">
+              <EventIcon color="primary" />
+              <Typography variant="h5" color="textSecondary">
+                {event.singleDay ? 'Event Date & Time' : 'Event Dates & Times'}
               </Typography>
-      
+            </Stack>
+
+            <Box sx={{ textAlign: 'center', marginBottom: 3 }}>
               {event.singleDay ? (
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Date: {dayjs(event.startDate).format('YYYY-MM-DD')}
-                </Typography>
+                <>
+                  <Typography variant="body1" gutterBottom sx={{ fontSize: '1.3rem', fontWeight: 500 }}>
+                    {dayjs(event.startDate).format('dddd, MMMM D, YYYY')}
+                  </Typography>
+                  <Typography variant="body1" gutterBottom sx={{ fontSize: '1.3rem', fontWeight: 500 }}>
+                    <AccessTimeIcon sx={{ verticalAlign: 'middle', marginRight: 1 }} />
+                    {dayjs(event.startDateTime).format('HH:mm')} - {dayjs(event.endDateTime).format('HH:mm')}
+                  </Typography>
+                </>
               ) : (
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Date: {dayjs(event.startDateTime).format('YYYY-MM-DD')} - {dayjs(event.endDateTime).format('YYYY-MM-DD')}
+                <Typography variant="body1" gutterBottom sx={{ fontSize: '1.3rem', fontWeight: 500 }}>
+                  {dayjs(event.startDateTime).format('dddd, MMMM D, YYYY HH:mm')} -{' '}
+                  {dayjs(event.endDateTime).format('dddd, MMMM D, YYYY HH:mm')}
                 </Typography>
               )}
-      
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                Time: {dayjs(event.startDateTime).format('HH:mm')} - {dayjs(event.endDateTime).format('HH:mm')}
+            </Box>
+
+            <Divider sx={{ marginY: 3 }} />
+
+            <Stack direction="row" spacing={2} alignItems="center">
+              <DescriptionIcon color="primary" />
+              <Typography variant="h5" color="textSecondary">
+                Description
               </Typography>
-      
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                Description: {event.description || 'No description available.'}
-              </Typography>
-            </div>
-          )}
-        </div>
-      );      
+            </Stack>
+
+            <Typography variant="body1" sx={{ fontStyle: 'italic', fontSize: '1.3rem' }}>
+              {event.description || 'No description available.'}
+            </Typography>
+          </CardContent>
+        </Card>
+      )}
+    </Box>
+  );
 }
 
 export default EventPage;
