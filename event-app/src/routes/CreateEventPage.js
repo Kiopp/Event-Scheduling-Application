@@ -29,6 +29,7 @@ class CreateEventPage extends React.Component {
       endDateTime: dayjs(),
       endTime: dayjs(),
       description: '',
+      private: false, // Private Event checkbox state
       snackbarOpen: false,
       snackbarMessage: '',
     };
@@ -37,53 +38,41 @@ class CreateEventPage extends React.Component {
   componentDidMount() {
     axios.get('http://localhost:5001/api/session', { withCredentials: true })
       .then(response => {
-        // eslint-disable-next-line
         this.setState({ user: response.data.user });
       })
       .catch(error => {
-        // eslint-disable-next-line
         this.setState({ errorMessage: 'Please log in to create an event.' });
         this.props.navigate(`/login`);
       });
   }
 
   validateEventTimes = () => {
-    const { fullDay, startDateTime, endDateTime } = this.state;
-    
-    const currentDateTime = dayjs().startOf('minute');  // Ignoring seconds
-    const currentDate = dayjs().startOf('day');  // Only considering the date for full-day events
-    
+    const { fullDay, startDateTime, endDateTime, singleDay } = this.state;
+    const currentDateTime = dayjs().startOf('minute');
+    const currentDate = dayjs().startOf('day');
+  
     if (fullDay) {
-      // For full-day events, allow creation even if the current date is selected
       if (!startDateTime.isSameOrAfter(currentDate)) {
-        this.setState({ 
-          snackbarOpen: true, 
-          snackbarMessage: 'Start date cannot be before today.' 
-        });
+        this.setState({ snackbarOpen: true, snackbarMessage: 'Start date cannot be before today.' });
         return false;
       }
     } else {
-      // Normal validation for non-full-day events
       if (!startDateTime.isSameOrAfter(currentDateTime)) {
-        this.setState({ 
-          snackbarOpen: true, 
-          snackbarMessage: 'Start date and time cannot be in the past.' 
-        });
+        this.setState({ snackbarOpen: true, snackbarMessage: 'Start date and time cannot be in the past.' });
         return false;
       }
-  
       if (!endDateTime.isSameOrAfter(startDateTime)) {
-        this.setState({ 
-          snackbarOpen: true, 
-          snackbarMessage: 'End date and time cannot be before the start date and time.' 
-        });
+        this.setState({ snackbarOpen: true, snackbarMessage: 'End date and time cannot be before the start date and time.' });
+        return false;
+      }
+      if (!singleDay && !endDateTime.isAfter(startDateTime.add(1, 'day'))) {
+        this.setState({ snackbarOpen: true, snackbarMessage: 'Multi-day events must cover more than one day.' });
         return false;
       }
     }
-    
     return true;
   };
-  
+
   handleSubmit = (event) => {
     event.preventDefault();
 
@@ -91,7 +80,7 @@ class CreateEventPage extends React.Component {
       return;
     }
 
-    const { title, singleDay, fullDay, startDateTime, endDateTime, description } = this.state;
+    const { title, singleDay, fullDay, startDateTime, endDateTime, description, private: isPrivate } = this.state;
 
     const eventData = {
       title,
@@ -102,6 +91,7 @@ class CreateEventPage extends React.Component {
       startTime: startDateTime.format('HH:mm'),
       endTime: endDateTime.format('HH:mm'),
       description,
+      private: isPrivate, // Add the private event status to the event data
     };
 
     axios.post('http://localhost:5001/api/create-new-event', eventData, { withCredentials: true })
@@ -127,7 +117,6 @@ class CreateEventPage extends React.Component {
   handleSingleDayToggle = (event) => {
     this.setState({ 
       singleDay: event.target.checked,
-      // Reset full day if single day is unchecked
       fullDay: event.target.checked ? this.state.fullDay : false 
     });
   };
@@ -145,10 +134,13 @@ class CreateEventPage extends React.Component {
     }
   };
 
+  handlePrivateToggle = (event) => {
+    this.setState({ private: event.target.checked });
+  };
+
   handleStartDateTimeChange = (newValue) => {
     this.setState({
       startDateTime: newValue,
-      // Automatically sync end date to start date if single-day event and not full day
       endDateTime: this.state.singleDay && !this.state.fullDay ? newValue : this.state.endDateTime,
     });
   };
@@ -165,7 +157,7 @@ class CreateEventPage extends React.Component {
   };
 
   render() {
-    const { singleDay, fullDay, startDateTime, endDateTime, title, description, snackbarOpen, snackbarMessage } = this.state;
+    const { singleDay, fullDay, startDateTime, endDateTime, title, description, snackbarOpen, snackbarMessage, private: isPrivate } = this.state;
   
     return (
       <div className='Content'>
@@ -185,8 +177,8 @@ class CreateEventPage extends React.Component {
                   required
                 />
               </Grid>
-  
-              {/* Checkboxes centralized */}
+
+              {/* Checkboxes */}
               <Grid item xs={12} container justifyContent="center">
                 <FormControlLabel
                   control={
@@ -209,11 +201,20 @@ class CreateEventPage extends React.Component {
                   }
                   label="Full Day Event"
                 />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isPrivate}
+                      onChange={this.handlePrivateToggle}
+                      name="private"
+                    />
+                  }
+                  label="Private Event"
+                />
               </Grid>
 
               {/* Date and Time Pickers */}
               {singleDay && !fullDay ? (
-                // Single Day Event but NOT Full Day: Show one DateTimePicker and one TimePicker
                 <Grid item xs={12} container justifyContent="center" spacing={2}>
                   <Grid item>
                     <DateTimePicker
@@ -231,7 +232,6 @@ class CreateEventPage extends React.Component {
                   </Grid>
                 </Grid>
               ) : singleDay && fullDay ? (
-                // Single Day and Full Day: Show one DatePicker for the start date
                 <Grid item xs={12} container justifyContent="center">
                   <Grid item>
                     <DatePicker
@@ -241,7 +241,6 @@ class CreateEventPage extends React.Component {
                   </Grid>
                 </Grid>
               ) : (
-                // Multi-day Event: Show two DateTimePickers for start and end dates
                 <Grid item xs={12} container justifyContent="center" spacing={2}>
                   <Grid item>
                     <DateTimePicker
@@ -259,7 +258,7 @@ class CreateEventPage extends React.Component {
                   </Grid>
                 </Grid>
               )}
-  
+
               {/* Description Field */}
               <Grid item xs={12}>
                 <TextField
@@ -272,7 +271,7 @@ class CreateEventPage extends React.Component {
                   fullWidth
                 />
               </Grid>
-  
+
               {/* Submit Button */}
               <Grid item xs={12}>
                 <Button type="submit" variant="contained" color="primary" fullWidth>
@@ -282,7 +281,7 @@ class CreateEventPage extends React.Component {
             </Grid>
           </form>
         </Container>
-  
+
         {/* Snackbar for error messages */}
         <CustomSnackbar
           open={snackbarOpen}
