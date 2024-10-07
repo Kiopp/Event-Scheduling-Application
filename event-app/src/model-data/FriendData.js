@@ -1,5 +1,5 @@
 import axios from 'axios';
-export const handleAddFriendButtonClick = async (targetUserId) => {
+export const sendFriendRequest = async (targetUserId) => {
     try {
       // Make POST request to backend
       axios.post(`http://localhost:5001/api/friend-request/${targetUserId}`, { withCredentials: true })

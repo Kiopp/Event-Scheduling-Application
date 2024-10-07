@@ -4,9 +4,7 @@ import EventCard from '../components/EventCard';
 import { Button, Grid2 } from '@mui/material';
 import { CircularProgress } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import { handleAddFriendButtonClick } from '../model-data/FriendData';
-
-
+import { sendFriendRequest } from '../model-data/FriendData';
 
 function ProfilePage() {
   const { userId } = useParams();
@@ -69,7 +67,7 @@ function ProfilePage() {
         <Button 
           variant='contained'
           onClick={() => {
-            handleAddFriendButtonClick(userId);
+            sendFriendRequest(userId);
           }}
         >
           Add Friend
