@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TextField, Grid, Button, Box } from '@mui/material';
+import { TextField, Grid, Button, Box, MenuItem } from '@mui/material';
 import DatePicker from './DatePicker';
 import EventCard from './EventCard';
 import dayjs from 'dayjs';
@@ -19,20 +19,23 @@ function EventList() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [filteredEvents, setFilteredEvents] = useState([]);
+  const [tempFilteredEvents, setTempFilteredEvents] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [singleDay, setSingleDay] = useState(false);
+  const [eventTypeFilter, setEventTypeFilter] = useState('all');
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarTriggered, setSnackbarTriggered] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:5001/api/events')
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         setEvents(data);
         setFilteredEvents(data);
+        setTempFilteredEvents(data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         setError(err);
         setLoading(false);
       });
@@ -70,22 +73,9 @@ function EventList() {
     setStartDate(null);
     setEndDate(null);
     setSingleDay(false);
+    setEventTypeFilter('all');
     setFilteredEvents(events);
-  };
-
-  const handleFilterByDate = () => {
-    const dateFilteredEvents = events.filter((event) => {
-      const matchesStartDate = startDate
-        ? dayjs(event.startDate).isSameOrAfter(dayjs(startDate).startOf('day'))
-        : true;
-
-      const matchesEndDate = endDate
-        ? dayjs(event.endDate).isSameOrBefore(dayjs(endDate).endOf('day'))
-        : true;
-
-      return matchesStartDate && matchesEndDate;
-    });
-    setFilteredEvents(dateFilteredEvents);
+    setTempFilteredEvents(events);
   };
 
   const handleStartDateChange = (newValue) => {
@@ -101,7 +91,7 @@ function EventList() {
       }
     }
   };
-  
+
   const handleEndDateChange = (newValue) => {
     if (newValue === null) {
       setEndDate(null);
@@ -112,19 +102,50 @@ function EventList() {
     }
   };
 
-  const searchFilteredEvents = filteredEvents.filter((event) =>
-    event.title.toLowerCase().startsWith(searchQuery.toLowerCase())
-  );
+  const applyFilters = useCallback(() => {
+    let filtered = events;
+
+    if (startDate || endDate) {
+      filtered = filtered.filter((event) => {
+        const eventStart = dayjs(event.startDate).startOf('day');
+        const eventEnd = dayjs(event.endDate).endOf('day');
+
+        if (singleDay && startDate) {
+          return dayjs(startDate).isBetween(eventStart, eventEnd, null, '[]');
+        }
+
+        const matchesStartDate = startDate
+          ? eventStart.isSameOrAfter(dayjs(startDate).startOf('day'))
+          : true;
+        const matchesEndDate = endDate
+          ? eventEnd.isSameOrBefore(dayjs(endDate).endOf('day'))
+          : true;
+
+        return matchesStartDate && matchesEndDate;
+      });
+    }
+
+    if (eventTypeFilter !== 'all') {
+      filtered = filtered.filter((event) => {
+        if (eventTypeFilter === 'single') return event.singleDay;
+        if (eventTypeFilter === 'multi') return !event.singleDay;
+        return true;
+      });
+    }
+
+    setTempFilteredEvents(filtered);
+  }, [startDate, endDate, events, eventTypeFilter, singleDay]);
+
+  useEffect(() => {
+    const searchFilteredEvents = tempFilteredEvents.filter((event) =>
+      event.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredEvents(searchFilteredEvents);
+  }, [searchQuery, tempFilteredEvents]);
 
   const toggleFilterSection = () => {
     setShowFilters(!showFilters);
   };
-
-  const [endDateKey, setEndDateKey] = useState(null);
-
-  useEffect(() => {
-    setEndDateKey(Math.random().toString());
-  }, []);
 
   if (loading) return <div>Loading events...</div>;
   if (error) return <div>Error fetching events: {error.message}</div>;
@@ -133,7 +154,8 @@ function EventList() {
     <div>
       {/* Search Input */}
       <Box display="flex" justifyContent="space-between" mb={3}>
-        <TextField label="Search by Title"
+        <TextField
+          label="Search by Title"
           variant="outlined"
           value={searchQuery}
           onChange={handleSearchChange}
@@ -148,10 +170,25 @@ function EventList() {
       {/* Conditional rendering of the filter section */}
       {showFilters && (
         <Box mb={3}>
-          <Box display="flex" justifyContent="center" mb={ 1}>
-            <Box display="flex" ml={-2} justifyContent ="space-between " width="45 %">
+          <Box display="flex" justifyContent="center" mb={2}>
+            {/* Event Type Filter */}
+            <TextField
+              select
+              label="Event Type"
+              value={eventTypeFilter}
+              onChange={(event) => setEventTypeFilter(event.target.value)}
+              variant="outlined"
+              style={{ width: '200px', marginRight: '16px' }}
+            >
+              <MenuItem value="all">All Events</MenuItem>
+              <MenuItem value="single">Single Day Events</MenuItem>
+              <MenuItem value="multi">Multi-Day Events</MenuItem>
+            </TextField>
+          </Box>
+          <Box display="flex" justifyContent="center" mb={1}>
+            <Box display="flex" ml={-2} justifyContent="space-between" width="45%">
               <DatePicker
-                label={singleDay ? "Date" : "Start Date"}
+                label={singleDay ? 'Date' : 'Start Date'}
                 value={startDate}
                 onChange={handleStartDateChange}
                 renderInput={(params) => <TextField {...params} />}
@@ -159,22 +196,16 @@ function EventList() {
                 clearable
               />
               {!singleDay && (
-                <Box mr={2} />
-              )}
-              {!singleDay && (
-                <DatePicker
-                  label="End Date"
-                  value={endDate}
-                  onChange={handleEndDateChange}
-                  onClose={(event) => {
-                    if (event.type === 'cancel') {
-                      setEndDate(null);
-                    }
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                  clearable
-                  key={endDateKey}
-                />
+                <>
+                  <Box mr={2} />
+                  <DatePicker
+                    label="End Date"
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    renderInput={(params) => <TextField {...params} />}
+                    clearable
+                  />
+                </>
               )}
             </Box>
             <CustomCheckbox
@@ -193,8 +224,8 @@ function EventList() {
             />
           </Box>
           <Box display="flex" justifyContent="center" mt={1}>
-            <Button variant="contained" onClick={handleFilterByDate} style={{ marginRight: '16px' }}>
-              Apply Date Filters
+            <Button variant="contained" onClick={applyFilters} style={{ marginRight: '16px' }}>
+              Apply Filters
             </Button>
             <Button variant="outlined" onClick={handleResetFilters}>
               Reset Filters
@@ -205,7 +236,7 @@ function EventList() {
 
       {/* Display Events */}
       <Grid container spacing={1} justifyContent="center">
-        {searchFilteredEvents.map((event) => (
+        {filteredEvents.map((event) => (
           <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
             <EventCard
               title={event.title}
