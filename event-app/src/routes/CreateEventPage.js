@@ -23,13 +23,13 @@ class CreateEventPage extends React.Component {
     super(props);
     this.state = {
       title: '',
-      singleDay: true,
-      fullDay: false,  // Full Day checkbox state
+      singleDay: false,
+      fullDay: false,
       startDateTime: dayjs(),
       endDateTime: dayjs(),
       endTime: dayjs(),
       description: '',
-      private: false, // Private Event checkbox state
+      privateEvent: false,
       snackbarOpen: false,
       snackbarMessage: '',
     };
@@ -87,7 +87,7 @@ class CreateEventPage extends React.Component {
       return;
     }
   
-    const { singleDay, fullDay, private: isPrivate } = this.state;
+    const { singleDay, fullDay, privateEvent } = this.state;
   
     const eventData = {
       title,
@@ -98,7 +98,7 @@ class CreateEventPage extends React.Component {
       startTime: startDateTime.format('HH:mm'),
       endTime: endDateTime.format('HH:mm'),
       description,
-      private: isPrivate,
+      privateEvent,
     };
   
     axios.post('http://localhost:5001/api/create-new-event', eventData, { withCredentials: true })
@@ -134,7 +134,7 @@ class CreateEventPage extends React.Component {
       this.setState({
         fullDay: true,
         startDateTime: startOfDay,
-        endDateTime: startOfDay.endOf('day'), // Set end time to 23:59
+        endDateTime: startOfDay.endOf('day'),
       });
     } else {
       this.setState({ fullDay: false });
@@ -142,7 +142,7 @@ class CreateEventPage extends React.Component {
   };
 
   handlePrivateToggle = (event) => {
-    this.setState({ private: event.target.checked });
+    this.setState({ privateEvent: event.target.checked });
   };
 
   handleStartDateTimeChange = (newValue) => {
@@ -164,7 +164,7 @@ class CreateEventPage extends React.Component {
   };
 
   render() {
-    const { singleDay, fullDay, startDateTime, endDateTime, title, description, snackbarOpen, snackbarMessage, private: isPrivate } = this.state;
+    const { singleDay, fullDay, startDateTime, endDateTime, title, description, snackbarOpen, snackbarMessage, privateEvent } = this.state; // Updated variable name
   
     return (
       <div className='Content'>
@@ -185,7 +185,7 @@ class CreateEventPage extends React.Component {
                 />
               </Grid>
 
-              {/* Checkboxes */}
+              {/* Checkboxes */} 
               <Grid item xs={12} container justifyContent="center">
                 <FormControlLabel
                   control={
@@ -203,7 +203,7 @@ class CreateEventPage extends React.Component {
                       checked={fullDay}
                       onChange={this.handleFullDayToggle}
                       name="fullDay"
-                      disabled={!singleDay} // Disable Full Day checkbox if Single Day is unchecked
+                      disabled={!singleDay}
                     />
                   }
                   label="Full Day Event"
@@ -211,9 +211,9 @@ class CreateEventPage extends React.Component {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={isPrivate}
+                      checked={privateEvent}
                       onChange={this.handlePrivateToggle}
-                      name="private"
+                      name="privateEvent"
                     />
                   }
                   label="Private Event"
