@@ -94,7 +94,9 @@ app.post('/api/register', async (req, res) => {
         const result = await db.collection('users').insertOne({
             email: normalizedEmail,
             username: normalizedUsername,
-            password: hashedPassword
+            password: hashedPassword,
+            friends: [],
+            friendRequests: []
         });
 
         res.status(201).json({ message: 'User registered successfully', userId: result.insertedId });
