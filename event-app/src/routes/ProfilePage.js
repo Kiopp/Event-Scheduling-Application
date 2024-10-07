@@ -1,9 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import EventCard from '../components/EventCard'; 
-import { Grid2 } from '@mui/material';
+import { Button, Grid2 } from '@mui/material';
 import { CircularProgress } from '@mui/material';
 import { useParams } from 'react-router-dom';
+
+
+
+const handleAddFriendButtonClick = async (targetUserId) => {
+  try {
+    // Make POST request to backend
+    axios.post(`http://localhost:5001/api/friend-request/${targetUserId}`, { withCredentials: true })
+      .then((response) => {
+        // Update UI to notify the user of success! 
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 401) {
+          console.error('Friend request failed:', error.response);
+        }
+      });
+  } catch (error) {
+    // Check if the response contains a message
+    if (error.response && error.response.data) {
+        console.error('Friend request failed:', error.response.data.message);
+    } else {
+        console.error('Friend request failed:', error);
+    }
+  }
+};
 
 function ProfilePage() {
   const { userId } = useParams();
@@ -57,12 +81,20 @@ function ProfilePage() {
   }
 
   return (
-    <div className="ProfilePage">
-      <h1>Profile</h1>
+    <div className="Content">
+      <h1 className='PageTitle'>{user.username}</h1>
       <div className="UserInfo">
         <p><strong>Username:</strong> {user.username}</p>
         {/* Optionally display email if appropriate */}
         {/* <p><strong>Email:</strong> {user.email}</p> */}
+        <Button 
+          variant='contained'
+          onClick={() => {
+            handleAddFriendButtonClick(userId);
+          }}
+        >
+          Add Friend
+        </Button>
       </div>
 
       <h2>{user.username}'s Events</h2>

@@ -301,3 +301,179 @@ app.post('/api/logout', (req, res) => {
         res.status(200).json({ message: 'Logout successful' });
     });
 });
+
+// Friend request
+app.post('/api/friend-request/:userId', async (req, res) => { 
+    if (!req.session.user) {
+        return res.status(401).json({ message: 'Unauthorized. Please log in to send friend requests' });
+    }
+    try {
+        const { userId } = req.params;
+        const senderId = req.session.user.userId; // Get senderId from session
+
+        // Validate userId 
+        if (!ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        // Convert userId to ObjectId
+        const recipientId = new ObjectId(userId);
+
+        // Check if the user is trying to send a request to themselves
+        if (senderId.equals(recipientId)) {
+            return res.status(400).json({ message: 'Cannot send a friend request to yourself' });
+        }
+
+        // Check if a request already exists
+        const existingRequest = await db.collection('users').findOne({
+            $or: [
+                { _id: recipientId, 'friendRequests.sender': senderId },
+                { _id: senderId, 'friendRequests.sender': recipientId }
+            ]
+        });
+
+        if (existingRequest) {
+            return res.status(400).json({ message: 'Friend request already exists' });
+        }
+
+        // Check if they are already friends
+        const alreadyFriends = await db.collection('users').findOne({
+            _id: senderId,
+            friends: recipientId
+        });
+
+        if (alreadyFriends) {
+            return res.status(400).json({ message: 'You are already friends with this user' });
+        }
+
+        // Add the request to the recipient's friendRequests array
+        await db.collection('users').updateOne(
+            { _id: recipientId },
+            { $push: { friendRequests: { sender: senderId, status: 'pending' } } }
+        );
+
+        res.status(200).json({ message: 'Friend request sent.' });
+    } catch (error) {
+        console.error('Error sending friend request:', error);
+        res.status(500).json({ message: 'Error sending friend request.' });
+    }
+});
+
+// Get Friend Requests
+app.get('/api/friend-requests', async (req, res) => {
+    try {
+        const userId = req.session.user.userId; 
+
+        const user = await db.collection('users').aggregate([
+            { $match: { _id: userId } },
+            { $unwind: '$friendRequests' }, // Deconstruct the friendRequests array
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'friendRequests.sender',
+                    foreignField: '_id',
+                    as: 'senderDetails'
+                }
+            },
+            { $unwind: '$senderDetails' }, // Deconstruct the senderDetails array
+            {
+                $project: {
+                    _id: '$friendRequests._id',
+                    sender: {
+                        _id: '$senderDetails._id',
+                        username: '$senderDetails.username',
+                        // Add other fields you want to include (e.g., email)
+                    },
+                    status: '$friendRequests.status'
+                }
+            }
+        ]).toArray();
+
+        res.status(200).json(user); 
+    } catch (error) {
+        console.error('Error fetching friend requests:', error);
+        res.status(500).json({ message: 'Error fetching friend requests.' });
+    }
+});
+
+// Accept/Reject Friend Request
+app.put('/api/friend-request/:requestId', async (req, res) => {
+    try {
+        const { requestId } = req.params;
+        const userId = req.session.user.userId;
+        const { status } = req.body; // 'accepted' or 'rejected'
+
+        // Validate requestId
+        if (!ObjectId.isValid(requestId)) {
+            return res.status(400).json({ message: 'Invalid request ID' });
+        }
+
+        // Find the request and update its status
+        const result = await db.collection('users').updateOne(
+            { _id: userId, 'friendRequests._id': new ObjectId(requestId) },
+            { $set: { 'friendRequests.$.status': status } }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'Friend request not found.' });
+        }
+
+        // If accepted, add friends to each other's lists
+        if (status === 'accepted') {
+            const request = await db.collection('users').findOne(
+                { _id: userId, 'friendRequests._id': new ObjectId(requestId) },
+                { projection: { 'friendRequests.$': 1 } }
+            );
+
+            const senderId = request.friendRequests[0].sender;
+
+            // Add each other to the friends array
+            await db.collection('users').updateOne(
+                { _id: userId },
+                { $push: { friends: senderId } }
+            );
+            await db.collection('users').updateOne(
+                { _id: senderId },
+                { $push: { friends: userId } }
+            );
+        }
+
+        res.status(200).json({ message: `Friend request ${status}.` });
+    } catch (error) {
+        console.error('Error updating friend request:', error);
+        res.status(500).json({ message: 'Error updating friend request.' });
+    }
+});
+
+// Get Friends List
+app.get('/api/friends', async (req, res) => {
+    try {
+        const userId = req.session.user.userId;
+
+        const user = await db.collection('users').aggregate([
+            { $match: { _id: userId } },
+            { $unwind: '$friends' },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'friends',
+                    foreignField: '_id',
+                    as: 'friendDetails'
+                }
+            },
+            { $unwind: '$friendDetails' },
+            {
+                $project: {
+                    _id: '$friendDetails._id',
+                    username: '$friendDetails.username',
+                    // ... other fields you want to include
+                }
+            }
+        ]).toArray();
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error fetching friends:', error);
+        res.status(500).json({ message: 'Error fetching friends.' });
+    }
+});
