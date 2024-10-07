@@ -38,9 +38,11 @@ class CreateEventPage extends React.Component {
   componentDidMount() {
     axios.get('http://localhost:5001/api/session', { withCredentials: true })
       .then(response => {
+        // eslint-disable-next-line
         this.setState({ user: response.data.user });
       })
       .catch(error => {
+        // eslint-disable-next-line
         this.setState({ errorMessage: 'Please log in to create an event.' });
         this.props.navigate(`/login`);
       });
