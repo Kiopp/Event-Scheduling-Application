@@ -157,7 +157,7 @@ app.post('/api/create-new-event', async (req, res) => {
       return res.status(401).json({ message: 'Unauthorized. Please log in to create an event.' });
     }
 
-    const { title, singleDay, startDate, endDate, startTime, endTime, description } = req.body;
+    const { title, singleDay, startDate, endDate, startTime, endTime, description, privateEvent } = req.body;
 
     // Basic validation
     if (!title || !startDate || !startTime || !endTime || (singleDay === false && !endDate)) {
@@ -167,13 +167,14 @@ app.post('/api/create-new-event', async (req, res) => {
     // Prepare the event data
     const newEvent = {
       title,
+      privateEvent,
       singleDay,
       startDate,
       endDate: singleDay ? startDate : endDate,
       startTime,
       endTime,
       description,
-      owner: req.session.user.userId // Include the owner ID
+      owner: req.session.user.userId
     };
 
     // Save the event to the database

@@ -93,6 +93,7 @@ class CreateEventPage extends React.Component {
   
     const eventData = {
       title,
+      privateEvent,
       singleDay,
       fullDay,
       startDate: startDateTime.format('YYYY-MM-DD'),
@@ -100,7 +101,6 @@ class CreateEventPage extends React.Component {
       startTime: startDateTime.format('HH:mm'),
       endTime: endDateTime.format('HH:mm'),
       description,
-      privateEvent,
     };
   
     axios.post('http://localhost:5001/api/create-new-event', eventData, { withCredentials: true })
