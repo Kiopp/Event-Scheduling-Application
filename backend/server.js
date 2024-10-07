@@ -351,7 +351,7 @@ app.post('/api/friend-request/:userId', async (req, res) => {
         // Add the request to the recipient's friendRequests array
         await db.collection('users').updateOne(
             { _id: recipientId },
-            { $push: { friendRequests: { sender: senderId, status: 'pending' } } }
+            { $push: { friendRequests: { sender: senderId } } }
         );
 
         res.status(200).json({ message: 'Friend request sent.' });
@@ -362,39 +362,31 @@ app.post('/api/friend-request/:userId', async (req, res) => {
 });
 
 // Get Friend Requests
-app.get('/api/friend-requests', async (req, res) => {
+app.get('/api/friend-requests/:userId', async (req, res) => {
     try {
-        const userId = req.session.user.userId; 
-
-        const user = await db.collection('users').aggregate([
-            { $match: { _id: userId } },
-            { $unwind: '$friendRequests' }, // Deconstruct the friendRequests array
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'friendRequests.sender',
-                    foreignField: '_id',
-                    as: 'senderDetails'
-                }
-            },
-            { $unwind: '$senderDetails' }, // Deconstruct the senderDetails array
-            {
-                $project: {
-                    _id: '$friendRequests._id',
-                    sender: {
-                        _id: '$senderDetails._id',
-                        username: '$senderDetails.username',
-                        // Add other fields you want to include (e.g., email)
-                    },
-                    status: '$friendRequests.status'
-                }
-            }
-        ]).toArray();
-
-        res.status(200).json(user); 
-    } catch (error) {
-        console.error('Error fetching friend requests:', error);
-        res.status(500).json({ message: 'Error fetching friend requests.' });
+        const db = req.app.locals.db;
+        
+        // Log the raw User ID from the request
+        console.log('Raw User ID:', req.params.userId);
+        
+        const userId = new ObjectId(req.params.userId);
+        
+        // Find the user by their ID and project only the friendRequests field
+        const user = await db.collection('users').findOne(
+            { _id: userId },
+            { projection: { friendRequests: 1 } }
+        );
+        
+        if (user) {
+            console.log('Friend Requests found:', user.friendRequests);
+            res.json({ friendRequests: user.friendRequests });
+        } else {
+            console.log('User not found');
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (err) {
+        console.error('Error fetching friend requests:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
