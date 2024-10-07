@@ -19,10 +19,10 @@ function EventList() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [tempFilteredEvents, setTempFilteredEvents] = useState([]); // Temporary state for date filters
+  const [tempFilteredEvents, setTempFilteredEvents] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [singleDay, setSingleDay] = useState(false);
-  const [eventTypeFilter, setEventTypeFilter] = useState('all'); // Event type filter
+  const [eventTypeFilter, setEventTypeFilter] = useState('all');
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarTriggered, setSnackbarTriggered] = useState(false);
 
@@ -31,8 +31,8 @@ function EventList() {
       .then((response) => response.json())
       .then((data) => {
         setEvents(data);
-        setFilteredEvents(data); // Initially show all events
-        setTempFilteredEvents(data); // For date filters
+        setFilteredEvents(data);
+        setTempFilteredEvents(data);
         setLoading(false);
       })
       .catch((err) => {
@@ -75,7 +75,7 @@ function EventList() {
     setSingleDay(false);
     setEventTypeFilter('all');
     setFilteredEvents(events);
-    setTempFilteredEvents(events); // Reset date filters
+    setTempFilteredEvents(events);
   };
 
   const handleStartDateChange = (newValue) => {
@@ -102,22 +102,18 @@ function EventList() {
     }
   };
 
-  // Apply filters when button is clicked
   const applyFilters = useCallback(() => {
     let filtered = events;
 
-    // Apply date filter
     if (startDate || endDate) {
       filtered = filtered.filter((event) => {
         const eventStart = dayjs(event.startDate).startOf('day');
         const eventEnd = dayjs(event.endDate).endOf('day');
 
-        // If singleDay is checked, ensure the selected startDate is within the range of the event
         if (singleDay && startDate) {
-          return dayjs(startDate).isBetween(eventStart, eventEnd, null, '[]'); // Inclusive check for multi-day events
+          return dayjs(startDate).isBetween(eventStart, eventEnd, null, '[]');
         }
 
-        // Otherwise, use normal start and end date filters
         const matchesStartDate = startDate
           ? eventStart.isSameOrAfter(dayjs(startDate).startOf('day'))
           : true;
@@ -129,7 +125,6 @@ function EventList() {
       });
     }
 
-    // Apply event type filter
     if (eventTypeFilter !== 'all') {
       filtered = filtered.filter((event) => {
         if (eventTypeFilter === 'single') return event.singleDay;
@@ -138,11 +133,9 @@ function EventList() {
       });
     }
 
-    setTempFilteredEvents(filtered); // Store date filtered events
+    setTempFilteredEvents(filtered);
   }, [startDate, endDate, events, eventTypeFilter, singleDay]);
 
-
-  // Update the filtered events based on search query (real-time)
   useEffect(() => {
     const searchFilteredEvents = tempFilteredEvents.filter((event) =>
       event.title.toLowerCase().includes(searchQuery.toLowerCase())
