@@ -75,13 +75,20 @@ class CreateEventPage extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-
+  
+    const { title, startDateTime, endDateTime, description } = this.state;
+  
+    if (!title || !startDateTime || !endDateTime || !description) {
+      this.setState({ snackbarOpen: true, snackbarMessage: 'All fields are required to be filled.' });
+      return;
+    }
+  
     if (!this.validateEventTimes()) {
       return;
     }
-
-    const { title, singleDay, fullDay, startDateTime, endDateTime, description, private: isPrivate } = this.state;
-
+  
+    const { singleDay, fullDay, private: isPrivate } = this.state;
+  
     const eventData = {
       title,
       singleDay,
@@ -91,9 +98,9 @@ class CreateEventPage extends React.Component {
       startTime: startDateTime.format('HH:mm'),
       endTime: endDateTime.format('HH:mm'),
       description,
-      private: isPrivate, // Add the private event status to the event data
+      private: isPrivate,
     };
-
+  
     axios.post('http://localhost:5001/api/create-new-event', eventData, { withCredentials: true })
       .then((response) => {
         this.props.navigate(`/event/${response.data.eventId}`);
