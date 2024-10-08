@@ -34,7 +34,7 @@ const darkTheme = createTheme({
 function App() {
   axios.defaults.withCredentials = true;
   const [user, setUser] = useState(null); // Store user data
-  const [drawerOpen, setDrawerOpen] = useState(null); // For the dropdown menu
+  const [drawerOpen, setDrawerOpen] = useState(false); // For the dropdown menu
 
   // Check local storage for user information on component mount
   useEffect(() => {
