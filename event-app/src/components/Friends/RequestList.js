@@ -101,7 +101,7 @@ function RequestList() {
 
     // Render the list of friend requests
     return (
-        <div style={{ width: '80%', margin: '0 auto' }}>
+        <div style={{margin: '0 auto' }}>
             <ul style={{
                 display: 'flex',
                 flexDirection: 'column',
