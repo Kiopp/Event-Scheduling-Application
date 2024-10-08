@@ -28,7 +28,6 @@ function EventList() {
   const [snackbarTriggered, setSnackbarTriggered] = useState(false);
   const [publicEvents, setPublicEvents] = useState([]);
   const [privateEvents, setPrivateEvents] = useState([]);
-  const [events, setEvents] = useState([]);
   const [userEvents, setUserEvents] = useState([]);
   const [userId, setUserId] = useState(null);
   const [friends, setFriends] = useState([]);
@@ -99,9 +98,9 @@ function EventList() {
         const publicEventsData = await publicEventsResponse.json();
         setPublicEvents(publicEventsData);
 
-        // Fetch current user's events
+        // Fetch current user's private events
         const userEventsResponse = await fetch(
-          'http://localhost:5001/api/user/events',
+          `http://localhost:5001/api/user/${userId}/private-events`,
           { credentials: 'include' }
         );
         if (!userEventsResponse.ok) {
@@ -127,80 +126,6 @@ function EventList() {
 
     fetchFriendsAndEvents();
   }, [userId]);
-/*
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Check if the user is in session
-        const sessionResponse = await axios.get('http://localhost:5001/api/session', { withCredentials: true });
-        const loggedInUser = sessionResponse.data.user;
-        
-        if (loggedInUser) {
-          // If the user is logged in, fetch user-specific events
-          const userID = loggedInUser._id;
-
-          // Fetch friends
-          const friendResponse = await axios.get('http://localhost:5001/api/friends', { withCredentials: true });
-
-          // Extract friend IDs
-          const friendIds = friendResponse.data.map(friend => friend._id);
-          console.log(friendResponse);
-          
-          // Create an array of IDs to include the user ID
-          const allUserIds = [userID, ...friendIds];
-
-          console.log(allUserIds);
-
-          // Fetch private events for the user and their friends
-          const privateEventsPromises = allUserIds.map(id =>
-            axios.get(`http://localhost:5001/api/user/${id}/private-events`, { withCredentials: true })
-          );
-
-          // Wait for all private events requests to complete
-          const privateEventsResponses = await Promise.all(privateEventsPromises);
-          
-          // Combine all private events from the responses
-          const allPrivateEvents = privateEventsResponses.flatMap(response => response.data);
-          setPrivateEvents(allPrivateEvents);
-
-          const publicResponse = await axios.get('http://localhost:5001/api/events/public');
-          setPublicEvents(publicResponse.data)
-
-          const allEvents = [...privateEvents, ...publicEvents]
-
-          // Set events for logged-in users (including private and public)
-          setEvents(allEvents);
-          setFilteredEvents(allEvents);
-          setTempFilteredEvents(allEvents);
-        } else {
-          // If no user is logged in, fetch public events only
-          fetchPublicEvents();
-        }
-      } catch (err) {
-        // In case of error or no session, fallback to fetching public events
-        fetchPublicEvents();
-      } finally {
-        setLoading(false); // Stop loading after the request completes
-      }
-    };
-
-    const fetchPublicEvents = async () => {
-      try {
-        // Fetch public events for non-logged-in users
-        const response = await axios.get('http://localhost:5001/api/events/public');
-        const data = response.data;
-
-        setEvents(data);
-        setFilteredEvents(data);
-        setTempFilteredEvents(data);
-      } catch (err) {
-        setError('Failed to fetch events.');
-      }
-    };
-    fetchData();
-  }, [ privateEvents, publicEvents]);
-
-  */
 
   const validateEndDate = useCallback(() => {
     if (startDate && endDate) {
@@ -235,8 +160,8 @@ function EventList() {
     setEndDate(null);
     setSingleDay(false);
     setEventTypeFilter('all');
-    setFilteredEvents(events);
-    setTempFilteredEvents(events);
+    setFilteredEvents(allEvents);
+    setTempFilteredEvents(allEvents);
   };
 
   const handleStartDateChange = (newValue) => {
@@ -264,7 +189,7 @@ function EventList() {
   };
 
   const applyFilters = useCallback(() => {
-    let filtered = events;
+    let filtered = allEvents;
 
     if (startDate || endDate) {
       filtered = filtered.filter((event) => {
@@ -295,7 +220,7 @@ function EventList() {
     }
 
     setTempFilteredEvents(filtered);
-  }, [startDate, endDate, events, eventTypeFilter, singleDay]);
+  }, [startDate, endDate, allEvents, eventTypeFilter, singleDay]);
 
   useEffect(() => {
     const searchFilteredEvents = tempFilteredEvents.filter((event) =>
