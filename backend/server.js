@@ -335,56 +335,73 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Friend request
-app.post('/api/friend-request/:userId', async (req, res) => { 
+app.post('/api/friend-request/:userId', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ message: 'Unauthorized. Please log in to send friend requests' });
     }
+
     try {
         const { userId } = req.params;
         const senderId = req.session.user.userId; // Get senderId from session
 
+        console.log('Sender ID:', senderId);
+        console.log('Recipient ID:', userId);
+
         // Validate userId 
         if (!ObjectId.isValid(userId)) {
+            console.log('Invalid ObjectId:', userId);
             return res.status(400).json({ message: 'Invalid user ID' });
         }
 
-        // Convert userId to ObjectId
-        const recipientId = new ObjectId(userId);
+        // Convert userId and senderId to ObjectId
+        const recipientObjectId = new ObjectId(userId);
+        const senderObjectId = new ObjectId(senderId);
 
         // Check if the user is trying to send a request to themselves
-        if (senderId === recipientId) {
+        if (senderObjectId.equals(recipientObjectId)) {
+            console.log('User tried to send a request to themselves');
             return res.status(400).json({ message: 'Cannot send a friend request to yourself' });
         }
 
-        // Check if a request already exists
+        // Check if a request already exists (either direction)
         const existingRequest = await db.collection('users').findOne({
             $or: [
-                { _id: recipientId, 'friendRequests.sender': senderId },
-                { _id: senderId, 'friendRequests.sender': recipientId }
+                { _id: recipientObjectId, 'friendRequests.sender': senderObjectId }, // Request sent by sender to recipient
+                { _id: senderObjectId, 'friendRequests.sender': recipientObjectId }  // Request sent by recipient to sender
             ]
         });
 
+        console.log('Existing request found:', existingRequest);
+
         if (existingRequest) {
+            console.log('Friend request already exists between these users');
             return res.status(400).json({ message: 'Friend request already exists' });
         }
 
-        // Check if they are already friends
+        // Check if they are already friends (check both sides)
         const alreadyFriends = await db.collection('users').findOne({
-            _id: senderId,
-            friends: recipientId
+            $or: [
+                { _id: senderObjectId, friends: recipientObjectId }, // Sender has recipient in friends list
+                { _id: recipientObjectId, friends: senderObjectId }  // Recipient has sender in friends list
+            ]
         });
 
+        console.log('Already friends check result:', alreadyFriends);
+
         if (alreadyFriends) {
+            console.log('Users are already friends');
             return res.status(400).json({ message: 'You are already friends with this user' });
         }
 
         // Add the request to the recipient's friendRequests array
         await db.collection('users').updateOne(
-            { _id: recipientId },
-            { $push: { friendRequests: { sender: senderId } } }
+            { _id: recipientObjectId },
+            { $push: { friendRequests: { sender: senderObjectId } } }
         );
 
+        console.log('Friend request sent successfully');
         res.status(200).json({ message: 'Friend request sent.' });
+
     } catch (error) {
         console.error('Error sending friend request:', error);
         res.status(500).json({ message: 'Error sending friend request.' });
