@@ -29,8 +29,10 @@ function EventList() {
   const [publicEvents, setPublicEvents] = useState([]);
   const [privateEvents, setPrivateEvents] = useState([]);
   const [events, setEvents] = useState([]);
+  const [userEvents, setUserEvents] = useState([]);
   const [userId, setUserId] = useState(null);
   const [friends, setFriends] = useState([]);
+  const [allEvents, setAllEvents] = useState([]);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -57,55 +59,73 @@ function EventList() {
 
   useEffect(() => {
     if (!userId) return;
-  
-    const fetchFriends = async () => {
+
+    const fetchFriendsAndEvents = async () => {
       setLoading(true);
       try {
+        // Fetch friends
         const fetchedFriends = await getUserFriends();
-        console.log("Friends:", fetchedFriends);
         setFriends(fetchedFriends);
-  
-        const allPrivateEvents = []; // To store all private events from different users
-  
-        const privateEvents = await Promise.all(
+
+        // Fetch private events for each friend
+        const allPrivateEvents = [];
+        await Promise.all(
           fetchedFriends.map(async (request) => {
             try {
               const userResponse = await fetch(
                 `http://localhost:5001/api/user/${request.id}/private-events`,
-                {
-                  credentials: "include",
-                }
+                { credentials: 'include' }
               );
-  
               if (!userResponse.ok) {
                 throw new Error(`HTTP error! status: ${userResponse.status}`);
               }
-  
               const userData = await userResponse.json();
-  
-              // Collect all private events
               allPrivateEvents.push(...userData);
-  
-              console.log(`User summary for ${request.sender}:`, userData);
-  
-              return { ...request, username: userData.username };
-            } catch (userError) {
-              console.error("Error fetching user summary:", userError);
-              return { ...request, username: "Unknown User" };
+            } catch (error) {
+              console.error('Error fetching private events:', error);
             }
           })
         );
-  
-        setPrivateEvents(allPrivateEvents); // Set all the collected private events at once
+        setPrivateEvents(allPrivateEvents);
+
+        // Fetch public events
+        const publicEventsResponse = await fetch(
+          'http://localhost:5001/api/events/public',
+          { credentials: 'include' }
+        );
+        if (!publicEventsResponse.ok) {
+          throw new Error(`HTTP error! status: ${publicEventsResponse.status}`);
+        }
+        const publicEventsData = await publicEventsResponse.json();
+        setPublicEvents(publicEventsData);
+
+        // Fetch current user's events
+        const userEventsResponse = await fetch(
+          'http://localhost:5001/api/user/events',
+          { credentials: 'include' }
+        );
+        if (!userEventsResponse.ok) {
+          throw new Error(`HTTP error! status: ${userEventsResponse.status}`);
+        }
+        const userEventsData = await userEventsResponse.json();
+        setUserEvents(userEventsData);
+
+        // Combine all events (private, public, and user-specific)
+        const combinedEvents = [
+          ...allPrivateEvents,
+          ...publicEventsData,
+          ...userEventsData,
+        ];
+        setAllEvents(combinedEvents); // Set the combined events in state
       } catch (error) {
-        console.error("Error fetching friends:", error);
+        console.error('Error fetching friends or events:', error);
         setError(error);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchFriends();
+
+    fetchFriendsAndEvents();
   }, [userId]);
 /*
   useEffect(() => {
@@ -377,21 +397,30 @@ function EventList() {
 
       {/* Display Events */}
       <Grid container spacing={1} justifyContent="center">
-        {privateEvents.map((event) => (
-          <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
-            <EventCard
-              title={event.title}
-              startDate={event.startDate}
-              endDate={event.endDate}
-              startTime={event.startTime || '00:00'}
-              endTime={event.endTime || '23:59'}
-              description={event.description}
-              singleDay={event.singleDay}
-              id={event._id}
-            />
+      {/* Display all events together */}
+      {allEvents.length > 0 && (
+        <div>
+          <h2>All Events</h2>
+          <Grid container spacing={1} justifyContent="center">
+            {/* Display all events in a responsive layout */}
+            {allEvents.map((event) => (
+              <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
+                <EventCard
+                  title={event.title}
+                  startDate={event.startDate}
+                  endDate={event.endDate}
+                  startTime={event.startTime || '00:00'}
+                  endTime={event.endTime || '23:59'}
+                  description={event.description}
+                  singleDay={event.singleDay}
+                  id={event._id}
+                />
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
+        </div>
+      )}
+    </Grid>
 
       {/* Snackbar for end date error */}
       {showSnackbar && (
