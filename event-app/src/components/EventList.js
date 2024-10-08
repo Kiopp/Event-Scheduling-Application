@@ -8,6 +8,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import CustomCheckbox from './Checkbox';
 import CustomSnackbar from './CustomSnackbar';
 import axios from 'axios';
+import { getUserFriends } from './../model-data/FriendData';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -28,8 +29,85 @@ function EventList() {
   const [publicEvents, setPublicEvents] = useState([]);
   const [privateEvents, setPrivateEvents] = useState([]);
   const [events, setEvents] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [friends, setFriends] = useState([]);
 
+  useEffect(() => {
+    const fetchUserId = async () => {
+        try {
+            const response = await fetch('http://localhost:5001/api/session', {
+                credentials: 'include'
+            });
 
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const sessionData = await response.json();
+            setUserId(sessionData.user.userId);
+        } catch (error) {
+            console.error('Error fetching user session:', error);
+            setError(error);
+            setLoading(false);
+        }
+    };
+
+    fetchUserId();
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+  
+    const fetchFriends = async () => {
+      setLoading(true);
+      try {
+        const fetchedFriends = await getUserFriends();
+        console.log("Friends:", fetchedFriends);
+        setFriends(fetchedFriends);
+  
+        const allPrivateEvents = []; // To store all private events from different users
+  
+        const privateEvents = await Promise.all(
+          fetchedFriends.map(async (request) => {
+            try {
+              const userResponse = await fetch(
+                `http://localhost:5001/api/user/${request.id}/private-events`,
+                {
+                  credentials: "include",
+                }
+              );
+  
+              if (!userResponse.ok) {
+                throw new Error(`HTTP error! status: ${userResponse.status}`);
+              }
+  
+              const userData = await userResponse.json();
+  
+              // Collect all private events
+              allPrivateEvents.push(...userData);
+  
+              console.log(`User summary for ${request.sender}:`, userData);
+  
+              return { ...request, username: userData.username };
+            } catch (userError) {
+              console.error("Error fetching user summary:", userError);
+              return { ...request, username: "Unknown User" };
+            }
+          })
+        );
+  
+        setPrivateEvents(allPrivateEvents); // Set all the collected private events at once
+      } catch (error) {
+        console.error("Error fetching friends:", error);
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchFriends();
+  }, [userId]);
+/*
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -46,9 +124,12 @@ function EventList() {
 
           // Extract friend IDs
           const friendIds = friendResponse.data.map(friend => friend._id);
+          console.log(friendResponse);
           
           // Create an array of IDs to include the user ID
           const allUserIds = [userID, ...friendIds];
+
+          console.log(allUserIds);
 
           // Fetch private events for the user and their friends
           const privateEventsPromises = allUserIds.map(id =>
@@ -98,6 +179,8 @@ function EventList() {
     };
     fetchData();
   }, [ privateEvents, publicEvents]);
+
+  */
 
   const validateEndDate = useCallback(() => {
     if (startDate && endDate) {
@@ -294,7 +377,7 @@ function EventList() {
 
       {/* Display Events */}
       <Grid container spacing={1} justifyContent="center">
-        {filteredEvents.map((event) => (
+        {privateEvents.map((event) => (
           <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
             <EventCard
               title={event.title}
