@@ -1,16 +1,71 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import FriendCard from './FriendCard';
+import { getUserFriends } from '../../model-data/FriendData';
 
 function FriendList() {
-    const friends = [
-        { id: 1, username: 'Billy Bob' },
-        { id: 2, username: 'Tycho Brahe' },
-        { id: 3, username: 'Ingvar Kamprad' },
-        { id: 4, username: 'REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE' },
-        { id: 5, username: 'Birger Bard' },
-        { id: 6, username: 'Harry Potter' },
-        // ... more friends
-      ];
+  const [userId, setUserId] = useState(null);
+  const [friends, setFriends] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch current user session to get userId
+  useEffect(() => {
+      const fetchUserId = async () => {
+          try {
+              const response = await fetch('http://localhost:5001/api/session', {
+                  credentials: 'include'
+              });
+
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+
+              const sessionData = await response.json();
+              setUserId(sessionData.user.userId);
+          } catch (error) {
+              console.error('Error fetching user session:', error);
+              setError(error);
+              setLoading(false);
+          }
+      };
+
+      fetchUserId();
+  }, []);
+
+  // Fetch friend list
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchFriends = async () => { 
+      setLoading(true);
+      try {
+        const fetchedFriends = await getUserFriends(); // Await getUserFriends
+        setFriends(fetchedFriends);
+      } catch (error) {
+        console.error('Error fetching friends:', error);
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchFriends();
+  }, [userId]);
+
+  // Handle loading state
+  if (loading) {
+    return <div>Loading friend requests...</div>;
+  }
+
+  // Handle error state
+  if (error) {
+      return <div>Error loading friend requests: {error.message}</div>;
+  }
+
+  // Handle no friend requests state
+  if (friends.length === 0) {
+      return <div>No friend requests.</div>;
+  }
 
   return (
     <div style={{ 

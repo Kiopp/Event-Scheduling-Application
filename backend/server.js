@@ -472,7 +472,8 @@ app.put('/api/friend-request/:requestId', async (req, res) => {
 // Get Friends List
 app.get('/api/friends', async (req, res) => {
     try {
-        const userId = req.session.user.userId;
+        const userId = new ObjectId(req.session.user.userId); // Says deprecated, but since req.session.user.userId is a string we need to do this.
+        console.log(userId);
 
         const user = await db.collection('users').aggregate([
             { $match: { _id: userId } },
@@ -494,6 +495,7 @@ app.get('/api/friends', async (req, res) => {
                 }
             }
         ]).toArray();
+        console.log(user);
 
         res.status(200).json(user);
     } catch (error) {
