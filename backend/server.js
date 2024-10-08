@@ -427,20 +427,31 @@ app.post('/api/friend-request/accept/:senderId', async (req, res) => {
         return res.status(401).json({ message: 'Unauthorized. Please log in.' });
     }
 
-    const recipientId = req.session.user.userId; // The logged-in user
+    const recipientId = req.session.user.userId; // The logged-in user who is accepting the request
     const { senderId } = req.params;
 
     try {
-        // Move senderId from friendRequests to friends
+        const recipientObjectId = new ObjectId(recipientId);
+        const senderObjectId = new ObjectId(senderId);
+
+        // Update recipient: Remove from friendRequests and add to friends
         await db.collection('users').updateOne(
-            { _id: new ObjectId(recipientId) },
+            { _id: recipientObjectId },
             {
-                $pull: { friendRequests: { sender: senderId } }, // Remove from friendRequests
-                $addToSet: { friends: new ObjectId(senderId) }   // Add to friends
+                $pull: { friendRequests: { sender: senderId } }, // Remove the sender from friendRequests
+                $addToSet: { friends: senderObjectId }           // Add the sender to recipient's friends list
             }
         );
 
-        res.status(200).json({ message: 'Friend request accepted.' });
+        // Update sender: Add the recipient to sender's friends list
+        await db.collection('users').updateOne(
+            { _id: senderObjectId },
+            {
+                $addToSet: { friends: recipientObjectId }         // Add the recipient to sender's friends list
+            }
+        );
+
+        res.status(200).json({ message: 'Friend request accepted and friendship established.' });
     } catch (error) {
         console.error('Error accepting friend request:', error);
         res.status(500).json({ message: 'Failed to accept friend request' });
