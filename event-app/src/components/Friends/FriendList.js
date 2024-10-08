@@ -64,7 +64,7 @@ function FriendList() {
 
   // Handle no friend requests state
   if (friends.length === 0) {
-      return <div>No friend requests.</div>;
+      return <div>You have no friends lol</div>;
   }
 
   return (
