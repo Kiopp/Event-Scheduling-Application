@@ -5,10 +5,10 @@ function RequestList() {
     const [friendRequests, setFriendRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [userId, setUserId] = useState(null); // Add state for userId
+    const [userId, setUserId] = useState(null);
 
+    // Fetch current user session to get userId
     useEffect(() => {
-        // Fetch the current user session to get the userId
         const fetchUserId = async () => {
             try {
                 const response = await fetch('http://localhost:5001/api/session', {
@@ -20,8 +20,7 @@ function RequestList() {
                 }
 
                 const sessionData = await response.json();
-                setUserId(sessionData.user.userId); // Assume userId is in sessionData.userId
-                console.log(sessionData);
+                setUserId(sessionData.user.userId);
             } catch (error) {
                 console.error('Error fetching user session:', error);
                 setError(error);
@@ -32,10 +31,10 @@ function RequestList() {
         fetchUserId();
     }, []);
 
+    // Fetch friend requests using userId
     useEffect(() => {
-        if (!userId) return; // Ensure userId is available before fetching friend requests
+        if (!userId) return;
 
-        // Fetch friend requests using the userId
         const fetchFriendRequests = async () => {
             try {
                 const response = await fetch(`http://localhost:5001/api/friend-requests/${userId}`, {
@@ -47,8 +46,33 @@ function RequestList() {
                 }
 
                 const data = await response.json();
-                console.log('Friend requests data:', data);
-                setFriendRequests(data.friendRequests); // Match API response structure
+                const requests = data.friendRequests; // Expect array of { sender: senderId }
+
+                // Fetch usernames for each request
+                const requestsWithUsernames = await Promise.all(requests.map(async (request) => {
+                  try {
+                      const userResponse = await fetch(`http://localhost:5001/api/user/${request.sender}`, {
+                          credentials: 'include'
+                      });
+              
+                      if (!userResponse.ok) {
+                          throw new Error(`HTTP error! status: ${userResponse.status}`);
+                      }
+              
+                      const userData = await userResponse.json();
+                      
+                      // Correctly access the nested user object
+                      console.log(`User data for ${request.sender}:`, userData);
+              
+                      return { ...request, username: userData.user.username }; // Access username correctly
+                  } catch (userError) {
+                      console.error('Error fetching user data:', userError);
+                      return { ...request, username: 'Unknown User' }; // Handle error case
+                  }
+              }));
+
+                console.log('Requests with usernames:', requestsWithUsernames);
+                setFriendRequests(requestsWithUsernames);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching friend requests:', error);
@@ -58,7 +82,7 @@ function RequestList() {
         };
 
         fetchFriendRequests();
-    }, [userId]); // Run this effect when userId is updated
+    }, [userId]);
 
     // Handle loading state
     if (loading) {
@@ -76,7 +100,7 @@ function RequestList() {
     }
 
     // Render the list of friend requests
-    /*return (
+    return (
         <div style={{ width: '80%', margin: '0 auto' }}>
             <ul style={{
                 display: 'flex',
@@ -86,16 +110,16 @@ function RequestList() {
                 margin: 0
             }}>
                 {friendRequests.map((friend, index) => (
-                    <li key={friend.senderId || index} style={{ marginBottom: '1rem' }}>
+                    <li key={friend.sender || index} style={{ marginBottom: '1rem' }}>
                         <RequestCard
-                            id={friend.senderId}
-                            name={friend.username} // Updated to match the API response
+                            id={friend.sender.userId}
+                            name={friend.username} // Includes the username from user API
                         />
                     </li>
                 ))}
             </ul>
         </div>
-    );*/
+    );
 }
 
 export default RequestList;
