@@ -51,7 +51,7 @@ function RequestList() {
                 // Fetch usernames for each request
                 const requestsWithUsernames = await Promise.all(requests.map(async (request) => {
                   try {
-                      const userResponse = await fetch(`http://localhost:5001/api/user/${request.sender}`, {
+                      const userResponse = await fetch(`http://localhost:5001/api/user-summary/${request.sender}`, {
                           credentials: 'include'
                       });
               
@@ -61,13 +61,13 @@ function RequestList() {
               
                       const userData = await userResponse.json();
                       
-                      // Correctly access the nested user object
-                      console.log(`User data for ${request.sender}:`, userData);
+                      // The response now directly contains userId and username
+                      console.log(`User summary for ${request.sender}:`, userData);
               
-                      return { ...request, username: userData.user.username }; // Access username correctly
+                      return { ...request, username: userData.username };
                   } catch (userError) {
-                      console.error('Error fetching user data:', userError);
-                      return { ...request, username: 'Unknown User' }; // Handle error case
+                      console.error('Error fetching user summary:', userError);
+                      return { ...request, username: 'Unknown User' };
                   }
               }));
 

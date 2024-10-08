@@ -273,6 +273,36 @@ try {
     }
 });
 
+// Get username and userId by ID
+app.get('/api/user-summary/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        console.log('Received userId:', userId);
+
+        if (!ObjectId.isValid(userId)) {
+            console.log('Invalid ObjectId:', userId);
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        // Fetch only the _id and username fields
+        const user = await db.collection('users').findOne(
+            { _id: new ObjectId(userId) },
+            { projection: { _id: 1, username: 1 } }
+        );
+
+        if (!user) {
+            console.log('User not found for ID:', userId);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Return only the necessary fields
+        res.status(200).json({ userId: user._id, username: user.username });
+    } catch (error) {
+        console.error('Error fetching user summary:', error);
+        res.status(500).json({ message: 'Failed to fetch user summary', error: error.message });
+    }
+});
+
 // Fetch events for a specific user
 app.get('/api/user/:userId/events', async (req, res) => {
 try {
