@@ -50,7 +50,7 @@ function EventPage() {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      height="100vh"
+      height="50vh"
       sx={{ backgroundColor: 'var(--clr-background-mid)', padding: 4 }}
     >
       {event && (
@@ -78,7 +78,7 @@ function EventPage() {
               {event.singleDay ? (
                 <>
                   <Typography variant="body1" gutterBottom sx={{ fontSize: '1.3rem', fontWeight: 500 }}>
-                    {dayjs(event.startDate).format('dddd, MMMM D, YYYY')}
+                    {dayjs(event.startDate).format('dddd MMMM D YYYY')}
                   </Typography>
                   <Typography variant="body1" gutterBottom sx={{ fontSize: '1.3rem', fontWeight: 500 }}>
                     <AccessTimeIcon sx={{ verticalAlign: 'middle', marginRight: 1 }} />
@@ -87,8 +87,8 @@ function EventPage() {
                 </>
               ) : (
                 <Typography variant="body1" gutterBottom sx={{ fontSize: '1.3rem', fontWeight: 500 }}>
-                  {dayjs(event.startDateTime).format('dddd, MMMM D, YYYY HH:mm')} -{' '}
-                  {dayjs(event.endDateTime).format('dddd, MMMM D, YYYY HH:mm')}
+                  {dayjs(event.startDateTime).format('dddd MMMM D YYYY HH:mm')} -{' '}
+                  {dayjs(event.endDateTime).format('dddd MMMM D YYYY HH:mm')}
                 </Typography>
               )}
             </Box>
