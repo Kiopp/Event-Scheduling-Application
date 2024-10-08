@@ -4,12 +4,14 @@ import { Typography, Card, CardContent, Divider, Box, Stack } from '@mui/materia
 import EventIcon from '@mui/icons-material/Event';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DescriptionIcon from '@mui/icons-material/Description';
+import PersonIcon from '@mui/icons-material/Person';
 import dayjs from 'dayjs';
 
 function EventPage() {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [owner, setOwner] = useState(null); // For storing the owner's username
   const { event_id } = useParams();
 
   useEffect(() => {
@@ -22,6 +24,16 @@ function EventPage() {
         const startDateTime = dayjs(`${data.startDate}T${data.startTime}`);
         const endDateTime = dayjs(`${data.endDate}T${data.endTime}`);
         setEvent({ ...data, startDateTime, endDateTime });
+
+        // Fetch the owner's username by their userId (from the `owner` field)
+        return fetch(`http://localhost:5001/api/user/${data.owner}`);
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('User not found');
+        return response.json();
+      })
+      .then(userData => {
+        setOwner(userData.user.username); // Set the owner's username
         setLoading(false);
       })
       .catch(err => {
@@ -90,8 +102,21 @@ function EventPage() {
               </Typography>
             </Stack>
 
-            <Typography variant="body1" sx={{ fontStyle: 'italic', fontSize: '1.3rem' }}>
+            <Typography variant="body1" sx={{ fontStyle: 'italic', fontSize: '1.3rem', marginBottom: 3 }}>
               {event.description || 'No description available.'}
+            </Typography>
+
+            <Divider sx={{ marginY: 3 }} />
+
+            {/* Displaying event owner */}
+            <Stack direction="row" spacing={2} alignItems="center">
+              <PersonIcon color="primary" />
+              <Typography variant="h5" color="textSecondary">
+                Event Owner
+              </Typography>
+            </Stack>
+            <Typography variant="body1" sx={{ fontSize: '1.3rem', fontWeight: 500 }}>
+              {owner ? owner : 'Unknown owner'}
             </Typography>
           </CardContent>
         </Card>
