@@ -84,6 +84,14 @@ function RequestList() {
         fetchFriendRequests();
     }, [userId]);
 
+  const handleAccept = (senderId) => {
+      setFriendRequests(prevRequests => prevRequests.filter(request => request.sender !== senderId));
+  };
+
+  const handleDecline = (senderId) => {
+      setFriendRequests(prevRequests => prevRequests.filter(request => request.sender !== senderId));
+  };
+
     // Handle loading state
     if (loading) {
         return <div>Loading friend requests...</div>;
@@ -112,8 +120,10 @@ function RequestList() {
                 {friendRequests.map((friend, index) => (
                     <li key={friend.sender || index} style={{ marginBottom: '1rem' }}>
                         <RequestCard
-                            id={friend.sender.userId}
+                            id={friend.sender}
                             name={friend.username} // Includes the username from user API
+                            onAccept={handleAccept}
+                            onDecline={handleDecline}
                         />
                     </li>
                 ))}
