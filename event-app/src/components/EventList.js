@@ -116,6 +116,8 @@ function EventList() {
           ...userEventsData,
         ];
         setAllEvents(combinedEvents); // Set the combined events in state
+        setFilteredEvents(combinedEvents);
+        setTempFilteredEvents(combinedEvents);
       } catch (error) {
         console.error('Error fetching friends or events:', error);
         setError(error);
@@ -323,12 +325,12 @@ function EventList() {
       {/* Display Events */}
       <Grid container spacing={1} justifyContent="center">
       {/* Display all events together */}
-      {allEvents.length > 0 && (
+      {filteredEvents.length > 0 && (
         <div>
           <h2>All Events</h2>
           <Grid container spacing={1} justifyContent="center">
             {/* Display all events in a responsive layout */}
-            {allEvents.map((event) => (
+            {filteredEvents.map((event) => (
               <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
                 <EventCard
                   title={event.title}
