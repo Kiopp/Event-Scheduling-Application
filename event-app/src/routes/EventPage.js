@@ -50,7 +50,7 @@ function EventPage() {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      height="50vh"
+      height="30rem"
       sx={{ backgroundColor: 'var(--clr-background-mid)', padding: 4 }}
     >
       {event && (
