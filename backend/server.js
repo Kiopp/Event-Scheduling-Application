@@ -189,15 +189,15 @@ app.post('/api/create-new-event', async (req, res) => {
   }
 });
 
-// Fetch all events from the database
-app.get('/api/events', async (req, res) => {
+// Fetch all public events from the database
+app.get('/api/events/public', async (req, res) => {
     try {
         const db = req.app.locals.db; // Access the database from app.locals
-        const events = await db.collection('events').find().toArray(); // Retrieve all events
-        res.status(200).json(events); // Send events as JSON
+        const publicEvents = await db.collection('events').find({ privateEvent: false }).toArray(); // Retrieve only public events
+        res.status(200).json(publicEvents); // Send public events as JSON
     } catch (err) {
-        console.error('Failed to retrieve events:', err);
-        res.status(500).json({ message: 'Failed to retrieve events', error: err.message });
+        console.error('Failed to retrieve public events:', err);
+        res.status(500).json({ message: 'Failed to retrieve public events', error: err.message });
     }
 });
 
@@ -320,6 +320,29 @@ try {
     } catch (error) {
         console.error('Error fetching user events:', error);
         res.status(500).json({ message: 'Failed to fetch user events', error: error.message });
+    }
+});
+
+// Fetch private events for a specific user
+app.get('/api/user/:userId/private-events', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Validate the userId
+        if (!ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        // Fetch private events created by the user
+        const events = await db.collection('events').find({
+            owner: userId,  // Match the owner ID
+            privateEvent: true // Ensure the event is private
+        }).toArray();
+
+        res.status(200).json(events); // Send private events as JSON
+    } catch (error) {
+        console.error('Error fetching user private events:', error);
+        res.status(500).json({ message: 'Failed to fetch private events', error: error.message });
     }
 });
 
