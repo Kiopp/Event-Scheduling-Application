@@ -94,7 +94,9 @@ app.post('/api/register', async (req, res) => {
         const result = await db.collection('users').insertOne({
             email: normalizedEmail,
             username: normalizedUsername,
-            password: hashedPassword
+            password: hashedPassword,
+            friends: [],
+            friendRequests: []
         });
 
         res.status(201).json({ message: 'User registered successfully', userId: result.insertedId });
@@ -271,6 +273,36 @@ try {
     }
 });
 
+// Get username and userId by ID
+app.get('/api/user-summary/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        console.log('Received userId:', userId);
+
+        if (!ObjectId.isValid(userId)) {
+            console.log('Invalid ObjectId:', userId);
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        // Fetch only the _id and username fields
+        const user = await db.collection('users').findOne(
+            { _id: new ObjectId(userId) },
+            { projection: { _id: 1, username: 1 } }
+        );
+
+        if (!user) {
+            console.log('User not found for ID:', userId);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Return only the necessary fields
+        res.status(200).json({ userId: user._id, username: user.username });
+    } catch (error) {
+        console.error('Error fetching user summary:', error);
+        res.status(500).json({ message: 'Failed to fetch user summary', error: error.message });
+    }
+});
+
 // Fetch events for a specific user
 app.get('/api/user/:userId/events', async (req, res) => {
 try {
@@ -300,4 +332,172 @@ app.post('/api/logout', (req, res) => {
         res.clearCookie('connect.sid'); // Clear the session cookie
         res.status(200).json({ message: 'Logout successful' });
     });
+});
+
+// Friend request
+app.post('/api/friend-request/:userId', async (req, res) => { 
+    if (!req.session.user) {
+        return res.status(401).json({ message: 'Unauthorized. Please log in to send friend requests' });
+    }
+    try {
+        const { userId } = req.params;
+        const senderId = req.session.user.userId; // Get senderId from session
+
+        // Validate userId 
+        if (!ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        // Convert userId to ObjectId
+        const recipientId = new ObjectId(userId);
+
+        // Check if the user is trying to send a request to themselves
+        if (senderId === recipientId) {
+            return res.status(400).json({ message: 'Cannot send a friend request to yourself' });
+        }
+
+        // Check if a request already exists
+        const existingRequest = await db.collection('users').findOne({
+            $or: [
+                { _id: recipientId, 'friendRequests.sender': senderId },
+                { _id: senderId, 'friendRequests.sender': recipientId }
+            ]
+        });
+
+        if (existingRequest) {
+            return res.status(400).json({ message: 'Friend request already exists' });
+        }
+
+        // Check if they are already friends
+        const alreadyFriends = await db.collection('users').findOne({
+            _id: senderId,
+            friends: recipientId
+        });
+
+        if (alreadyFriends) {
+            return res.status(400).json({ message: 'You are already friends with this user' });
+        }
+
+        // Add the request to the recipient's friendRequests array
+        await db.collection('users').updateOne(
+            { _id: recipientId },
+            { $push: { friendRequests: { sender: senderId } } }
+        );
+
+        res.status(200).json({ message: 'Friend request sent.' });
+    } catch (error) {
+        console.error('Error sending friend request:', error);
+        res.status(500).json({ message: 'Error sending friend request.' });
+    }
+});
+
+// Get Friend Requests
+app.get('/api/friend-requests/:userId', async (req, res) => {
+    try {
+        const db = req.app.locals.db;
+        
+        // Log the raw User ID from the request
+        console.log('Raw User ID:', req.params.userId);
+        
+        const userId = new ObjectId(req.params.userId);
+        
+        // Find the user by their ID and project only the friendRequests field
+        const user = await db.collection('users').findOne(
+            { _id: userId },
+            { projection: { friendRequests: 1 } }
+        );
+        
+        if (user) {
+            console.log('Friend Requests found:', user.friendRequests);
+            res.json({ friendRequests: user.friendRequests });
+        } else {
+            console.log('User not found');
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (err) {
+        console.error('Error fetching friend requests:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Accept/Reject Friend Request
+app.put('/api/friend-request/:requestId', async (req, res) => {
+    try {
+        const { requestId } = req.params;
+        const userId = req.session.user.userId;
+        const { status } = req.body; // 'accepted' or 'rejected'
+
+        // Validate requestId
+        if (!ObjectId.isValid(requestId)) {
+            return res.status(400).json({ message: 'Invalid request ID' });
+        }
+
+        // Find the request and update its status
+        const result = await db.collection('users').updateOne(
+            { _id: userId, 'friendRequests._id': new ObjectId(requestId) },
+            { $set: { 'friendRequests.$.status': status } }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'Friend request not found.' });
+        }
+
+        // If accepted, add friends to each other's lists
+        if (status === 'accepted') {
+            const request = await db.collection('users').findOne(
+                { _id: userId, 'friendRequests._id': new ObjectId(requestId) },
+                { projection: { 'friendRequests.$': 1 } }
+            );
+
+            const senderId = request.friendRequests[0].sender;
+
+            // Add each other to the friends array
+            await db.collection('users').updateOne(
+                { _id: userId },
+                { $push: { friends: senderId } }
+            );
+            await db.collection('users').updateOne(
+                { _id: senderId },
+                { $push: { friends: userId } }
+            );
+        }
+
+        res.status(200).json({ message: `Friend request ${status}.` });
+    } catch (error) {
+        console.error('Error updating friend request:', error);
+        res.status(500).json({ message: 'Error updating friend request.' });
+    }
+});
+
+// Get Friends List
+app.get('/api/friends', async (req, res) => {
+    try {
+        const userId = req.session.user.userId;
+
+        const user = await db.collection('users').aggregate([
+            { $match: { _id: userId } },
+            { $unwind: '$friends' },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'friends',
+                    foreignField: '_id',
+                    as: 'friendDetails'
+                }
+            },
+            { $unwind: '$friendDetails' },
+            {
+                $project: {
+                    _id: '$friendDetails._id',
+                    username: '$friendDetails.username',
+                    // ... other fields to include
+                }
+            }
+        ]).toArray();
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error fetching friends:', error);
+        res.status(500).json({ message: 'Error fetching friends.' });
+    }
 });
