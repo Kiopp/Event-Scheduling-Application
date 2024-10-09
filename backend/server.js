@@ -365,6 +365,29 @@ app.get('/api/user/:userId/private-events', async (req, res) => {
     }
 });
 
+// Fetch public events for a specific user
+app.get('/api/user/:userId/public-events', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Validate the userId
+        if (!ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        // Fetch private events created by the user
+        const events = await db.collection('events').find({
+            owner: userId,  // Match the owner ID
+            privateEvent: false // Ensure the event is public
+        }).toArray();
+
+        res.status(200).json(events); // Send private events as JSON
+    } catch (error) {
+        console.error('Error fetching user private events:', error);
+        res.status(500).json({ message: 'Failed to fetch private events', error: error.message });
+    }
+});
+
 // Logout endpoint
 app.post('/api/logout', (req, res) => {
     req.session.destroy((err) => {

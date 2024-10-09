@@ -25,24 +25,12 @@ function ProfilePage() {
   }, []);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !session) return;  // Ensure both userId and session are available
 
     // Fetch user data
     axios.get(`http://localhost:5001/api/user/${userId}`)
       .then(response => {
         setUser(response.data.user);
-
-        // Fetch user's events
-        axios.get(`http://localhost:5001/api/user/${userId}/events`)
-          .then(eventsResponse => {
-            setEvents(eventsResponse.data);
-            setLoading(false);
-          })
-          .catch(error => {
-            console.error('Error fetching user events:', error);
-            setErrorMessage('Failed to load user events.');
-            setLoading(false);
-          });
       })
       .catch(error => {
         console.error('Error fetching user data', error);
@@ -50,38 +38,57 @@ function ProfilePage() {
         setLoading(false);
       });
 
-      // Fetch friend status
-      const fetchIsFriends = async () => { 
-        setLoading(true);
-        try {
+    // Function to fetch events
+    const fetchEvents = async () => {
+      setLoading(true);
+
+      try {
+        const isOwner = session && session.userId === userId; // Check if viewing own profile
+        if (isOwner) {
+          // If viewing own profile, fetch all events
+          const eventsResponse = await axios.get(`http://localhost:5001/api/user/${userId}/events`);
+          setEvents(eventsResponse.data);
+        } else {
+          // Fetch friend status
           const friendStatus = await checkFriend(userId);
           setIsFriend(friendStatus);
-        } catch (error) {
-          console.error('Error fetching friends:', error);
-          setErrorMessage(error);
-        } finally {
-          setLoading(false);
-        }
-      };
 
-      // Fetch friend request status
-      const fetchRequestStatus = async () => { 
-        setLoading(true);
-        try {
-          const friendStatus = await checkPendingRequest(userId);
-          setPendingRequest(friendStatus);
-        } catch (error) {
-          console.error('Error fetching friends:', error);
-          setErrorMessage(error);
-        } finally {
-          setLoading(false);
+          if (friendStatus) {
+            // If they are friends, fetch all events (public and private)
+            const eventsResponse = await axios.get(`http://localhost:5001/api/user/${userId}/events`);
+            setEvents(eventsResponse.data);
+          } else {
+            // If not friends, fetch only public events
+            const eventsResponse = await axios.get(`http://localhost:5001/api/user/${userId}/public-events`);
+            setEvents(eventsResponse.data);
+          }
         }
-      };
-    
-      fetchRequestStatus();
-      fetchIsFriends();
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setErrorMessage('Failed to load events.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  }, [userId]);
+    // Fetch friend request status
+    const fetchRequestStatus = async () => {
+      setLoading(true);
+      try {
+        const friendStatus = await checkPendingRequest(userId);
+        setPendingRequest(friendStatus);
+      } catch (error) {
+        console.error('Error fetching friend requests:', error);
+        setErrorMessage(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRequestStatus();
+    fetchEvents();
+
+  }, [userId, session]);  // Add session as a dependency to ensure it runs when session is available
 
   if (loading) {
     return (
@@ -100,12 +107,10 @@ function ProfilePage() {
     );
   }
 
-  const isOwner = session.userId === userId;
-  console.log("Is owner: ", isOwner);
+  const isOwner = session && session.userId === userId;
 
   return (
     <div className="Content">
-      {/* Check if user exists before accessing properties */}
       {user ? (
         <>
           <h1 className='PageTitle'>{user.username}</h1>
