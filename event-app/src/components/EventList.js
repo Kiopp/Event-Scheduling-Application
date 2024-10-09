@@ -323,12 +323,7 @@ function EventList() {
       )}
 
       {/* Display Events */}
-      <Grid container spacing={1} justifyContent="center">
-      {/* Display all events together */}
-      {filteredEvents.length > 0 && (
-        <div>
-          <h2>All Events</h2>
-          <Grid container spacing={1} justifyContent="center">
+    <Grid container spacing={1} justifyContent="center">
             {/* Display all events in a responsive layout */}
             {filteredEvents.map((event) => (
               <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
@@ -345,9 +340,6 @@ function EventList() {
               </Grid>
             ))}
           </Grid>
-        </div>
-      )}
-    </Grid>
 
       {/* Snackbar for end date error */}
       {showSnackbar && (
