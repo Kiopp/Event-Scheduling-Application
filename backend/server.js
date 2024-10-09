@@ -581,6 +581,20 @@ app.get('/api/friends', async (req, res) => {
     }
 });
 
+// Fetch all users from the database (only username and _id)
+app.get('/api/users', async (req, res) => {
+    try {
+        const db = req.app.locals.db; // Access the database from app.locals
+        const users = await db.collection('users')
+            .find({}, { projection: { username: 1, _id: 1 } }) // Retrieve only username and _id fields
+            .toArray();
+        
+        res.status(200).json(users);
+        console.log(users);
+    } catch (err) {
+        console.error('Failed to retrieve users:', err);
+        res.status(500).json({ message: 'Failed to retrieve users', error: err.message });
+
 // Check friendness status
 app.get('/api/friends/checkfriend/:userId2', async (req, res) => {
     if (!req.session.user) {

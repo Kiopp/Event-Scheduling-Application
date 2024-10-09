@@ -14,6 +14,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PeopleIcon from '@mui/icons-material/People';
 import { useNavigate } from 'react-router-dom';
+import Diversity1Icon from '@mui/icons-material/Diversity1';
 
 export default function ProfileDrawer({ open, onClose, handleLogout }) {
   const navigate = useNavigate();
@@ -49,6 +50,11 @@ export default function ProfileDrawer({ open, onClose, handleLogout }) {
     }
   };
 
+  const handleNavigateToUsers = () => {
+    navigate('/users');
+    onClose();
+  };
+
   const list = () => (
     <Box
       sx={{ width: 250 }}
@@ -69,9 +75,18 @@ export default function ProfileDrawer({ open, onClose, handleLogout }) {
         <ListItem disablePadding>
           <ListItemButton onClick={handleNavigateToFriends}>
             <ListItemIcon>
-              <PeopleIcon />
+              <Diversity1Icon />
             </ListItemIcon>
             <ListItemText primary="Friends" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleNavigateToUsers}>
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Users" />
           </ListItemButton>
         </ListItem>
 
