@@ -1,7 +1,7 @@
 import { Typography, Box } from '@mui/material';
 import * as React from 'react';
 
-export default function AboutUs() {
+export default function AboutCard() {
     return (
         <Box sx={{display: 'flex', justifyContent: 'center'}}>
             <Box sx={{maxWidth: '50%', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 10, padding: '1.75rem', lineHeight: '1.5'}}>
