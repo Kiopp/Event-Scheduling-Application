@@ -7,12 +7,13 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import CustomCheckbox from './Checkbox';
 import CustomSnackbar from './CustomSnackbar';
+import axios from 'axios';
+import { getUserFriends } from './../model-data/FriendData';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
 function EventList() {
-  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,21 +26,108 @@ function EventList() {
   const [eventTypeFilter, setEventTypeFilter] = useState('all');
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarTriggered, setSnackbarTriggered] = useState(false);
+  const [publicEvents, setPublicEvents] = useState([]);
+  const [privateEvents, setPrivateEvents] = useState([]);
+  const [userEvents, setUserEvents] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [friends, setFriends] = useState([]);
+  const [allEvents, setAllEvents] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/events')
-      .then((response) => response.json())
-      .then((data) => {
-        setEvents(data);
-        setFilteredEvents(data);
-        setTempFilteredEvents(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    const fetchUserId = async () => {
+        try {
+            const response = await fetch('http://localhost:5001/api/session', {
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const sessionData = await response.json();
+            setUserId(sessionData.user.userId);
+        } catch (error) {
+            console.error('Error fetching user session:', error);
+            setError(error);
+            setLoading(false);
+        }
+    };
+
+    fetchUserId();
   }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchFriendsAndEvents = async () => {
+      setLoading(true);
+      try {
+        // Fetch friends
+        const fetchedFriends = await getUserFriends();
+        setFriends(fetchedFriends);
+
+        // Fetch private events for each friend
+        const allPrivateEvents = [];
+        await Promise.all(
+          fetchedFriends.map(async (request) => {
+            try {
+              const userResponse = await fetch(
+                `http://localhost:5001/api/user/${request.id}/private-events`,
+                { credentials: 'include' }
+              );
+              if (!userResponse.ok) {
+                throw new Error(`HTTP error! status: ${userResponse.status}`);
+              }
+              const userData = await userResponse.json();
+              allPrivateEvents.push(...userData);
+            } catch (error) {
+              console.error('Error fetching private events:', error);
+            }
+          })
+        );
+        setPrivateEvents(allPrivateEvents);
+
+        // Fetch public events
+        const publicEventsResponse = await fetch(
+          'http://localhost:5001/api/events/public',
+          { credentials: 'include' }
+        );
+        if (!publicEventsResponse.ok) {
+          throw new Error(`HTTP error! status: ${publicEventsResponse.status}`);
+        }
+        const publicEventsData = await publicEventsResponse.json();
+        setPublicEvents(publicEventsData);
+
+        // Fetch current user's private events
+        const userEventsResponse = await fetch(
+          `http://localhost:5001/api/user/${userId}/private-events`,
+          { credentials: 'include' }
+        );
+        if (!userEventsResponse.ok) {
+          throw new Error(`HTTP error! status: ${userEventsResponse.status}`);
+        }
+        const userEventsData = await userEventsResponse.json();
+        setUserEvents(userEventsData);
+
+        // Combine all events (private, public, and user-specific)
+        const combinedEvents = [
+          ...allPrivateEvents,
+          ...publicEventsData,
+          ...userEventsData,
+        ];
+        setAllEvents(combinedEvents); // Set the combined events in state
+        setFilteredEvents(combinedEvents);
+        setTempFilteredEvents(combinedEvents);
+      } catch (error) {
+        console.error('Error fetching friends or events:', error);
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFriendsAndEvents();
+  }, [userId]);
 
   const validateEndDate = useCallback(() => {
     if (startDate && endDate) {
@@ -74,8 +162,8 @@ function EventList() {
     setEndDate(null);
     setSingleDay(false);
     setEventTypeFilter('all');
-    setFilteredEvents(events);
-    setTempFilteredEvents(events);
+    setFilteredEvents(allEvents);
+    setTempFilteredEvents(allEvents);
   };
 
   const handleStartDateChange = (newValue) => {
@@ -103,7 +191,7 @@ function EventList() {
   };
 
   const applyFilters = useCallback(() => {
-    let filtered = events;
+    let filtered = allEvents;
 
     if (startDate || endDate) {
       filtered = filtered.filter((event) => {
@@ -134,7 +222,7 @@ function EventList() {
     }
 
     setTempFilteredEvents(filtered);
-  }, [startDate, endDate, events, eventTypeFilter, singleDay]);
+  }, [startDate, endDate, allEvents, eventTypeFilter, singleDay]);
 
   useEffect(() => {
     const searchFilteredEvents = tempFilteredEvents.filter((event) =>
@@ -235,22 +323,23 @@ function EventList() {
       )}
 
       {/* Display Events */}
-      <Grid container spacing={1} justifyContent="center">
-        {filteredEvents.map((event) => (
-          <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
-            <EventCard
-              title={event.title}
-              startDate={event.startDate}
-              endDate={event.endDate}
-              startTime={event.startTime || '00:00'}
-              endTime={event.endTime || '23:59'}
-              description={event.description}
-              singleDay={event.singleDay}
-              id={event._id}
-            />
+    <Grid container spacing={1} justifyContent="center">
+            {/* Display all events in a responsive layout */}
+            {filteredEvents.map((event) => (
+              <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
+                <EventCard
+                  title={event.title}
+                  startDate={event.startDate}
+                  endDate={event.endDate}
+                  startTime={event.startTime || '00:00'}
+                  endTime={event.endTime || '23:59'}
+                  description={event.description}
+                  singleDay={event.singleDay}
+                  id={event._id}
+                />
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
 
       {/* Snackbar for end date error */}
       {showSnackbar && (
