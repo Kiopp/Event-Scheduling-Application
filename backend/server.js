@@ -201,6 +201,25 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
+// Fetch 3 latest events
+app.get('/api/events/latest', async (req, res) => {
+    try {
+        const db = req.app.locals.db; // Access the database from app.locals
+        const events = await db.collection('events')
+        .find({ privateEvent: false })
+        .sort({ _id: -1 }) // Sort by _id in descending order (newest first)
+        .limit(3) // Limit to the top 3 results
+        .toArray();
+
+        console.log(events);
+
+        res.status(200).json(events); // Send events as JSON
+    } catch (err) {
+        console.error('Failed to retrieve latest events:', err);
+        res.status(500).json({ message: 'Failed to retrieve latest events', error: err.message });
+    }
+});
+
 // Define API route to get a single event by ID
 app.get('/api/event/:id', async (req, res) => {
     try {

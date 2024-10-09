@@ -8,7 +8,7 @@ export default function AboutCard() {
                 <Typography variant='h4'>
                     About us
                 </Typography>
-                <Typography variant='p' sx={{ display: 'flex'}}>
+                <Typography variant='p' sx={{ marginTop: '1rem' }}>
                     Event Scheduler PRO was born out of frustration. As event organizers ourselves, we knew there had to be a better way to manage the chaos. 
                     So, we set out to build a tool that would simplify the entire process, from start to finish. 
                     Today, Event Scheduler PRO empowers individuals and organizations to plan and execute flawless events with ease.  
