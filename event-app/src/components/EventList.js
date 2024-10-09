@@ -45,16 +45,45 @@ function EventList() {
             }
 
             const sessionData = await response.json();
-            setUserId(sessionData.user.userId);
+            setUserId(sessionData.user?.userId || null);
         } catch (error) {
             console.error('Error fetching user session:', error);
-            setError(error);
+            setUserId(null); // Ensure that we explicitly set this to null in case of an error
+        } finally {
             setLoading(false);
         }
     };
 
     fetchUserId();
   }, []);
+
+  useEffect(() => {
+    const fetchPublicEvents = async () => {
+      try {
+        const publicEventsResponse = await fetch('http://localhost:5001/api/events/public', {
+          credentials: 'include',
+        });
+        if (!publicEventsResponse.ok) {
+          throw new Error(`HTTP error! status: ${publicEventsResponse.status}`);
+        }
+        const publicEventsData = await publicEventsResponse.json();
+        setPublicEvents(publicEventsData);
+        setAllEvents(publicEventsData); // If logged out, we only set public events
+        setFilteredEvents(publicEventsData);
+        setTempFilteredEvents(publicEventsData);
+      } catch (error) {
+        console.error('Error fetching public events:', error);
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!userId) {
+      // If no userId, fetch only public events
+      fetchPublicEvents();
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -87,17 +116,6 @@ function EventList() {
         );
         setPrivateEvents(allPrivateEvents);
 
-        // Fetch public events
-        const publicEventsResponse = await fetch(
-          'http://localhost:5001/api/events/public',
-          { credentials: 'include' }
-        );
-        if (!publicEventsResponse.ok) {
-          throw new Error(`HTTP error! status: ${publicEventsResponse.status}`);
-        }
-        const publicEventsData = await publicEventsResponse.json();
-        setPublicEvents(publicEventsData);
-
         // Fetch current user's private events
         const userEventsResponse = await fetch(
           `http://localhost:5001/api/user/${userId}/private-events`,
@@ -112,7 +130,7 @@ function EventList() {
         // Combine all events (private, public, and user-specific)
         const combinedEvents = [
           ...allPrivateEvents,
-          ...publicEventsData,
+          ...publicEvents,
           ...userEventsData,
         ];
         setAllEvents(combinedEvents); // Set the combined events in state
@@ -127,7 +145,7 @@ function EventList() {
     };
 
     fetchFriendsAndEvents();
-  }, [userId]);
+  }, [userId, publicEvents]);
 
   const validateEndDate = useCallback(() => {
     if (startDate && endDate) {
@@ -323,23 +341,22 @@ function EventList() {
       )}
 
       {/* Display Events */}
-    <Grid container spacing={1} justifyContent="center">
-            {/* Display all events in a responsive layout */}
-            {filteredEvents.map((event) => (
-              <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
-                <EventCard
-                  title={event.title}
-                  startDate={event.startDate}
-                  endDate={event.endDate}
-                  startTime={event.startTime || '00:00'}
-                  endTime={event.endTime || '23:59'}
-                  description={event.description}
-                  singleDay={event.singleDay}
-                  id={event._id}
-                />
-              </Grid>
-            ))}
+      <Grid container spacing={1} justifyContent="center">
+        {filteredEvents.map((event) => (
+          <Grid item xs={12} sm={6} md={4} lg={4} key={event._id}>
+            <EventCard
+              title={event.title}
+              startDate={event.startDate}
+              endDate={event.endDate}
+              startTime={event.startTime || '00:00'}
+              endTime={event.endTime || '23:59'}
+              description={event.description}
+              singleDay={event.singleDay}
+              id={event._id}
+            />
           </Grid>
+        ))}
+      </Grid>
 
       {/* Snackbar for end date error */}
       {showSnackbar && (
