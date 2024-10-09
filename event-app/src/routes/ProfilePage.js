@@ -110,7 +110,6 @@ function ProfilePage() {
         <>
           <h1 className='PageTitle'>{user.username}</h1>
           <div className="UserInfo">
-            <p><strong>Username:</strong> {user.username}</p>
             {!isOwner && (
               isFriend ? (
                 <Button 
