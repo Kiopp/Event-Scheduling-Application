@@ -33,6 +33,7 @@ function EventList() {
   const [friends, setFriends] = useState([]);
   const [allEvents, setAllEvents] = useState([]);
   const [showFriendsEvents, setShowFriendsEvents] = useState(false);
+  const [eventVisibilityFilter, setEventVisibilityFilter] = useState('all');
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -183,6 +184,8 @@ function EventList() {
     setEventTypeFilter('all');
     setFilteredEvents(allEvents);
     setTempFilteredEvents(allEvents);
+    setEventVisibilityFilter('all');
+    setShowFriendsEvents(false);
   };
 
   const handleStartDateChange = (newValue) => {
@@ -244,6 +247,15 @@ function EventList() {
       });
     }
 
+    // Filter by event visibility
+    if (eventVisibilityFilter !== 'all') {
+      filtered = filtered.filter((event) => {
+        if (eventVisibilityFilter === 'public') return !event.privateEvent; // Assuming `event.private` indicates if the event is private
+        if (eventVisibilityFilter === 'private') return event.privateEvent;
+        return true;
+      });
+    }
+
     // Filter by friends' events if checkbox is checked
     if (showFriendsEvents && userId && friends.length > 0) {
       filtered = filtered.filter((event) =>
@@ -252,7 +264,7 @@ function EventList() {
     }
 
     setTempFilteredEvents(filtered);
-  }, [startDate, endDate, allEvents, eventTypeFilter, singleDay, showFriendsEvents, friends, userId]);
+  }, [startDate, endDate, allEvents, eventTypeFilter, singleDay, showFriendsEvents, friends, userId, eventVisibilityFilter]);
 
   useEffect(() => {
     const searchFilteredEvents = tempFilteredEvents.filter((event) =>
@@ -288,16 +300,7 @@ function EventList() {
       {/* Conditional rendering of the filter section */}
       {showFilters && (
         <Box mb={3}>
-
-          {/* Friends Events Filter Checkbox */}
-          {userId && (
-            <CustomCheckbox
-              label="Show Friends Events"
-              checked={showFriendsEvents}
-              onChange={handleFriendsEventsChange}
-            />
-          )}
-
+          
           <Box display="flex" justifyContent="center" mb={2}>
             {/* Event Type Filter */}
             <TextField
@@ -306,13 +309,40 @@ function EventList() {
               value={eventTypeFilter}
               onChange={(event) => setEventTypeFilter(event.target.value)}
               variant="outlined"
-              style={{ width: '200px', marginRight: '16px' }}
+              style={{ width: '200px', marginRight: '8px' }}
             >
               <MenuItem value="all">All Events</MenuItem>
               <MenuItem value="single">Single Day Events</MenuItem>
               <MenuItem value="multi">Multi-Day Events</MenuItem>
             </TextField>
+
+            {userId && (
+              <>
+                {/* Event Visibility Filter */}
+                <TextField
+                  select
+                  label="Event Visibility"
+                  value={eventVisibilityFilter}
+                  onChange={(event) => setEventVisibilityFilter(event.target.value)}
+                  variant="outlined"
+                  style={{ width: '200px', marginRight: '8px' }}
+                >
+                  <MenuItem value="all">All Events</MenuItem>
+                  <MenuItem value="public">Public Events</MenuItem>
+                  <MenuItem value="private">Private Events</MenuItem>
+                </TextField>
+
+                {/* Show Friends Events Checkbox */}
+                <CustomCheckbox
+                  label="Show Friends Events"
+                  checked={showFriendsEvents}
+                  onChange={handleFriendsEventsChange}
+                  ml={2} // Add margin left to the checkbox
+                />
+              </>
+            )}
           </Box>
+          
           <Box display="flex" justifyContent="center" mb={1}>
             <Box display="flex" ml={-2} justifyContent="space-between" width="45%">
               <DatePicker
