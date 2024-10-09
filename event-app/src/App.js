@@ -103,9 +103,6 @@ function App() {
                     <Button>
                       <Link to="/friends">Friends</Link>
                     </Button>
-                    <Button>
-                      <Link to="/users">Users</Link>
-                    </Button>
                 </ButtonGroup>
                 </>
               ) : (
