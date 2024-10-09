@@ -586,6 +586,7 @@ app.get('/api/users', async (req, res) => {
             .toArray();
         
         res.status(200).json(users);
+        console.log(users);
     } catch (err) {
         console.error('Failed to retrieve users:', err);
         res.status(500).json({ message: 'Failed to retrieve users', error: err.message });
