@@ -14,6 +14,7 @@ import ProfilePage from './routes/ProfilePage';
 import stringToColor from './components/StringToColor.js';
 import Drawer from './components/Drawer.js';
 import UsersPage from './routes/UsersPage';
+import TermsOfService from './routes/TermsOfService.js';
 
 const darkTheme = createTheme({
   components: {
@@ -171,6 +172,7 @@ function App() {
             <Route path="/friends" element={<FriendPage />} />
             <Route path="/profile/:userId" element={<ProfilePage />} />
             <Route path="/users" element={<UsersPage />} />
+            <Route path="/terms-of-Service" element={<TermsOfService />} />
           </Routes>
         </div>
       </BrowserRouter>

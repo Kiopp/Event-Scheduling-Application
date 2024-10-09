@@ -137,6 +137,11 @@ const RegistrationPage = () => {
         }
     };
 
+
+    const handleTOSClick = () => {
+        navigate('/Terms-of-Service');
+    };
+
     return (
         <div className='LoginForm'>
             <Grid2 container spacing={2} justifyContent="center">
@@ -230,7 +235,13 @@ const RegistrationPage = () => {
                                 onChange={handleChange}
                             />
                         }
-                        label="I accept the Terms of Service"
+                        label= {
+                            <span onClick={handleTOSClick} style={{cursor: 'pointer'}}>
+                                I accept the <Link to="/Terms-of-Service">Terms of Service</Link>
+                            </span>
+                        }
+                        
+                        
                     />
                     {errors.acceptTerms && (
                         <Typography color="error" variant="body2">

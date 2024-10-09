@@ -104,3 +104,16 @@ header .navbar_logo {
   margin-top: 2rem;
   margin-bottom: 5rem;
 }
+
+.tos {
+  font-size: 1.1rem;
+  width: 70%;
+  display: flex; 
+  flex-direction: column;
+  flex-wrap: nowrap;
+  text-align: left;
+}
+
+.tos li {
+  margin-bottom: 1rem;
+}
