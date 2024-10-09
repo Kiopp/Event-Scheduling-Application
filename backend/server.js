@@ -594,6 +594,8 @@ app.get('/api/users', async (req, res) => {
     } catch (err) {
         console.error('Failed to retrieve users:', err);
         res.status(500).json({ message: 'Failed to retrieve users', error: err.message });
+    }
+});
 
 // Check friendness status
 app.get('/api/friends/checkfriend/:userId2', async (req, res) => {
