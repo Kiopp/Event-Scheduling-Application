@@ -20,6 +20,20 @@ export const sendFriendRequest = async (targetUserId) => {
       }
     }
   };
+  export const killFriend = async (victimId) => {
+    try {
+        const response = await fetch(`http://localhost:5001/api/friend/remove/${victimId}`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
 
   export const getUserFriends = async () => {
     try {
@@ -32,7 +46,6 @@ export const sendFriendRequest = async (targetUserId) => {
       }
   
       const data = await response.json();
-      console.log('Friends data:', data); // Log the data received from /api/friends
   
       // Assuming /api/friends now returns an array of { _id, username }
       const friendsWithUsernames = data.map(friend => ({
@@ -44,6 +57,56 @@ export const sendFriendRequest = async (targetUserId) => {
   
     } catch (error) {
       console.error('Error fetching friends:', error);
+      return error; 
+    }
+  };
+
+  export const checkFriend = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/friends/checkfriend/${userId}`, {
+        credentials: 'include'
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log("is friend: ", data);
+
+      if (data){
+        return true;
+      } else {
+        return false;
+      }
+
+    } catch (error) {
+      console.error('Error checking friend status:', error);
+      return error; 
+    }
+  };
+
+  export const checkPendingRequest = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/friends/checkfriend/request/${userId}`, {
+        credentials: 'include'
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log("request: ", data);
+
+      if (data){
+        return true;
+      } else {
+        return false;
+      }
+
+    } catch (error) {
+      console.error('Error checking friend status:', error);
       return error; 
     }
   };

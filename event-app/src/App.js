@@ -56,13 +56,27 @@ function App() {
     setDrawerOpen(false);
   };
 
-  // Handle logout
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    handleDrawerClose();
-    checkSession();
-    window.location.href = '/login'; // Redirect to login page
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://localhost:5001/api/logout', {
+        method: 'POST',
+        credentials: 'include', // Ensure cookies are sent with the request
+      });
+      console.log(response);
+  
+      if (response.ok) {
+        // Clear client-side session data (if any)
+        localStorage.removeItem('user'); // or any other session-related data
+        sessionStorage.clear();
+  
+        // Optionally redirect to login or homepage
+        window.location.href = '/login'; // Or wherever you want to send them
+      } else {
+        console.error('Failed to log out');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
   
   const checkSession = async () => {
