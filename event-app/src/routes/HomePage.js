@@ -1,4 +1,6 @@
 import * as React from 'react';
+import AboutCard from '../components/AboutCard';
+import LatestEvents from '../components/LatestEvents';
 
 class HomePage extends React.Component {
     render() {
@@ -7,6 +9,8 @@ class HomePage extends React.Component {
                 <h1 className='PageTitle'>
                     Welcome to Event Scheduler PRO!
                 </h1>
+                <LatestEvents />
+                <AboutCard />
             </div>
             
         );
