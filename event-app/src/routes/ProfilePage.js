@@ -4,7 +4,7 @@ import EventCard from '../components/EventCard';
 import { Button, Grid2 } from '@mui/material';
 import { CircularProgress } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import { checkFriend, sendFriendRequest, checkPendingRequest } from '../model-data/FriendData';
+import { checkFriend, sendFriendRequest, checkPendingRequest, killFriend } from '../model-data/FriendData';
 
 function ProfilePage() {
   const [session, setSession] = useState(null); // Store session
@@ -114,6 +114,7 @@ function ProfilePage() {
               variant='contained'
               color='error'
               onClick={() => {
+                killFriend(userId);
             }}>
               Remove Friend
             </Button>

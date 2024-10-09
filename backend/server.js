@@ -455,7 +455,7 @@ app.post('/api/friend-request/accept/:senderId', async (req, res) => {
         await db.collection('users').updateOne(
             { _id: recipientObjectId },
             {
-                $pull: { friendRequests: { sender: senderId } }, // Remove the sender from friendRequests
+                $pull: { friendRequests: { sender: senderObjectId } }, // Remove the sender from friendRequests
                 $addToSet: { friends: senderObjectId }           // Add the sender to recipient's friends list
             }
         );
@@ -502,6 +502,9 @@ app.post('/api/friend-request/decline/:senderId', async (req, res) => {
 
 // Get Friends List
 app.get('/api/friends', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+    }
     try {
         const userId = new ObjectId(req.session.user.userId); // Says deprecated, but since req.session.user.userId is a string we need to do this.
         console.log(userId);
@@ -537,6 +540,9 @@ app.get('/api/friends', async (req, res) => {
 
 // Check friendness status
 app.get('/api/friends/checkfriend/:userId2', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+    }
     try {
         const userId1 = req.session.user.userId;
         const { userId2 } = req.params;
@@ -565,6 +571,9 @@ app.get('/api/friends/checkfriend/:userId2', async (req, res) => {
 
 // Check pending friend request
 app.get('/api/friends/checkfriend/request/:userId2', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+    }
     try {
         const userId1 = req.session.user.userId;
         const { userId2 } = req.params;
@@ -587,5 +596,41 @@ app.get('/api/friends/checkfriend/request/:userId2', async (req, res) => {
     } catch (error) {
         console.error('Error checking friend request status:', error);
         res.status(500).json({ message: 'Error checking friend request status.' });
+    }
+});
+
+// Remove friend
+app.post('/api/friend/remove/:victim', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+    }
+
+    const killer = req.session.user.userId; // The logged-in user who is requesting removal
+    const { victim } = req.params;
+
+    try {
+        const killerId = new ObjectId(killer);
+        const victimId = new ObjectId(victim);
+
+        // Update killer, remove victim from killer
+        await db.collection('users').updateOne(
+            { _id: killerId },
+            {
+                $pull: { friends: victimId }, // Remove the victim from friends
+            }
+        );
+
+        // Update victim, remove killer from victim
+        await db.collection('users').updateOne(
+            { _id: victimId },
+            {
+                $pull: { friends: killerId } // Remove the killer from friends
+            }
+        );
+
+        res.status(204).json({ message: 'Friend killed, how brutal...' });
+    } catch (error) {
+        console.error('Error killing victim:', error);
+        res.status(500).json({ message: 'Failed to kill victim. Police are on their way...' });
     }
 });

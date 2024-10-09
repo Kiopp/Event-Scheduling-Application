@@ -20,6 +20,20 @@ export const sendFriendRequest = async (targetUserId) => {
       }
     }
   };
+  export const killFriend = async (victimId) => {
+    try {
+        const response = await fetch(`http://localhost:5001/api/friend/remove/${victimId}`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
 
   export const getUserFriends = async () => {
     try {
