@@ -105,64 +105,67 @@ function ProfilePage() {
 
   return (
     <div className="Content">
-      <h1 className='PageTitle'>{user.username}</h1>
-      <div className="UserInfo">
-        <p><strong>Username:</strong> {user.username}</p>
-        {isOwner === false ? (
-          isFriend ? (
-            <Button 
-              variant='contained'
-              color='error'
-              onClick={() => {
-                killFriend(userId);
-            }}>
-              Remove Friend
-            </Button>
-          ) : (
-            hasPendingRequest ? (
-              <Button 
-                variant='outlined'
-                disabled='true'
-                >
-                Pending
-              </Button>
-            ) : (
-              <Button 
-                variant='contained'
-                onClick={() => {
-                sendFriendRequest(userId);
-              }}>
-                Add Friend
-              </Button>
-            )
-          )
-        ) : (
-          <></>
-        )}
-        
-        
-      </div>
+      {/* Check if user exists before accessing properties */}
+      {user ? (
+        <>
+          <h1 className='PageTitle'>{user.username}</h1>
+          <div className="UserInfo">
+            <p><strong>Username:</strong> {user.username}</p>
+            {!isOwner && (
+              isFriend ? (
+                <Button 
+                  variant='contained'
+                  color='error'
+                  onClick={() => {
+                    killFriend(userId);
+                }}>
+                  Remove Friend
+                </Button>
+              ) : (
+                hasPendingRequest ? (
+                  <Button 
+                    variant='outlined'
+                    disabled={true}
+                    >
+                    Pending
+                  </Button>
+                ) : (
+                  <Button 
+                    variant='contained'
+                    onClick={() => {
+                    sendFriendRequest(userId);
+                  }}>
+                    Add Friend
+                  </Button>
+                )
+              )
+            )}
+          </div>
 
-      <h2>{user.username}'s Events</h2>
-      {events.length === 0 ? (
-        <p>{user.username} has not created any events yet.</p>
-      ) : (
-        <Grid2 container spacing={2} justifyContent="center">
-          {events.map(event => (
-            <Grid2 item xs={12} sm={6} md={4} lg={3} key={event._id}>
-              <EventCard
-                id={event._id}
-                title={event.title}
-                startDate={event.startDate}
-                endDate={event.endDate}
-                startTime={event.startTime}
-                endTime={event.endTime}
-                description={event.description}
-                singleDay={event.singleDay}
-              />
+          <h2>{user.username}'s Events</h2>
+          {events.length === 0 ? (
+            <p>{user.username} has not created any events yet.</p>
+          ) : (
+            <Grid2 container spacing={2} justifyContent="center">
+              {events.map(event => (
+                <Grid2 item xs={12} sm={6} md={4} lg={3} key={event._id}>
+                  <EventCard
+                    id={event._id}
+                    title={event.title}
+                    startDate={event.startDate}
+                    endDate={event.endDate}
+                    startTime={event.startTime}
+                    endTime={event.endTime}
+                    description={event.description}
+                    singleDay={event.singleDay}
+                  />
+                </Grid2>
+              ))}
             </Grid2>
-          ))}
-        </Grid2>
+          )}
+        </>
+      ) : (
+        <p>Loading user...</p> 
       )}
     </div>
   );
