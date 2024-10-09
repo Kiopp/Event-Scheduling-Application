@@ -497,7 +497,7 @@ app.post('/api/friend-request/accept/:senderId', async (req, res) => {
         await db.collection('users').updateOne(
             { _id: recipientObjectId },
             {
-                $pull: { friendRequests: { sender: senderId } }, // Remove the sender from friendRequests
+                $pull: { friendRequests: { sender: senderObjectId } }, // Remove the sender from friendRequests
                 $addToSet: { friends: senderObjectId }           // Add the sender to recipient's friends list
             }
         );
@@ -525,13 +525,14 @@ app.post('/api/friend-request/decline/:senderId', async (req, res) => {
 
     const recipientId = req.session.user.userId;
     const { senderId } = req.params;
+    const senderObjectId = new ObjectId(senderId);
 
     try {
         // Remove senderId from friendRequests
         await db.collection('users').updateOne(
             { _id: new ObjectId(recipientId) },
             {
-                $pull: { friendRequests: { sender: senderId } } // Remove from friendRequests
+                $pull: { friendRequests: { sender: senderObjectId } } // Remove from friendRequests
             }
         );
 
