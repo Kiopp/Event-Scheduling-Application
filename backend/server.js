@@ -534,3 +534,32 @@ app.get('/api/friends', async (req, res) => {
         res.status(500).json({ message: 'Error fetching friends.' });
     }
 });
+
+// Check friendness status
+app.get('/api/friends/checkfriend/:userId2', async (req, res) => {
+    try {
+        const userId1 = req.session.user.userId;
+        const { userId2 } = req.params;
+
+        // Validate userId1 and userId2 (ensure they are valid ObjectIds)
+        if (!ObjectId.isValid(userId1) || !ObjectId.isValid(userId2)) {
+            console.log("INVALID USER ID(s)");
+            return res.status(400).json({ message: 'Invalid user ID(s)' });
+        }
+
+        const user1 = new ObjectId(userId1);
+        const user2 = new ObjectId(userId2);
+
+        // Check if user1 has user2 in their friends list
+        const result = await db.collection('users').findOne({ 
+            _id: user1, 
+            friends: user2 
+        });
+        console.log("Calling user is friends: ", result);
+
+        res.status(200).json(!!result);
+    } catch (error) {
+        console.error('Error checking friend status:', error);
+        res.status(500).json({ message: 'Error checking friend status.' });
+    }
+});

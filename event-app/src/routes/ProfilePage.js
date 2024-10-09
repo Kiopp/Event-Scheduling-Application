@@ -4,17 +4,16 @@ import EventCard from '../components/EventCard';
 import { Button, Grid2 } from '@mui/material';
 import { CircularProgress } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import { sendFriendRequest } from '../model-data/FriendData';
+import { checkFriend, sendFriendRequest } from '../model-data/FriendData';
 
 function ProfilePage() {
   const { userId } = useParams();
-
+  const [isFriend, setIsFriend] = useState(true);
   const [user, setUser] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Fetch user data and events
   useEffect(() => {
     // Fetch user data
     axios.get(`http://localhost:5001/api/user/${userId}`)
@@ -38,6 +37,23 @@ function ProfilePage() {
         setErrorMessage('User not found.');
         setLoading(false);
       });
+
+      // Fetch friend status
+      const fetchIsFriends = async () => { 
+        setLoading(true);
+        try {
+          const friendStatus = await checkFriend(userId);
+          setIsFriend(friendStatus);
+        } catch (error) {
+          console.error('Error fetching friends:', error);
+          setErrorMessage(error);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      fetchIsFriends();
+
   }, [userId]);
 
   if (loading) {
@@ -62,16 +78,28 @@ function ProfilePage() {
       <h1 className='PageTitle'>{user.username}</h1>
       <div className="UserInfo">
         <p><strong>Username:</strong> {user.username}</p>
-        {/* Optionally display email if appropriate */}
-        {/* <p><strong>Email:</strong> {user.email}</p> */}
-        <Button 
-          variant='contained'
-          onClick={() => {
+        {isFriend ? (
+
+          <Button 
+            variant='contained'
+            color='error'
+            onClick={() => {
+          }}>
+            Remove Friend
+          </Button>
+
+        ) : (
+
+          <Button 
+            variant='contained'
+            onClick={() => {
             sendFriendRequest(userId);
-          }}
-        >
-          Add Friend
-        </Button>
+          }}>
+            Add Friend
+          </Button>
+
+        )}
+        
       </div>
 
       <h2>{user.username}'s Events</h2>

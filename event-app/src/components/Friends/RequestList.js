@@ -71,7 +71,6 @@ function RequestList() {
                   }
               }));
 
-                console.log('Requests with usernames:', requestsWithUsernames);
                 setFriendRequests(requestsWithUsernames);
                 setLoading(false);
             } catch (error) {
