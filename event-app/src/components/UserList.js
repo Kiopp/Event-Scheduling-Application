@@ -15,6 +15,7 @@ function UserList() {
             try {
                 const response = await fetch('http://localhost:5001/api/users', { credentials: 'include' });
                 const data = await response.json();
+                setUser(data);
                 setTempFilteredUser(data);
                 setLoading(false);
             } catch (err) {
@@ -35,22 +36,6 @@ function UserList() {
         );
         setFilteredUser(searchFilteredUser);
     }, [searchQuery, tempFilteredUser]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('/api/users'); // Adjust the API endpoint as needed
-                const data = await response.json();
-                setUser(data);
-                setTempFilteredUser(data);
-                setLoading(false);
-            } catch (err) {
-                setError(err);
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
 
     if (loading) return <div>Loading users...</div>;
     if (error) return <div>Error fetching users: {error.message}</div>;
@@ -74,7 +59,7 @@ function UserList() {
                 {filteredUser.map((user) => (
                     <Grid item xs={12} sm={6} md={4} lg={4} key={user._id}>
                         <FriendCard
-                            username={user.username}
+                            name={user.username}
                             id={user._id}
                         />
                     </Grid>
