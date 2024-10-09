@@ -4,18 +4,29 @@ import EventCard from '../components/EventCard';
 import { Button, Grid2 } from '@mui/material';
 import { CircularProgress } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import { sendFriendRequest } from '../model-data/FriendData';
+import { checkFriend, sendFriendRequest, checkPendingRequest, killFriend } from '../model-data/FriendData';
 
 function ProfilePage() {
+  const [session, setSession] = useState(null); // Store session
   const { userId } = useParams();
-
+  const [isFriend, setIsFriend] = useState(false);
+  const [hasPendingRequest, setPendingRequest] = useState(false);
   const [user, setUser] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Fetch user data and events
+  // Check local storage for user information on component mount
   useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setSession(storedUser);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+
     // Fetch user data
     axios.get(`http://localhost:5001/api/user/${userId}`)
       .then(response => {
@@ -38,6 +49,38 @@ function ProfilePage() {
         setErrorMessage('User not found.');
         setLoading(false);
       });
+
+      // Fetch friend status
+      const fetchIsFriends = async () => { 
+        setLoading(true);
+        try {
+          const friendStatus = await checkFriend(userId);
+          setIsFriend(friendStatus);
+        } catch (error) {
+          console.error('Error fetching friends:', error);
+          setErrorMessage(error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      // Fetch friend request status
+      const fetchRequestStatus = async () => { 
+        setLoading(true);
+        try {
+          const friendStatus = await checkPendingRequest(userId);
+          setPendingRequest(friendStatus);
+        } catch (error) {
+          console.error('Error fetching friends:', error);
+          setErrorMessage(error);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      fetchRequestStatus();
+      fetchIsFriends();
+
   }, [userId]);
 
   if (loading) {
@@ -57,21 +100,47 @@ function ProfilePage() {
     );
   }
 
+  const isOwner = session.userId === userId;
+  console.log("Is owner: ", isOwner);
+
   return (
     <div className="Content">
       <h1 className='PageTitle'>{user.username}</h1>
       <div className="UserInfo">
         <p><strong>Username:</strong> {user.username}</p>
-        {/* Optionally display email if appropriate */}
-        {/* <p><strong>Email:</strong> {user.email}</p> */}
-        <Button 
-          variant='contained'
-          onClick={() => {
-            sendFriendRequest(userId);
-          }}
-        >
-          Add Friend
-        </Button>
+        {isOwner === false ? (
+          isFriend ? (
+            <Button 
+              variant='contained'
+              color='error'
+              onClick={() => {
+                killFriend(userId);
+            }}>
+              Remove Friend
+            </Button>
+          ) : (
+            hasPendingRequest ? (
+              <Button 
+                variant='outlined'
+                disabled='true'
+                >
+                Pending
+              </Button>
+            ) : (
+              <Button 
+                variant='contained'
+                onClick={() => {
+                sendFriendRequest(userId);
+              }}>
+                Add Friend
+              </Button>
+            )
+          )
+        ) : (
+          <></>
+        )}
+        
+        
       </div>
 
       <h2>{user.username}'s Events</h2>
