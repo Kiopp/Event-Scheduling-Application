@@ -58,7 +58,32 @@ export const sendFriendRequest = async (targetUserId) => {
       }
   
       const data = await response.json();
-      console.log(data);
+      console.log("is friend: ", data);
+
+      if (data){
+        return true;
+      } else {
+        return false;
+      }
+
+    } catch (error) {
+      console.error('Error checking friend status:', error);
+      return error; 
+    }
+  };
+
+  export const checkPendingRequest = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/friends/checkfriend/request/${userId}`, {
+        credentials: 'include'
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log("request: ", data);
 
       if (data){
         return true;
