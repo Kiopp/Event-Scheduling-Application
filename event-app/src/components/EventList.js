@@ -32,6 +32,7 @@ function EventList() {
   const [userId, setUserId] = useState(null);
   const [friends, setFriends] = useState([]);
   const [allEvents, setAllEvents] = useState([]);
+  const [showFriendsEvents, setShowFriendsEvents] = useState(false);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -208,6 +209,10 @@ function EventList() {
     }
   };
 
+  const handleFriendsEventsChange = (event) => {
+    setShowFriendsEvents(event.target.checked);
+  };
+
   const applyFilters = useCallback(() => {
     let filtered = allEvents;
 
@@ -239,8 +244,15 @@ function EventList() {
       });
     }
 
+    // Filter by friends' events if checkbox is checked
+    if (showFriendsEvents && userId && friends.length > 0) {
+      filtered = filtered.filter((event) =>
+        friends.some((friend) => friend.id.toString() === event.owner)
+      );
+    }
+
     setTempFilteredEvents(filtered);
-  }, [startDate, endDate, allEvents, eventTypeFilter, singleDay]);
+  }, [startDate, endDate, allEvents, eventTypeFilter, singleDay, showFriendsEvents, friends, userId]);
 
   useEffect(() => {
     const searchFilteredEvents = tempFilteredEvents.filter((event) =>
@@ -276,6 +288,16 @@ function EventList() {
       {/* Conditional rendering of the filter section */}
       {showFilters && (
         <Box mb={3}>
+
+          {/* Friends Events Filter Checkbox */}
+          {userId && (
+            <CustomCheckbox
+              label="Show Friends Events"
+              checked={showFriendsEvents}
+              onChange={handleFriendsEventsChange}
+            />
+          )}
+
           <Box display="flex" justifyContent="center" mb={2}>
             {/* Event Type Filter */}
             <TextField
