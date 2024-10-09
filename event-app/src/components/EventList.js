@@ -300,7 +300,7 @@ function EventList() {
       {/* Conditional rendering of the filter section */}
       {showFilters && (
         <Box mb={3}>
-          
+
           <Box display="flex" justifyContent="center" mb={2}>
             {/* Event Type Filter */}
             <TextField
@@ -334,7 +334,7 @@ function EventList() {
 
                 {/* Show Friends Events Checkbox */}
                 <CustomCheckbox
-                  label="Show Friends Events"
+                  label="Only Friends Events"
                   checked={showFriendsEvents}
                   onChange={handleFriendsEventsChange}
                   ml={2} // Add margin left to the checkbox
