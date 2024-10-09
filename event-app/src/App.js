@@ -114,9 +114,6 @@ function App() {
                     <Button>
                       <Link to="/events/create-new-event">Create</Link>
                     </Button>
-                    <Button>
-                      <Link to="/friends">Friends</Link>
-                    </Button>
                 </ButtonGroup>
                 </>
               ) : (
