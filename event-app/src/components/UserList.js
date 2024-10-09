@@ -13,7 +13,7 @@ function UserList() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('/api/users');
+                const response = await fetch('http://localhost:5001/api/users', { credentials: 'include' });
                 const data = await response.json();
                 setTempFilteredUser(data);
                 setLoading(false);

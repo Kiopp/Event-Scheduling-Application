@@ -7,7 +7,7 @@ class PublicEvents extends React.Component {
         return (
             <div className='Content'>
                 <h1 className='PageTitle'>
-                    Public events
+                    Events
                 </h1>
                 <EventList/>
             </div>

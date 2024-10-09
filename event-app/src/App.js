@@ -13,6 +13,7 @@ import FriendPage from './routes/FriendPage';
 import ProfilePage from './routes/ProfilePage';
 import stringToColor from './components/StringToColor.js';
 import Drawer from './components/Drawer.js';
+import UsersPage from './routes/UsersPage';
 
 const darkTheme = createTheme({
   components: {
@@ -102,6 +103,9 @@ function App() {
                     <Button>
                       <Link to="/friends">Friends</Link>
                     </Button>
+                    <Button>
+                      <Link to="/users">Users</Link>
+                    </Button>
                 </ButtonGroup>
                 </>
               ) : (
@@ -158,6 +162,7 @@ function App() {
             <Route path="/events/create-new-event" element={<CreateEventPage />} />
             <Route path="/friends" element={<FriendPage />} />
             <Route path="/profile/:userId" element={<ProfilePage />} />
+            <Route path="/users" element={<UsersPage />} />
           </Routes>
         </div>
       </BrowserRouter>
