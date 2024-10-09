@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { TextField, Button, FormControlLabel, Checkbox, Container, Grid } from '@mui/material';
+import { TextField, Button, FormControlLabel, Checkbox, Container, Stack, Box, Typography } from '@mui/material';
 import DateTimePicker from '../components/DateTimePicker';
 import TimePicker from '../components/TimePicker';
 import CustomSnackbar from '../components/CustomSnackbar';
@@ -81,7 +81,7 @@ class CreateEventPage extends React.Component {
     const { title, startDateTime, endDateTime, description } = this.state;
   
     if (!title || !startDateTime || !endDateTime || !description) {
-      this.setState({ snackbarOpen: true, snackbarMessage: 'All fields are required to be filled.' });
+      this.setState({ snackbarOpen: true, snackbarMessage: 'All fields need to be filled.' });
       return;
     }
   
@@ -174,103 +174,104 @@ class CreateEventPage extends React.Component {
   
         <Container maxWidth="sm">
           <form onSubmit={this.handleSubmit} noValidate autoComplete="off">
-            <Grid container spacing={3}>
+            <Stack direction="column" spacing={3}>
               {/* Title Field */}
-              <Grid item xs={12}>
-                <TextField
+              <TextField
                   label="Title"
                   name="title"
                   value={title}
                   onChange={this.handleChange}
                   fullWidth
                   required
-                />
-              </Grid>
+              />
 
               {/* Checkboxes */} 
-              <Grid item xs={12} container justifyContent="center">
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={singleDay}
-                      onChange={this.handleSingleDayToggle}
-                      name="singleDay"
-                    />
-                  }
-                  label="Single Day Event"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={fullDay}
-                      onChange={this.handleFullDayToggle}
-                      name="fullDay"
-                      disabled={!singleDay}
-                    />
-                  }
-                  label="Full Day Event"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={privateEvent}
-                      onChange={this.handlePrivateToggle}
-                      name="privateEvent"
-                    />
-                  }
-                  label="Private Event"
-                />
-              </Grid>
+              <Stack direction="row" spacing={5} sx={{justifyContent: 'center'}}>
+                  <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={singleDay}
+                            onChange={this.handleSingleDayToggle}
+                            name="singleDay"
+                        />
+                    }
+                    label="Single day"
+                  />
+                  <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={fullDay}
+                            onChange={this.handleFullDayToggle}
+                            name="fullDay"
+                            disabled={!singleDay}
+                        />
+                    }
+                    label="Full day"
+                  />
+                  <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={privateEvent}
+                            onChange={this.handlePrivateToggle}
+                            name="privateEvent"
+                        />
+                    }
+                    label="Private"
+                  />
+              </Stack>
 
               {/* Date and Time Pickers */}
-              {singleDay && !fullDay ? (
-                <Grid item xs={12} container justifyContent="center" spacing={2}>
-                  <Grid item>
-                    <DateTimePicker
-                      label="Start Date and Time"
-                      value={startDateTime}
-                      onChange={this.handleStartDateTimeChange}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <TimePicker
-                      label="End Time"
-                      value={endDateTime}
-                      onChange={this.handleEndTimeChange}
-                    />
-                  </Grid>
-                </Grid>
-              ) : singleDay && fullDay ? (
-                <Grid item xs={12} container justifyContent="center">
-                  <Grid item>
-                    <DatePicker
-                      value={startDateTime}
-                      onChange={this.handleStartDateTimeChange}
-                    />
-                  </Grid>
-                </Grid>
-              ) : (
-                <Grid item xs={12} container justifyContent="center" spacing={2}>
-                  <Grid item>
-                    <DateTimePicker
-                      label="Start Date and Time"
-                      value={startDateTime}
-                      onChange={this.handleStartDateTimeChange}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <DateTimePicker
-                      label="End Date and Time"
-                      value={endDateTime}
-                      onChange={this.handleEndDateTimeChange}
-                    />
-                  </Grid>
-                </Grid>
-              )}
+              <Box sx={{display: 'flex', justifyContent: 'center'}}>
+                  {singleDay && !fullDay ? (
+                    <Stack direction="column" spacing={2} sx={{width: '50%'}}>
+                        <Typography variant='p'>
+                          Start Date and Time
+                        </Typography>
+                        <DateTimePicker
+                            label="Start Date and Time"
+                            value={startDateTime}
+                            onChange={this.handleStartDateTimeChange}
+                        />
+                        <Typography variant='p'>
+                          End Time
+                        </Typography>
+                        <TimePicker
+                            label="End Time"
+                            value={endDateTime}
+                            onChange={this.handleEndTimeChange}
+                        />
+                    </Stack>
+                  ) : singleDay && fullDay ? (
+                    <Stack direction="column" spacing={2} sx={{width: '50%'}}>
+                        <DatePicker
+                            value={startDateTime}
+                            onChange={this.handleStartDateTimeChange}
+                        />
+                    </Stack>
+                  ) : (
+                    <Stack direction="column" spacing={2} sx={{width: '50%'}}>
+                        <Typography variant='p'>
+                          Start Date and Time
+                        </Typography>
+                        <DateTimePicker
+                            label="Start Date and Time"
+                            value={startDateTime}
+                            onChange={this.handleStartDateTimeChange}
+                        />
+                        <Typography variant='p'>
+                          End Date and Time
+                        </Typography>
+                        <DateTimePicker
+                            label="End Date and Time"
+                            value={endDateTime}
+                            onChange={this.handleEndDateTimeChange}
+                        />
+                    </Stack>
+                  )}
+              </Box>
 
               {/* Description Field */}
-              <Grid item xs={12}>
-                <TextField
+              <TextField
                   label="Description"
                   name="description"
                   value={description}
@@ -278,16 +279,15 @@ class CreateEventPage extends React.Component {
                   multiline
                   rows={4}
                   fullWidth
-                />
-              </Grid>
+                  required
+              />
 
               {/* Submit Button */}
-              <Grid item xs={12}>
-                <Button type="submit" variant="contained" color="primary" fullWidth>
+              <Button type="submit" variant="contained" color="primary" fullWidth>
                   Create Event
-                </Button>
-              </Grid>
-            </Grid>
+              </Button>
+
+            </Stack>
           </form>
         </Container>
 
