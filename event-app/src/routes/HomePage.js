@@ -1,4 +1,5 @@
 import * as React from 'react';
+import AboutUs from '../components/About';
 
 class HomePage extends React.Component {
     render() {
@@ -7,6 +8,7 @@ class HomePage extends React.Component {
                 <h1 className='PageTitle'>
                     Welcome to Event Scheduler PRO!
                 </h1>
+                <AboutUs />
             </div>
             
         );
