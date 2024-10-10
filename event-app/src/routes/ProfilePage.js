@@ -122,6 +122,7 @@ function ProfilePage() {
                   color='error'
                   onClick={() => {
                     killFriend(userId);
+                    window.location.reload();
                 }}>
                   Remove Friend
                 </Button>
@@ -138,6 +139,7 @@ function ProfilePage() {
                     variant='contained'
                     onClick={() => {
                     sendFriendRequest(userId);
+                    window.location.reload();
                   }}>
                     Add Friend
                   </Button>
