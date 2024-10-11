@@ -1,7 +1,7 @@
 import * as React from 'react';
-import axios from 'axios';
 import UserList from '../components/UserList';
 import { useNavigate } from 'react-router-dom';
+import { findSession } from '../model-data/UserData';
 
 function withRouter(Component) {
     function ComponentWithRouterProp(props) {
@@ -16,16 +16,22 @@ function withRouter(Component) {
 class Users extends React.Component {
 
     componentDidMount() {
-        axios.get('http://localhost:5001/api/session', { withCredentials: true }) // checks current session
-          .then(response => {
+      const verifySession = async () => {
+        try {
+          const sessionStatus = await findSession();
+          if (sessionStatus) {
             // eslint-disable-next-line
-            this.setState({ user: response.data.user });
-          })
-          .catch(error => {
+            this.setState({ user: sessionStatus.user });
+          } else {
             // eslint-disable-next-line
             this.setState({ errorMessage: 'Please log in to see other users.' });
-            this.props.navigate(`/login`); // if not logged in, is redirected to the login page
-          });
+            this.props.navigate(`/login`);
+          }
+        } catch (error) {
+          console.error('Error verifying session:', error);
+        }
+      };
+      verifySession();
       }
 
     render() {
