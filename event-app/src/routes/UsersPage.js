@@ -12,6 +12,7 @@ function withRouter(Component) {
     return ComponentWithRouterProp;
   }
 
+// checks if the current user is logged in
 class Users extends React.Component {
 
     componentDidMount() {

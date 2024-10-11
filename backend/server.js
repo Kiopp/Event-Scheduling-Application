@@ -591,7 +591,6 @@ app.get('/api/friends', async (req, res) => {
                 $project: {
                     _id: '$friendDetails._id',
                     username: '$friendDetails.username',
-                    // ... other fields to include
                 }
             }
         ]).toArray();

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Alert } from '@mui/material';
 
+// message is set depending on why the snackbar is triggered
 const CustomSnackbar = ({ open, onClose, message }) => {
   const [visible, setVisible] = useState(open);
 
   useEffect(() => {
     if (open) {
-      setVisible(true);
+      setVisible(true); // shows the snackbar
       const timeoutId = setTimeout(() => {
-        setVisible(false);
-        onClose();
+        setVisible(false); // removes snackbar after 5 sec
+        onClose(); // closes snackbar
       }, 5000);
       return () => clearTimeout(timeoutId);
     }
@@ -33,6 +34,7 @@ const CustomSnackbar = ({ open, onClose, message }) => {
         padding: 0,
         margin: 0,
         backgroundColor: 'white',
+        // overrides mui values to change color
         color: 'black',
         '& .MuiAlert-icon': {
           color: 'red',

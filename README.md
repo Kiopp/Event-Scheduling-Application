@@ -1,40 +1,75 @@
+# Event Scheduler PRO
+A web application for scheduling and managing events, built using the MERN stack (MongoDB, Express, React, Node.js) using Create React App.
 
 # Group Number:
 Group 5
 
-
 ---
-## Contributors: 
 
+## Contributors:
 
 - Jesper\
-Username:Kiopp
+  Username: Kiopp
 
 - Axel\
-Username:Vencilo
+  Username: Vencilo
 
 - Hannan\
-Username:hannankhalil
+  Username: hannankhalil
 
 - Carl\
-Username:CarlNord01
-
+  Username: CarlNord01
 
 ---
-## What we will implement:
-An event scheduling application using the MERN stack.
-In this application you will be able to create an acount and then
-schedule your events.
+
+## What We Will Implement:
+An event scheduling application using the MERN stack. In this application, you will be able to create an account and schedule your events.
 
 The languages we are going to use are:
-- javascript
+- JavaScript
 - HTML
 - CSS
 
-## How to compile and run:
-To compile and run the application, follow these 3 steps:
-1. Download the code, this can easily be done in two ways
- - Clone the repository to your local repository on your device by typing `https://github.com/Kiopp/Event-Scheduling-Application.git` in the    
-   command prompt
- - Download the ZIP file for the application , by clicking "download ZIP"\
- ![Download ZIP](https://github.com/Kiopp/Event-Scheduling-Application/archive/refs/heads/main.zip)
+## Technologies Used:
+- **MERN Stack**: MongoDB, Express, React, Node.js
+- **Create React App**: For setting up the React application.
+- **Node.js**: Version 20.17.0 LTS (Ensure the installed version of Node.js is compatible with this version.)
+- **Material UI** and **Material UI X**: For UI components and styling.
+
+## How to Compile and Run:
+
+To compile and run the application, follow these steps:
+
+1. **Download the Code**: You can download the repository in two ways:
+   - Clone the repository to your local machine by typing the following command in your terminal:
+     ```bash
+     git clone https://github.com/Kiopp/Event-Scheduling-Application.git
+     ```
+   - Download the ZIP file for the application by clicking "Download ZIP" from the GitHub repository:  
+     ![Download ZIP](https://github.com/Kiopp/Event-Scheduling-Application/archive/refs/heads/main.zip)
+
+2. **Install Node.js**: Ensure you have Node.js installed on your machine. You can download it from [Node.js Official Website](https://nodejs.org/). Ensure the installed version of Node.js is compatible with version 20.17.0 LTS.
+
+3. **Open Two Terminals**:
+   - One for the backend:
+     - Navigate to the backend directory of the application (typically `Event-Scheduling-Application/backend`) in your terminal.
+     - Run the following commands:
+       ```bash
+       npm install
+       npm start
+       ```
+
+   - One for the frontend:
+     - Navigate to the frontend directory of the application (typically `Event-Scheduling-Application/event-app`) in another terminal.
+     - Run the following commands:
+       ```bash
+       npm install
+       npm start
+       ```
+
+4. **Access the Application**: Once both the backend and frontend are running, you can access the application by navigating to `http://localhost:3000` in your web browser. If you are not redirected to the application automatically, enter the URL manually.
+
+---
+
+## License
+This project is licensed under the MIT License.
