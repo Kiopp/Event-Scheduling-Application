@@ -15,12 +15,14 @@ function EventPage() {
   const { event_id } = useParams();
 
   useEffect(() => {
+    // fetches event details using event_id
     fetch(`http://localhost:5001/api/event/${event_id}`)
       .then(response => {
         if (!response.ok) throw new Error('Event not found');
         return response.json();
       })
       .then(data => {
+        // processes the evnts start and end times
         const startDateTime = dayjs(`${data.startDate}T${data.startTime}`);
         const endDateTime = dayjs(`${data.endDate}T${data.endTime}`);
         setEvent({ ...data, startDateTime, endDateTime });
@@ -56,6 +58,8 @@ function EventPage() {
       {event && (
         <Card sx={{ maxWidth: 900, boxShadow: 4, borderRadius: 3, bgcolor: 'var(--clr-background-dark)' }}>
           <CardContent>
+
+            {/* Displaying event title */}
             <Typography
               variant="h3"
               gutterBottom
@@ -75,6 +79,8 @@ function EventPage() {
             </Stack>
 
             <Box sx={{ textAlign: 'center', marginBottom: 3 }}>
+
+              {/* Displaying event dates and times, different if single day or not */}
               {event.singleDay ? (
                 <>
                   <Typography variant="body1" gutterBottom sx={{ fontSize: '1.3rem', fontWeight: 500 }}>
@@ -95,6 +101,7 @@ function EventPage() {
 
             <Divider sx={{ marginY: 3 }} />
 
+            {/* Displaying event description */}
             <Stack direction="row" spacing={2} alignItems="center">
               <DescriptionIcon color="primary" />
               <Typography variant="h5" color="textSecondary">

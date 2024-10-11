@@ -9,12 +9,16 @@ export default function CustomCheckbox({ checked, onChange, label }) {
       <FormControlLabel
         control={
           <Checkbox
-            checked={checked}
-            onChange={onChange}
+            checked={checked} // saves bollean value of checkbox
+            onChange={onChange} // hanndle change to the checkbox
+            // overrides mui values to change color
             sx={{
               color: 'blue',
               '&.Mui-checked': {
                 color: 'blue',
+              },
+                '&.Mui-checked svg': {
+                  fill: 'lightblue',
               },
             }}
           />
