@@ -1,5 +1,5 @@
 # Event Scheduler PRO
-A web application for scheduling and managing events, built using the MERN stack.
+A web application for scheduling and managing events, built using the MERN stack (MongoDB, Express, React, Node.js) using Create React App.
 
 # Group Number:
 Group 5
@@ -31,6 +31,8 @@ The languages we are going to use are:
 - CSS
 
 ## Technologies Used:
+- **MERN Stack**: MongoDB, Express, React, Node.js
+- **Create React App**: For setting up the React application.
 - **Node.js**: Version 20.17.0 LTS (Ensure the installed version of Node.js is compatible with this version.)
 - **Material UI** and **Material UI X**: For UI components and styling.
 
