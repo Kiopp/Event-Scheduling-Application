@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { TextField, Button, FormControlLabel, Checkbox, Container, Stack, Box, Typography } from '@mui/material';
+import { TextField, Button, FormControlLabel, Container, Stack, Box, Typography } from '@mui/material';
 import DateTimePicker from '../components/DateTimePicker';
 import TimePicker from '../components/TimePicker';
 import CustomSnackbar from '../components/CustomSnackbar';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import './CreateEventPage.css';
 import DatePicker from '../components/DatePicker';
+import CustomCheckbox from '../components/Checkbox';
 
 function withRouter(Component) {
   function ComponentWithRouterProp(props) {
@@ -23,18 +24,19 @@ class CreateEventPage extends React.Component {
     super(props);
     this.state = {
       title: '',
-      singleDay: false,
-      fullDay: false,
+      singleDay: false, // Checkbox state for "Single Day"
+      fullDay: false, // Checkbox state for "Full Day"
       startDateTime: dayjs(),
       endDateTime: dayjs(),
-      endTime: dayjs(),
+      endTime: dayjs(), // End time of the event (used for single-day events)
       description: '',
-      privateEvent: false,
-      snackbarOpen: false,
+      privateEvent: false, // Checkbox state for "Private Event"
+      snackbarOpen: false, // Controls visibility of the Snackbar
       snackbarMessage: '',
     };
   }
 
+  // checks if user is logged in
   componentDidMount() {
     axios.get('http://localhost:5001/api/session', { withCredentials: true })
       .then(response => {
@@ -44,14 +46,15 @@ class CreateEventPage extends React.Component {
       .catch(error => {
         // eslint-disable-next-line
         this.setState({ errorMessage: 'Please log in to create an event.' });
-        this.props.navigate(`/login`);
+        this.props.navigate(`/login`); // is redirected to the login page if not
       });
   }
 
+  // validates the events start and end dates and times
   validateEventTimes = () => {
     const { fullDay, startDateTime, endDateTime, singleDay } = this.state;
-    const currentDateTime = dayjs().startOf('minute');
-    const currentDate = dayjs().startOf('day');
+    const currentDateTime = dayjs().startOf('minute'); // current date and time (without seconds)
+    const currentDate = dayjs().startOf('day'); // current date
   
     if (fullDay) {
       if (!startDateTime.isSameOrAfter(currentDate)) {
@@ -75,16 +78,19 @@ class CreateEventPage extends React.Component {
     return true;
   };
 
+  // handles submission for creating a new event
   handleSubmit = (event) => {
     event.preventDefault();
   
     const { title, startDateTime, endDateTime, description } = this.state;
   
+    // checks if all fields are filled
     if (!title || !startDateTime || !endDateTime || !description) {
       this.setState({ snackbarOpen: true, snackbarMessage: 'All fields need to be filled.' });
       return;
     }
   
+    // validates the dates and times
     if (!this.validateEventTimes()) {
       return;
     }
@@ -103,8 +109,10 @@ class CreateEventPage extends React.Component {
       description,
     };
   
+    // Send a POST request to create a new event
     axios.post('http://localhost:5001/api/create-new-event', eventData, { withCredentials: true })
       .then((response) => {
+        // Redirect to the event details page after successful creation
         this.props.navigate(`/event/${response.data.eventId}`);
       })
       .catch((error) => {
@@ -114,15 +122,18 @@ class CreateEventPage extends React.Component {
       });
   };
 
+  // Closes the Snackbar when it's dismissed
   handleSnackbarClose = () => {
     this.setState({ snackbarOpen: false });
   };
 
+  // Updates state when form inputs change
   handleChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
   };
 
+  // Toggles the "Single Day" checkbox and adjusts the "Full Day" checkbox accordingly
   handleSingleDayToggle = (event) => {
     this.setState({ 
       singleDay: event.target.checked,
@@ -130,6 +141,7 @@ class CreateEventPage extends React.Component {
     });
   };
 
+  // Toggles the "Full Day" checkbox, setting start/end times to 00:00-23:59 for full-day events
   handleFullDayToggle = (event) => {
     if (event.target.checked) {
       const startOfDay = this.state.startDateTime.startOf('day');
@@ -143,10 +155,12 @@ class CreateEventPage extends React.Component {
     }
   };
 
+  // Toggles the "Private Event" checkbox
   handlePrivateToggle = (event) => {
     this.setState({ privateEvent: event.target.checked });
   };
 
+  // Updates the start date and time, adjusting the end time if it's a single-day event
   handleStartDateTimeChange = (newValue) => {
     this.setState({
       startDateTime: newValue,
@@ -154,10 +168,12 @@ class CreateEventPage extends React.Component {
     });
   };
 
+  // Updates the end date and time
   handleEndDateTimeChange = (newValue) => {
     this.setState({ endDateTime: newValue });
   };
 
+  // Updates only the end time for single-day events
   handleEndTimeChange = (newValue) => {
     const { startDateTime } = this.state;
     this.setState({
@@ -189,7 +205,7 @@ class CreateEventPage extends React.Component {
               <Stack direction="row" spacing={5} sx={{justifyContent: 'center'}}>
                   <FormControlLabel
                     control={
-                        <Checkbox
+                        <CustomCheckbox
                             checked={singleDay}
                             onChange={this.handleSingleDayToggle}
                             name="singleDay"
@@ -199,7 +215,7 @@ class CreateEventPage extends React.Component {
                   />
                   <FormControlLabel
                     control={
-                        <Checkbox
+                        <CustomCheckbox
                             checked={fullDay}
                             onChange={this.handleFullDayToggle}
                             name="fullDay"
@@ -210,7 +226,7 @@ class CreateEventPage extends React.Component {
                   />
                   <FormControlLabel
                     control={
-                        <Checkbox
+                        <CustomCheckbox
                             checked={privateEvent}
                             onChange={this.handlePrivateToggle}
                             name="privateEvent"

@@ -16,7 +16,7 @@ class EventCard extends React.Component {
             endTime: props.endTime,
             description: props.description,
             eventId: props.id,
-            singleDay: props.singleDay // Add singleDay to the state
+            singleDay: props.singleDay
         };
     }
 

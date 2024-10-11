@@ -36,7 +36,7 @@ const darkTheme = createTheme({
 function App() {
   axios.defaults.withCredentials = true;
   const [user, setUser] = useState(null); // Store user data
-  const [drawerOpen, setDrawerOpen] = useState(false); // For the dropdown menu
+  const [drawerOpen, setDrawerOpen] = useState(false); // For the drawer
 
   // Check local storage for user information on component mount
   useEffect(() => {
@@ -139,7 +139,7 @@ function App() {
                   <IconButton onClick={handleAvatarClick}>
                     <Avatar sx={{ bgcolor: stringToColor(user.username)}} >{user.username[0].toUpperCase()}</Avatar>
                   </IconButton>
-                  {/* Use Drawer instead of Menu */}
+                  {/* Open drawer when avatar is pressed */}
                   <Drawer
                     open={drawerOpen}
                     onClose={handleDrawerClose}

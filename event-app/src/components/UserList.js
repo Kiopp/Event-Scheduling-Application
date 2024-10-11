@@ -5,18 +5,20 @@ import FriendCard from './Friends/FriendCard';
 function UserList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filteredUser, setFilteredUser] = useState([]);
+    const [searchQuery, setSearchQuery] = useState(''); // State to store the search input from the user
+    const [filteredUser, setFilteredUser] = useState([]); // State for the filtered list of users based on the search query
+    // eslint-disable-next-line
     const [user, setUser] = useState([]);
-    const [tempFilteredUser, setTempFilteredUser] = useState([]);
+    const [tempFilteredUser, setTempFilteredUser] = useState([]); // Temporary state to store the unfiltered user list
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // fatches all users from the database (only _id and usernames)
                 const response = await fetch('http://localhost:5001/api/users', { credentials: 'include' });
                 const data = await response.json();
-                setUser(data);
-                setTempFilteredUser(data);
+                setUser(data); // Stores the full list of users
+                setTempFilteredUser(data); // Initializes the filtered list with the unfiltered user data
                 setLoading(false);
             } catch (err) {
                 setError(err);
@@ -26,15 +28,17 @@ function UserList() {
         fetchData();
     }, []);
 
+    // handles search input changes
     const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
+        setSearchQuery(event.target.value); // Update the searchQuery
     };
 
+    // filter users based on the searchquery
     useEffect(() => {
         const searchFilteredUser = tempFilteredUser.filter((user) =>
             user.username.toLowerCase().includes(searchQuery.toLowerCase())
         );
-        setFilteredUser(searchFilteredUser);
+        setFilteredUser(searchFilteredUser); // Update the filteredUser state with the filtered results
     }, [searchQuery, tempFilteredUser]);
 
     if (loading) return <div>Loading users...</div>;

@@ -12,10 +12,11 @@ function withRouter(Component) {
     return ComponentWithRouterProp;
   }
 
+// checks if the current user is logged in
 class Users extends React.Component {
 
     componentDidMount() {
-        axios.get('http://localhost:5001/api/session', { withCredentials: true })
+        axios.get('http://localhost:5001/api/session', { withCredentials: true }) // checks current session
           .then(response => {
             // eslint-disable-next-line
             this.setState({ user: response.data.user });
@@ -23,7 +24,7 @@ class Users extends React.Component {
           .catch(error => {
             // eslint-disable-next-line
             this.setState({ errorMessage: 'Please log in to see other users.' });
-            this.props.navigate(`/login`);
+            this.props.navigate(`/login`); // if not logged in, is redirected to the login page
           });
       }
 

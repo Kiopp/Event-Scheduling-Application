@@ -7,35 +7,37 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import CustomCheckbox from './Checkbox';
 import CustomSnackbar from './CustomSnackbar';
-import axios from 'axios';
-import { getUserFriends } from './../model-data/FriendData';
+import { getUserFriends } from './../model-data/FriendData'; // Helper to fetch friends data
 
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter); // Extend dayjs to use isSameOrAfter method
+dayjs.extend(isSameOrBefore); // Extend dayjs to use isSameOrBefore method
 
 function EventList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [filteredEvents, setFilteredEvents] = useState([]);
-  const [tempFilteredEvents, setTempFilteredEvents] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(''); // Query for search input
+  const [startDate, setStartDate] = useState(null); // Selected start date for filtering
+  const [endDate, setEndDate] = useState(null); // Selected end date for filtering
+  const [filteredEvents, setFilteredEvents] = useState([]); // Events filtered by user criteria
+  const [tempFilteredEvents, setTempFilteredEvents] = useState([]); // Temporarily holds filtered events
   const [showFilters, setShowFilters] = useState(false);
   const [singleDay, setSingleDay] = useState(false);
-  const [eventTypeFilter, setEventTypeFilter] = useState('all');
+  const [eventTypeFilter, setEventTypeFilter] = useState('all'); // Filter for event type (single/multi-day)
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarTriggered, setSnackbarTriggered] = useState(false);
   const [publicEvents, setPublicEvents] = useState([]);
+  // eslint-disable-next-line
   const [privateEvents, setPrivateEvents] = useState([]);
+ // eslint-disable-next-line
   const [userEvents, setUserEvents] = useState([]);
   const [userId, setUserId] = useState(null);
   const [friends, setFriends] = useState([]);
-  const [allEvents, setAllEvents] = useState([]);
-  const [showFriendsEvents, setShowFriendsEvents] = useState(false);
-  const [eventVisibilityFilter, setEventVisibilityFilter] = useState('all');
+  const [allEvents, setAllEvents] = useState([]); // All combined events (public/private/user-specific)
+  const [showFriendsEvents, setShowFriendsEvents] = useState(false); // Toggle to show only friends' events
+  const [eventVisibilityFilter, setEventVisibilityFilter] = useState('all'); // Filter for event visibility (public/private)
 
   useEffect(() => {
+    // Fetch logged-in user's ID
     const fetchUserId = async () => {
         try {
             const response = await fetch('http://localhost:5001/api/session', {
@@ -62,6 +64,7 @@ function EventList() {
   useEffect(() => {
     const fetchPublicEvents = async () => {
       try {
+        // fetch all public events
         const publicEventsResponse = await fetch('http://localhost:5001/api/events/public', {
           credentials: 'include',
         });
@@ -87,6 +90,7 @@ function EventList() {
     }
   }, [userId]);
 
+  // Fetch user's friends and their private events when logged in
   useEffect(() => {
     if (!userId) return;
 
@@ -149,6 +153,7 @@ function EventList() {
     fetchFriendsAndEvents();
   }, [userId, publicEvents]);
 
+  // Validate the end date to ensure it is not before the start date
   const validateEndDate = useCallback(() => {
     if (startDate && endDate) {
       if (dayjs(endDate).isBefore(dayjs(startDate))) {
@@ -168,14 +173,17 @@ function EventList() {
     }
   }, [snackbarTriggered]);
 
+  // Validate the end date whenever startDate or endDate changes
   useEffect(() => {
     validateEndDate();
   }, [startDate, endDate, validateEndDate]);
 
+  // Handle search input changes
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
+  // Reset filters and searchbar to default values
   const handleResetFilters = () => {
     setSearchQuery('');
     setStartDate(null);
@@ -188,6 +196,7 @@ function EventList() {
     setShowFriendsEvents(false);
   };
 
+  // Handle start date changes
   const handleStartDateChange = (newValue) => {
     if (newValue === null) {
       setStartDate(null);
@@ -202,6 +211,7 @@ function EventList() {
     }
   };
 
+  // Handle end date changes
   const handleEndDateChange = (newValue) => {
     if (newValue === null) {
       setEndDate(null);
@@ -212,10 +222,12 @@ function EventList() {
     }
   };
 
+  // Handle show friends events filter change
   const handleFriendsEventsChange = (event) => {
     setShowFriendsEvents(event.target.checked);
   };
 
+  // apply the filters
   const applyFilters = useCallback(() => {
     let filtered = allEvents;
 
@@ -228,6 +240,7 @@ function EventList() {
           return dayjs(startDate).isBetween(eventStart, eventEnd, null, '[]');
         }
 
+        // Date range filter
         const matchesStartDate = startDate
           ? eventStart.isSameOrAfter(dayjs(startDate).startOf('day'))
           : true;
@@ -250,7 +263,7 @@ function EventList() {
     // Filter by event visibility
     if (eventVisibilityFilter !== 'all') {
       filtered = filtered.filter((event) => {
-        if (eventVisibilityFilter === 'public') return !event.privateEvent; // Assuming `event.private` indicates if the event is private
+        if (eventVisibilityFilter === 'public') return !event.privateEvent;
         if (eventVisibilityFilter === 'private') return event.privateEvent;
         return true;
       });
@@ -267,6 +280,7 @@ function EventList() {
   }, [startDate, endDate, allEvents, eventTypeFilter, singleDay, showFriendsEvents, friends, userId, eventVisibilityFilter]);
 
   useEffect(() => {
+    // Search filter
     const searchFilteredEvents = tempFilteredEvents.filter((event) =>
       event.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -337,7 +351,7 @@ function EventList() {
                   label="Only Friends Events"
                   checked={showFriendsEvents}
                   onChange={handleFriendsEventsChange}
-                  ml={2} // Add margin left to the checkbox
+                  ml={2}
                 />
               </>
             )}
