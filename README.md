@@ -1,5 +1,5 @@
 # Event Scheduler PRO
-A web application for scheduling and managing events, built using the MERN stack.
+A web application for scheduling and managing events, built using the MERN stack (MongoDB, Express, React, Node.js) using Create React App.
 
 # Group Number:
 Group 5
@@ -30,6 +30,12 @@ The languages we are going to use are:
 - HTML
 - CSS
 
+## Technologies Used:
+- **MERN Stack**: MongoDB, Express, React, Node.js
+- **Create React App**: For setting up the React application.
+- **Node.js**: Version 20.17.0 LTS (Ensure the installed version of Node.js is compatible with this version.)
+- **Material UI** and **Material UI X**: For UI components and styling.
+
 ## How to Compile and Run:
 
 To compile and run the application, follow these steps:
@@ -42,7 +48,7 @@ To compile and run the application, follow these steps:
    - Download the ZIP file for the application by clicking "Download ZIP" from the GitHub repository:  
      ![Download ZIP](https://github.com/Kiopp/Event-Scheduling-Application/archive/refs/heads/main.zip)
 
-2. **Install Node.js**: Ensure you have Node.js installed on your machine. You can download it from [Node.js Official Website](https://nodejs.org/).
+2. **Install Node.js**: Ensure you have Node.js installed on your machine. You can download it from [Node.js Official Website](https://nodejs.org/). Ensure the installed version of Node.js is compatible with version 20.17.0 LTS.
 
 3. **Open Two Terminals**:
    - One for the backend:
