@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import './CreateEventPage.css';
 import DatePicker from '../components/DatePicker';
+import { findSession } from '../model-data/UserData';
 
 function withRouter(Component) {
   function ComponentWithRouterProp(props) {
@@ -36,16 +37,22 @@ class CreateEventPage extends React.Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:5001/api/session', { withCredentials: true })
-      .then(response => {
-        // eslint-disable-next-line
-        this.setState({ user: response.data.user });
-      })
-      .catch(error => {
-        // eslint-disable-next-line
-        this.setState({ errorMessage: 'Please log in to create an event.' });
-        this.props.navigate(`/login`);
-      });
+    const verifySession = async () => {
+      try {
+        const sessionStatus = await findSession();
+        if (sessionStatus) {
+          // eslint-disable-next-line
+          this.setState({ user: sessionStatus.user });
+        } else {
+          // eslint-disable-next-line
+          this.setState({ errorMessage: 'Please log in to create an event.' });
+          this.props.navigate(`/login`);
+        }
+      } catch (error) {
+        console.error('Error verifying session:', error);
+      }
+    };
+    verifySession();
   }
 
   validateEventTimes = () => {

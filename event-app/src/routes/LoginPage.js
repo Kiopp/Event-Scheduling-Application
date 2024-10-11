@@ -5,14 +5,13 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import axios from 'axios';
 import '../App.css';
+import { findSession, userLogin } from '../model-data/UserData';
 
 const LoginPage = ({ onLogin }) => { // Receive onLogin prop
     const paperStyle = { padding: 20, height: '70vh', width: 280, margin: "19px auto" };
     const avatarStyle = { backgroundColor: '--clr-background-bright' };
     const btnstyle = { backgroundColor: '--clr-background-bright', margin: '12px 0' };
-    axios.defaults.withCredentials = true;
 
     // State to manage form inputs
     const [form, setForm] = React.useState({
@@ -64,14 +63,16 @@ const LoginPage = ({ onLogin }) => { // Receive onLogin prop
         return Object.values(tempErrors).every(error => error === '');
     };
 
-    const checkSession = async () => {
+    /* Fetch and validate session */
+    const verifySession = async () => {
         try {
-            const response = await axios.get('http://localhost:5001/api/session');
-            if (response.data.user) {
-                console.log('Active session found:', response.data.user);
-            }
+          const sessionStatus = await findSession();
+          if (sessionStatus) {
+            // eslint-disable-next-line
+            console.log('Active session found:', sessionStatus.user);
+          } 
         } catch (error) {
-            console.log('No active session');
+          console.error('Error verifying session:', error);
         }
     };
 
@@ -80,37 +81,33 @@ const LoginPage = ({ onLogin }) => { // Receive onLogin prop
         if (validate()) {
             try {
                 // Make POST request to backend
-                const response = await axios.post('http://localhost:5001/api/login', {
-                    username: form.username,
-                    password: form.password
-                });
+                const response = await userLogin(form.username, form.password);
 
                 // Handle successful login
-                console.log('Login successful:', response.data);
+                console.log(response.message);
 
                 // Save the user to localStorage
-                localStorage.setItem('user', JSON.stringify(response.data.user));
+                localStorage.setItem('user', JSON.stringify(response.user));
 
                 // Update user state in App
-                onLogin(response.data.user); // Call onLogin to update user in App
+                onLogin(response.user); // Call onLogin to update user in App
 
                 navigate('/'); // Redirect to dashboard or home page
             } catch (error) {
                 // Check if the response contains a message
-                if (error.response && error.response.data) {
-                    console.error('Login failed:', error.response.data.message);
+                if (error.response) {
+                    console.error('Login failed:', error.response.message);
                     // Set error message for UI feedback
                     setErrors(prevErrors => ({
                         ...prevErrors,
-                        password: error.response.data.message,
+                        password: error.response.message,
                     }));
                 } else {
                     console.error('Login error:', error);
                 }
             }
+            verifySession();
         }
-
-        checkSession();
     };
 
     return (
