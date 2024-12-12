@@ -31,8 +31,8 @@ app.use(session({
 }));
 
 // MongoDB setup
-const username = "JesperW";
-const password = "ZY2Z4LVbO073TpC0";
+const username = "your-username";
+const password = "your-api-password";
 const uri = "mongodb+srv://" + username + ":" + password + "@eventschedulerprodb.db4jj.mongodb.net/";
 let db;
 
