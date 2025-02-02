@@ -1,9 +1,24 @@
+// Includes
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const session = require('express-session'); // Import express-session
 require('dotenv').config();
+const winston = require('winston');
+
+// Logger setup
+const logger = winston.createLogger({
+    level: 'info', // Set the desired log level
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json() // Log in JSON format
+    ),
+    transports: [
+        //new winston.transports.File({ name: 'error-fine', level: 'error', filename: 'error-log.txt'}), // Log errors to file
+        new winston.transports.File({ name: 'info-file', level: 'info', filename: 'info-log.txt' }) // Log info to file
+    ]
+});
 
 // Import routes
 const eventRoutes = require('./routes/eventRoutes');
@@ -31,8 +46,8 @@ app.use(session({
 }));
 
 // MongoDB setup
-const username = "your-username";
-const password = "your-api-password";
+const username = process.env.DB_USERNAME;
+const password = process.env.DB_PASSWORD;
 const uri = "mongodb+srv://" + username + ":" + password + "@eventschedulerprodb.db4jj.mongodb.net/";
 let db;
 
@@ -40,22 +55,22 @@ const client = new MongoClient(uri);
 
 client.connect()
     .then(() => {
-        db = client.db('mydatabase'); // Initialize the database
-        app.locals.db = db; // Attach db to app.locals
-        console.log('Connected successfully to MongoDB');
+        db = client.db('mydatabase');
+        app.locals.db = db;
+        logger.info('Connected successfully to MongoDB');
 
-        // Start server after successful DB connection
         app.listen(port, () => {
             console.log(`Server is running on http://localhost:${port}`);
+            logger.info(`Server started on port: ${port}`);
         });
     })
     .catch(err => {
-        console.error('Connection error:', err);
-        process.exit(1); // Exit process with failure code
+        logger.error(`Server startup failed! Error: ${err}`);
+        process.exit(1);
     });
-    
+
 app.use((req, res, next) => {
-    console.log(`Received request for ${req.method} ${req.url}`);
+    logger.info(`Received request for ${req.method} ${req.url}`);
     next();
 });
 
@@ -101,7 +116,7 @@ app.post('/api/register', async (req, res) => {
 
         res.status(201).json({ message: 'User registered successfully', userId: result.insertedId });
     } catch (error) {
-        console.error('Error registering user:', error); // Log the error
+        logger.error(`Error registering user: ${error}`); // Log the error
         res.status(500).json({ message: 'Registration failed', error: error.message });
     }
 });
@@ -138,7 +153,7 @@ app.post('/api/login', async (req, res) => {
         // Authentication successful
         return res.status(200).json({ message: 'Login successful', user: req.session.user });
     } catch (error) {
-        console.error('Login error:', error);
+        logger.error(`Login error: ${error}`); // Log the error
         res.status(500).json({ message: 'Login failed', error });
     }
 });
@@ -184,7 +199,7 @@ app.post('/api/create-new-event', async (req, res) => {
 
     res.status(201).json({ message: 'Event created successfully', eventId: result.insertedId });
   } catch (error) {
-    console.error('Error creating event:', error);
+    logger.error(`Error creating event: ${error}`); // Log the error
     res.status(500).json({ message: 'Failed to create event', error: error.message });
   }
 });
@@ -196,7 +211,7 @@ app.get('/api/events/public', async (req, res) => {
         const publicEvents = await db.collection('events').find({ privateEvent: false }).toArray(); // Retrieve only public events
         res.status(200).json(publicEvents); // Send public events as JSON
     } catch (err) {
-        console.error('Failed to retrieve public events:', err);
+        logger.error(`Failed to retrieve public events: ${err}`); // Log the error
         res.status(500).json({ message: 'Failed to retrieve public events', error: err.message });
     }
 });
@@ -211,11 +226,11 @@ app.get('/api/events/latest', async (req, res) => {
         .limit(3) // Limit to the top 3 results
         .toArray();
 
-        console.log(events);
+        logger.info('Events found');
 
         res.status(200).json(events); // Send events as JSON
     } catch (err) {
-        console.error('Failed to retrieve latest events:', err);
+        logger.error(`Failed to retrieve latest events: ${err}`); // Log the error
         res.status(500).json({ message: 'Failed to retrieve latest events', error: err.message });
     }
 });
@@ -224,23 +239,18 @@ app.get('/api/events/latest', async (req, res) => {
 app.get('/api/event/:id', async (req, res) => {
     try {
         const db = req.app.locals.db;
-        
-        // Log the raw ID from the request
-        console.log('Raw Event ID:', req.params.id);
-        
         const eventId = new ObjectId(req.params.id);
-        
         const event = await db.collection('events').findOne({ _id: eventId });
-        
+
         if (event) {
-            console.log('Event found:', event);
+            logger.info('Event found');
             res.json(event);
         } else {
-            console.log('Event not found');
+            logger.info('Event not found');
             res.status(404).json({ message: 'Event not found' });
         }
     } catch (err) {
-        console.error('Error fetching event:', err);
+        logger.error('Error fetching event:', err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
@@ -258,7 +268,7 @@ try {
 
     res.status(200).json(events);
     } catch (error) {
-        console.error('Error fetching user events:', error);
+        logger.error('Error fetching user events:', error);
         res.status(500).json({ message: 'Failed to fetch user events', error: error.message });
     }
 });
@@ -267,10 +277,10 @@ try {
 app.get('/api/user/:userId', async (req, res) => {
 try {
     const userId = req.params.userId;
-    console.log('Received userId:', userId);
+    logger.info('Received userId:', userId);
 
     if (!ObjectId.isValid(userId)) {
-    console.log('Invalid ObjectId:', userId);
+    logger.info('Invalid ObjectId:', userId);
     return res.status(400).json({ message: 'Invalid user ID' });
     }
 
@@ -280,14 +290,14 @@ try {
     );
 
     if (!user) {
-    console.log('User not found for ID:', userId);
+    logger.info('User not found for ID:', userId);
     return res.status(404).json({ message: 'User not found' });
     }
 
-    console.log('User found:', user);
+    logger.info('User found:', user);
     res.status(200).json({ user });
     } catch (error) {
-        console.error('Error fetching user data:', error);
+        logger.error('Error fetching user data:', error);
         res.status(500).json({ message: 'Failed to fetch user data', error: error.message });
     }
 });
@@ -296,10 +306,10 @@ try {
 app.get('/api/user-summary/:userId', async (req, res) => {
     try {
         const userId = req.params.userId;
-        console.log('Received userId:', userId);
+        logger.info('Received userId:', userId);
 
         if (!ObjectId.isValid(userId)) {
-            console.log('Invalid ObjectId:', userId);
+            logger.info('Invalid ObjectId:', userId);
             return res.status(400).json({ message: 'Invalid user ID' });
         }
 
@@ -310,14 +320,14 @@ app.get('/api/user-summary/:userId', async (req, res) => {
         );
 
         if (!user) {
-            console.log('User not found for ID:', userId);
+            logger.info('User not found for ID:', userId);
             return res.status(404).json({ message: 'User not found' });
         }
 
         // Return only the necessary fields
         res.status(200).json({ userId: user._id, username: user.username });
     } catch (error) {
-        console.error('Error fetching user summary:', error);
+        logger.error('Error fetching user summary:', error);
         res.status(500).json({ message: 'Failed to fetch user summary', error: error.message });
     }
 });
@@ -337,7 +347,7 @@ try {
 
     res.status(200).json(events);
     } catch (error) {
-        console.error('Error fetching user events:', error);
+        logger.error('Error fetching user events:', error);
         res.status(500).json({ message: 'Failed to fetch user events', error: error.message });
     }
 });
@@ -360,7 +370,7 @@ app.get('/api/user/:userId/private-events', async (req, res) => {
 
         res.status(200).json(events); // Send private events as JSON
     } catch (error) {
-        console.error('Error fetching user private events:', error);
+        logger.error('Error fetching user private events:', error);
         res.status(500).json({ message: 'Failed to fetch private events', error: error.message });
     }
 });
@@ -383,7 +393,7 @@ app.get('/api/user/:userId/public-events', async (req, res) => {
 
         res.status(200).json(events); // Send private events as JSON
     } catch (error) {
-        console.error('Error fetching user private events:', error);
+        logger.error('Error fetching user private events:', error);
         res.status(500).json({ message: 'Failed to fetch private events', error: error.message });
     }
 });
@@ -409,12 +419,12 @@ app.post('/api/friend-request/:userId', async (req, res) => {
         const { userId } = req.params;
         const senderId = req.session.user.userId; // Get senderId from session
 
-        console.log('Sender ID:', senderId);
-        console.log('Recipient ID:', userId);
+        logger.info('Sender ID:', senderId);
+        logger.info('Recipient ID:', userId);
 
         // Validate userId 
         if (!ObjectId.isValid(userId)) {
-            console.log('Invalid ObjectId:', userId);
+            logger.info('Invalid ObjectId:', userId);
             return res.status(400).json({ message: 'Invalid user ID' });
         }
 
@@ -424,7 +434,7 @@ app.post('/api/friend-request/:userId', async (req, res) => {
 
         // Check if the user is trying to send a request to themselves
         if (senderObjectId.equals(recipientObjectId)) {
-            console.log('User tried to send a request to themselves');
+            logger.info('User tried to send a request to themselves');
             return res.status(400).json({ message: 'Cannot send a friend request to yourself' });
         }
 
@@ -436,10 +446,9 @@ app.post('/api/friend-request/:userId', async (req, res) => {
             ]
         });
 
-        console.log('Existing request found:', existingRequest);
+        logger.info('Existing request found:', existingRequest);
 
         if (existingRequest) {
-            console.log('Friend request already exists between these users');
             return res.status(400).json({ message: 'Friend request already exists' });
         }
 
@@ -451,10 +460,10 @@ app.post('/api/friend-request/:userId', async (req, res) => {
             ]
         });
 
-        console.log('Already friends check result:', alreadyFriends);
+        logger.info('Already friends check result:', alreadyFriends);
 
         if (alreadyFriends) {
-            console.log('Users are already friends');
+            logger.info('Users are already friends');
             return res.status(400).json({ message: 'You are already friends with this user' });
         }
 
@@ -464,11 +473,11 @@ app.post('/api/friend-request/:userId', async (req, res) => {
             { $push: { friendRequests: { sender: senderObjectId } } }
         );
 
-        console.log('Friend request sent successfully');
+        logger.info('Friend request sent successfully');
         res.status(200).json({ message: 'Friend request sent.' });
 
     } catch (error) {
-        console.error('Error sending friend request:', error);
+        logger.error('Error sending friend request:', error);
         res.status(500).json({ message: 'Error sending friend request.' });
     }
 });
@@ -479,7 +488,7 @@ app.get('/api/friend-requests/:userId', async (req, res) => {
         const db = req.app.locals.db;
         
         // Log the raw User ID from the request
-        console.log('Raw User ID:', req.params.userId);
+        logger.info('Raw User ID:', req.params.userId);
         
         const userId = new ObjectId(req.params.userId);
         
@@ -490,14 +499,14 @@ app.get('/api/friend-requests/:userId', async (req, res) => {
         );
         
         if (user) {
-            console.log('Friend Requests found:', user.friendRequests);
+            logger.info('Friend Requests found:', user.friendRequests);
             res.json({ friendRequests: user.friendRequests });
         } else {
-            console.log('User not found');
+            logger.info('User not found');
             res.status(404).json({ message: 'User not found' });
         }
     } catch (err) {
-        console.error('Error fetching friend requests:', err);
+        logger.error('Error fetching friend requests:', err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
@@ -535,7 +544,7 @@ app.post('/api/friend-request/accept/:senderId', async (req, res) => {
 
         res.status(200).json({ message: 'Friend request accepted and friendship established.' });
     } catch (error) {
-        console.error('Error accepting friend request:', error);
+        logger.error('Error accepting friend request:', error);
         res.status(500).json({ message: 'Failed to accept friend request' });
     }
 });
@@ -561,7 +570,7 @@ app.post('/api/friend-request/decline/:senderId', async (req, res) => {
 
         res.status(200).json({ message: 'Friend request declined.' });
     } catch (error) {
-        console.error('Error declining friend request:', error);
+        logger.error('Error declining friend request:', error);
         res.status(500).json({ message: 'Failed to decline friend request' });
     }
 });
@@ -573,7 +582,7 @@ app.get('/api/friends', async (req, res) => {
     }
     try {
         const userId = new ObjectId(req.session.user.userId); // Says deprecated, but since req.session.user.userId is a string we need to do this.
-        console.log(userId);
+        logger.info(`Requested user id: ${userId}`);
 
         const user = await db.collection('users').aggregate([
             { $match: { _id: userId } },
@@ -594,11 +603,10 @@ app.get('/api/friends', async (req, res) => {
                 }
             }
         ]).toArray();
-        console.log(user);
 
         res.status(200).json(user);
     } catch (error) {
-        console.error('Error fetching friends:', error);
+        logger.error('Error fetching friends:', error);
         res.status(500).json({ message: 'Error fetching friends.' });
     }
 });
@@ -612,9 +620,9 @@ app.get('/api/users', async (req, res) => {
             .toArray();
         
         res.status(200).json(users);
-        console.log(users);
+        logger.info(`Found username: ${users.username}. User id: ${users._id}`);
     } catch (err) {
-        console.error('Failed to retrieve users:', err);
+        logger.error('Failed to retrieve users:', err);
         res.status(500).json({ message: 'Failed to retrieve users', error: err.message });
     }
 });
@@ -630,7 +638,7 @@ app.get('/api/friends/checkfriend/:userId2', async (req, res) => {
 
         // Validate userId1 and userId2 (ensure they are valid ObjectIds)
         if (!ObjectId.isValid(userId1) || !ObjectId.isValid(userId2)) {
-            console.log("INVALID USER ID(s)");
+            logger.info("INVALID USER ID(s)");
             return res.status(400).json({ message: 'Invalid user ID(s)' });
         }
 
@@ -645,7 +653,7 @@ app.get('/api/friends/checkfriend/:userId2', async (req, res) => {
 
         res.status(200).json(!!result);
     } catch (error) {
-        console.error('Error checking friend status:', error);
+        logger.error('Error checking friend status:', error);
         res.status(500).json({ message: 'Error checking friend status.' });
     }
 });
@@ -661,7 +669,7 @@ app.get('/api/friends/checkfriend/request/:userId2', async (req, res) => {
 
         // Validate userId1 and userId2 (ensure they are valid ObjectIds)
         if (!ObjectId.isValid(userId1) || !ObjectId.isValid(userId2)) {
-            console.log("INVALID USER ID(s)");
+            logger.info("INVALID USER ID(s)");
             return res.status(400).json({ message: 'Invalid user ID(s)' });
         }
 
@@ -675,7 +683,7 @@ app.get('/api/friends/checkfriend/request/:userId2', async (req, res) => {
         });
         res.status(200).json(!!result);
     } catch (error) {
-        console.error('Error checking friend request status:', error);
+        logger.error('Error checking friend request status:', error);
         res.status(500).json({ message: 'Error checking friend request status.' });
     }
 });
@@ -711,7 +719,7 @@ app.post('/api/friend/remove/:victim', async (req, res) => {
 
         res.status(204).json({ message: 'Friend killed, how brutal...' });
     } catch (error) {
-        console.error('Error killing victim:', error);
+        logger.error('Error killing victim:', error);
         res.status(500).json({ message: 'Failed to kill victim. Police are on their way...' });
     }
 });
