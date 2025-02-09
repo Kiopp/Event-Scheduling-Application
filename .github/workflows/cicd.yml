@@ -1,0 +1,60 @@
+# .github/workflows/cicd.yml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main # Or your main branch name
+    tags: # Trigger on tag pushes for releases
+      - 'v*'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # For pushing to ACR
+      id-token: write # For authenticating with Azure
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: image=moby/buildkit:v0.11.2-rootless
+
+      - name: Login to Azure Container Registry
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} # Store Azure credentials as a secret
+
+      - name: Build and push Docker image
+        id: docker_build
+        uses: docker/build-push-action@v4
+        with:
+          context: . # Path to your microservice's Dockerfile
+          file: ./Dockerfile # Path to your microservice's Dockerfile
+          push: true
+          tags: ${{ secrets.ACR_NAME }}.azurecr.io/your-microservice:${{ github.sha }} # Use commit SHA as tag
+          build-args: | # Optional build arguments
+            VERSION=${{ github.sha }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+
+      - name: Deploy to Azure Kubernetes Service
+        uses: azure/k8s-deploy@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          action: deploy
+          namespace: your-namespace # Your Kubernetes namespace
+          manifests: ./kubernetes/deployment.yaml # Path to your Kubernetes deployment manifest
+          images: ${{ secrets.ACR_NAME }}.azurecr.io/your-microservice:${{ github.sha }} # Update image in deployment.yaml
+
+      - name: Update deployment tag (alternative method - using `sed`)
+        if: startsWith(github.ref, 'refs/tags/') # Only for tag pushes
+        run: |
+          IMAGE_TAG="${{ github.sha }}"
+          sed -i "s/your-microservice:latest/your-microservice:${{ github.sha }}/g" ./kubernetes/deployment.yaml
+          kubectl set image deployment/your-deployment your-container-name=${{ secrets.ACR_NAME }}.azurecr.io/your-microservice:${{ github.sha }} -n your-namespace
