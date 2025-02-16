@@ -1,12 +1,8 @@
 # Configure the Azure providers
-provider "azurerm" {
-  features {}
-}
-
 provider "azuread" {}
 
 # Create a Resource Group named "DESAP" in Sweden Central
-resource "azurerm_resource_group" "desa" {
+resource "azurerm_resource_group" "desap" {
   name     = "DESAP"
   location = "Sweden Central"
 }
