@@ -1,7 +1,4 @@
-# Configure the Azure providers
-provider "azuread" {}
-
-# Create a Resource Group named "DESAP" in Sweden Central
+# Create the DESAP Resource Group in Sweden Central
 resource "azurerm_resource_group" "desap" {
   name     = "DESAP"
   location = "Sweden Central"
@@ -21,7 +18,6 @@ data "azuread_user" "weje22wy" {
 }
 
 # Assign the Owner role to each user on the DESAP Resource Group
-
 resource "azurerm_role_assignment" "noca22tf_assignment" {
   scope                = azurerm_resource_group.desap.id
   role_definition_name = "Owner"
@@ -40,18 +36,20 @@ resource "azurerm_role_assignment" "weje22wy_assignment" {
   principal_id         = data.azuread_user.weje22wy.object_id
 }
 
+# Create a Container Repository (Azure Container Registry) in the DESAP Resource Group
 resource "azurerm_container_registry" "acr" {
   name                = var.acr_name
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.desap.name
+  location            = azurerm_resource_group.desap.location
   sku                 = "Basic"
   admin_enabled       = true
 }
 
+# Create an AKS cluster in the DESAP Resource Group
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_cluster_name
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.desap.location
+  resource_group_name = azurerm_resource_group.desap.name
   dns_prefix          = "${var.aks_cluster_name}-dns"
 
   default_node_pool {
