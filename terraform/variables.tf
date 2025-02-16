@@ -33,3 +33,9 @@ variable "acr_name" {
   type        = string
   default     = "Bombaclat"
 }
+
+variable "subscription_id" {
+  description = "The Subscription ID for Azure"
+  default     = ""  # Leave blank to allow env var to override
+}
+
