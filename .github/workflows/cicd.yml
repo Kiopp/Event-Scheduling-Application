@@ -14,7 +14,7 @@ jobs:
     permissions:
       contents: read
       packages: write # For pushing to ACR
-      id-token: write # For authenticating with Azure
+      id-token: write # Authenticating Azure
 
     steps:
       - name: Checkout code
@@ -28,14 +28,14 @@ jobs:
       - name: Login to Azure Container Registry
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }} # Store Azure credentials as a secret
+          creds: ${{ secrets.AZURE_CREDENTIALS }} # Azure credentials secret
 
       - name: Build and push Docker image
         id: docker_build
         uses: docker/build-push-action@v4
         with:
-          context: . # Path to your microservice's Dockerfile
-          file: ./Dockerfile # Path to your microservice's Dockerfile
+          context: . # Path to the microservice's Dockerfile
+          file: ./Dockerfile # Path to the microservice's Dockerfile
           push: true
           tags: ${{ secrets.ACR_NAME }}.azurecr.io/your-microservice:${{ github.sha }} # Use commit SHA as tag
           build-args: | # Optional build arguments
@@ -48,8 +48,8 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           action: deploy
-          namespace: your-namespace # Your Kubernetes namespace
-          manifests: ./kubernetes/deployment.yaml # Path to your Kubernetes deployment manifest
+          namespace: your-namespace # The Kubernetes namespace
+          manifests: ./kubernetes/deployment.yaml # Path to the Kubernetes deployment manifest
           images: ${{ secrets.ACR_NAME }}.azurecr.io/your-microservice:${{ github.sha }} # Update image in deployment.yaml
 
       - name: Update deployment tag (alternative method - using `sed`)
