@@ -32,7 +32,8 @@ The languages we are going to use are:
 - **Create React App**: For setting up the React application.
 - **Node.js**: Version 20.17.0 LTS (Ensure the installed version of Node.js is compatible with this version.)
 - **Material UI** and **Material UI X**: For UI components and styling.
-- **Kubernetes** (eventually)
+- **Microsoft Azure** for cloud distribution
+- **Kubernetes** for containerization
 
 ## How to Compile and Run:
 
