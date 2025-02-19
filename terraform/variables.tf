@@ -22,12 +22,6 @@ variable "node_count" {
   default     = 2
 }
 
-variable "node_vm_size" {
-  description = "VM size for the AKS nodes"
-  type        = string
-  default     = "Standard_DS2_v2"
-}
-
 variable "acr_name" {
   description = "Azure Container Registry name"
   type        = string
