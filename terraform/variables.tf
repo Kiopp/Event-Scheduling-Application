@@ -10,18 +10,6 @@ variable "location" {
   default     = "Sweden"
 }
 
-variable "aks_cluster_name" {
-  description = "AKS cluster name"
-  type        = string
-  default     = "Clusterfuck"
-}
-
-variable "node_count" {
-  description = "Number of nodes in the AKS node pool"
-  type        = number
-  default     = 2
-}
-
 variable "acr_name" {
   description = "Azure Container Registry name"
   type        = string
