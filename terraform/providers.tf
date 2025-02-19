@@ -1,5 +1,3 @@
-provider "azurerm" {
-  features {}
-}
+provider "azurerm" {}
 
 provider "azuread" {}
