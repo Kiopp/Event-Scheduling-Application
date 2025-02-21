@@ -44,3 +44,23 @@ resource "azurerm_container_registry" "acr" {
   sku                 = "Basic"
   admin_enabled       = true
 }
+
+resource "azurerm_kubernetes_cluster" "akc" {
+  name                = var.app_name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  dns_prefix          = var.app_name
+  kubernetes_version  = var.kubernetes_version
+
+  default_node_pool {
+    name       = "default"
+    node_count = 1
+    vm_size    = "Standard_B2s"
+  }
+
+  # Instead of creating a service principle have the system figure this out.
+
+  identity {
+    type = "SystemAssigned"
+  }
+
