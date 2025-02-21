@@ -16,10 +16,28 @@ variable "acr_name" {
   default     = "Bombaclat"
 }
 
-variable "aks_cluster_name" {
-  description = "AKS cluster name"
+variable "akc_name" {
+  description = "AKC cluster name"
   type        = string
   default     = "Clusterfuck"
+}
+
+variable "asa_name" {
+  description = "Azure Storgade Account name"
+  type        = string
+  default     = "Storage_Account"
+}
+
+variable "ara_name" {
+  description = "Azure Role Assignment name"
+  type        = string
+  default     = "Role_Assignment"
+}
+
+variable "asc_name" {
+  description = "Azure Storage Container name"
+  type        = string
+  default     = "Storgae_Container"
 }
 
 variable "node_count" {
