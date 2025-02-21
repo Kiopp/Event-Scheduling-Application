@@ -46,7 +46,7 @@ resource "azurerm_container_registry" "acr" {
 }
 
 resource "azurerm_kubernetes_cluster" "akc" {
-  name                = var.app_name
+  name                = var.akc_name
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = var.app_name
@@ -84,7 +84,7 @@ resource "azurerm_network_watcher" "networkwatcher" {
 }
 
 resource "azurerm_storage_account" "asa" {
-  name                     = var.app_name
+  name                     = var.asa_name
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = var.location
   account_kind             = "StorageV2"
