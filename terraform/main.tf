@@ -63,6 +63,7 @@ resource "azurerm_kubernetes_cluster" "akc" {
   identity {
     type = "SystemAssigned"
   }
+}
 
 resource "azurerm_role_assignment" "ara" {
   principal_id                     = azurerm_kubernetes_cluster.akc.kubelet_identity[0].object_id
