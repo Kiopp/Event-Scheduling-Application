@@ -81,3 +81,18 @@ resource "azurerm_network_watcher" "networkwatcher" {
   location            = var.location
   resource_group_name = azurerm_resource_group.networkwatcher.name
 }
+
+resource "azurerm_storage_account" "asa" {
+  name                     = var.app_name
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = var.location
+  account_kind             = "StorageV2"
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_storage_container" "asc" {
+  name                  = "events"
+  storage_account_name  = azurerm_storage_account.asa.name
+  container_access_type = "private"
+}
