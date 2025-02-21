@@ -25,7 +25,7 @@ variable "akc_name" {
 variable "asa_name" {
   description = "Azure Storgade Account name"
   type        = string
-  default     = "storage_account"
+  default     = "storageaccount"
 }
 
 variable "ara_name" {
