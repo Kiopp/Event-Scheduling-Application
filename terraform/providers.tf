@@ -1,6 +1,16 @@
-provider "azurerm" {
-  features {}
-  subscription_id = "92bed145-850c-4e2b-9c9e-f074bb803d01"
+# Initialises Terraform providers and sets their version numbers.
+
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "3.90.0"
+    }
+  }
+
+  required_version = "~> 1.7.2"
 }
 
-provider "azuread" {}
+provider "azurerm" {
+  features {}
+}
