@@ -1,0 +1,12 @@
+FROM node:16-alpine  # Use a smaller base image like alpine
+
+WORKDIR /backend
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 5001  # Or your backend port
+
+CMD ["npm", "start"]  # Or "node server.js" depending on your setup
