@@ -37,7 +37,7 @@ variable "ara_name" {
 variable "asc_name" {
   description = "Azure Storage Container name"
   type        = string
-  default     = "Storgae_Container"
+  default     = "Massive_Unit"
 }
 
 variable "node_count" {
@@ -53,6 +53,6 @@ variable "node_vm_size" {
 }
 
 variable "kubernetes_version" {
-  default = "1.27.7"
+  default = "1.30.9"
 }
 
