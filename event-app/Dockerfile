@@ -13,4 +13,4 @@ FROM nginx:alpine
 
 COPY --from=build-stage /app/build /usr/share/nginx/html
 
-EXPOSE 80  # Or your frontend port
+EXPOSE 80
