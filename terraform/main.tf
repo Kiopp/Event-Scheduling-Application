@@ -18,19 +18,19 @@ data "azuread_user" "weje22wy" {
 }
 
 # Assign the Owner role (highest privilege) to each user on the Resource Group
-resource "azurerm_role_assignment" "noca22tf_assignment" {
+resource "azurerm_role_assignment" "noca22tf_assignment_rg1" {
   scope                = azurerm_resource_group.rg.id
   role_definition_name = "Owner"
   principal_id         = data.azuread_user.noca22tf.object_id
 }
 
-resource "azurerm_role_assignment" "beax22tr_assignment" {
+resource "azurerm_role_assignment" "beax22tr_assignment_rg1" {
   scope                = azurerm_resource_group.rg.id
   role_definition_name = "Owner"
   principal_id         = data.azuread_user.beax22tr.object_id
 }
 
-resource "azurerm_role_assignment" "weje22wy_assignment" {
+resource "azurerm_role_assignment" "weje22wy_assignment_rg1" {
   scope                = azurerm_resource_group.rg.id
   role_definition_name = "Owner"
   principal_id         = data.azuread_user.weje22wy.object_id
@@ -83,19 +83,19 @@ resource "azurerm_network_watcher" "networkwatcher" {
   resource_group_name = azurerm_resource_group.networkwatcher.name
 }
 
-resource "azurerm_role_assignment" "noca22tf_assignment" {
+resource "azurerm_role_assignment" "noca22tf_assignment_rg2" {
   scope                = azurerm_resource_group.networkwatcher.id
   role_definition_name = "Owner"
   principal_id         = data.azuread_user.noca22tf.object_id
 }
 
-resource "azurerm_role_assignment" "beax22tr_assignment" {
+resource "azurerm_role_assignment" "beax22tr_assignment_rg2" {
   scope                = azurerm_resource_group.networkwatcher.id
   role_definition_name = "Owner"
   principal_id         = data.azuread_user.beax22tr.object_id
 }
 
-resource "azurerm_role_assignment" "weje22wy_assignment" {
+resource "azurerm_role_assignment" "weje22wy_assignment_rg2" {
   scope                = azurerm_resource_group.networkwatcher.id
   role_definition_name = "Owner"
   principal_id         = data.azuread_user.weje22wy.object_id
