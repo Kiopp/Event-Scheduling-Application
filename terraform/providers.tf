@@ -16,5 +16,5 @@ provider "azurerm" {
 }
 
 provider "azureread" {
-
+  features {}
 }
